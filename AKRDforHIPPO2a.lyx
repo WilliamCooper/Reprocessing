@@ -1,0 +1,1856 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+\end_preamble
+\use_default_options false
+\begin_modules
+knitr
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding default
+\fontencoding global
+\font_roman times
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize letterpaper
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 0
+\use_package mathtools 1
+\use_package mhchem 0
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.54cm
+\topmargin 3.54cm
+\rightmargin 2.54cm
+\bottommargin 2.54cm
+\headheight 1cm
+\headsep 2cm
+\footskip 0.5cm
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+EOLmemo 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+global
+\backslash
+addressee={HIPPO reprocessing file}  % >>change "File" to the "To:" name
+ desired
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+To:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+the
+\backslash
+addressee
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+From:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Al Cooper
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Subject:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+vertical wind for HIPPO-2
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+XXX or comments flag changes needing attention
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+bigskip
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<initialization,echo=FALSE,include=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+require(knitr)
+\end_layout
+
+\begin_layout Plain Layout
+
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+\end_layout
+
+\begin_layout Plain Layout
+
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+\end_layout
+
+\begin_layout Plain Layout
+
+thisFileName <- "WI-HIPPO2"
+\end_layout
+
+\begin_layout Plain Layout
+
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(ggplot2)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(grid)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(ggthemes)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(vioplot)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(plyr)
+\end_layout
+
+\begin_layout Plain Layout
+
+Directory <- DataDirectory ()
+\end_layout
+
+\begin_layout Plain Layout
+
+Flight <- "rf01" 				# XXX change this
+\end_layout
+
+\begin_layout Plain Layout
+
+Project = "HIPPO-2"			 # XXX change this
+\end_layout
+
+\begin_layout Plain Layout
+
+ProjectDir <- "HIPPO"
+\end_layout
+
+\begin_layout Plain Layout
+
+fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
+\end_layout
+
+\begin_layout Plain Layout
+
+VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "QCF", "PSF", "AKRD", "WIC",
+ "TASF", "GGALT")
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
+\end_layout
+
+\begin_layout Plain Layout
+
+SaveRData <- sprintf("%s.Rdata.gz", thisFileName)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+hline <- function(y, col='black', lwd=1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  ## note: 'Data' is a 'free variable' and needs to exist in the calling
+ environment 
+\end_layout
+
+\begin_layout Plain Layout
+
+  SE <- getStartEnd(Data$Time)
+\end_layout
+
+\begin_layout Plain Layout
+
+  lines (c(Data$Time[getIndex(Data$Time, SE[1])], 
+\end_layout
+
+\begin_layout Plain Layout
+
+           Data$Time[getIndex (Data$Time, SE[2])]), 
+\end_layout
+
+\begin_layout Plain Layout
+
+         c(y, y), col=col, lty=2, lwd=lwd)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+formatTime <- function (time) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  t <- as.POSIXlt (time)
+\end_layout
+
+\begin_layout Plain Layout
+
+  tt <- sprintf ("%d:%02d:%02d", t$hour, t$min, t$sec)
+\end_layout
+
+\begin_layout Plain Layout
+
+  return (tt)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+testPlot <- function (k) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  return(k %in% nplots || nplots == 0)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+SmoothInterp <- function (x) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  ## skip if there are fewer than 100 measurements
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (length (x[!is.na(x)]) < 100) {return (x)}
+\end_layout
+
+\begin_layout Plain Layout
+
+  d <- zoo::na.approx (as.vector(x), maxgap=100, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+  d[is.na(d)] <- 0
+\end_layout
+
+\begin_layout Plain Layout
+
+  return (signal::filter(signal::sgolay(3, 61), d))
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<get-data, include=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## compile a composite data.frame 
+\end_layout
+
+\begin_layout Plain Layout
+
+Flights <- c("rf01", "rf02")
+\end_layout
+
+\begin_layout Plain Layout
+
+for (flt in Flights) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
+\end_layout
+
+\begin_layout Plain Layout
+
+  fno <- 30
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (grepl("rf", flt)) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    fno <- as.integer (sub("rf0", "", flt))
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (grepl ("tf02", flt)) {fno <- -2}
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (grepl ("ff01", flt)) {fno <- -1}
+\end_layout
+
+\begin_layout Plain Layout
+
+  D <- getNetCDF (fname, VarList, F=fno)
+\end_layout
+
+\begin_layout Plain Layout
+
+  # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
+\end_layout
+
+\begin_layout Plain Layout
+
+  # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (exists ("Data")) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Data <- rbind (Data, D)
+\end_layout
+
+\begin_layout Plain Layout
+
+  } else {
+\end_layout
+
+\begin_layout Plain Layout
+
+    Data <- D
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+Data <- Data[Data$TASF > 130, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+## SPECIAL ##
+\end_layout
+
+\begin_layout Plain Layout
+
+# best: Data$VSPD_G <- Data$VSPD_G * 0.98	## residual from 0.152 to 0.148
+\end_layout
+
+\begin_layout Plain Layout
+
+# this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
+\end_layout
+
+\begin_layout Plain Layout
+
+FCap1 <- c("Vertical wind, HIPPO-2 flight 1.
+ The blue trace is WIC; the red trace (WICS) is the same measurement after
+ application of 60-s smoothing.", "Residual error as defined in (1) as a
+ function of Mach number.
+ The dashed orange line is the mean value, 4.378.")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+The problem to address
+\end_layout
+
+\begin_layout Standard
+Review of HIPPO-2 measurements from the first two research flights shows
+ that there is often a significant offset in vertical wind and that there
+ is much variability in that offset from flight to flight and even within
+ flights.
+ For example, for HIPPO-2 flight 1, Fig.~
+\backslash
+ref{fig:vw-rf1} shows the measurements of vertical wind.
+ The blue line shows 1-Hz measurements, and the red line is the result after
+ 60-s smoothing.
+ The offset is significant and varies during the flight.
+ Other flights show similar problems but with some inconsistency, esp.~for
+ upper-level flight where the offset is sometimes positive and sometimes
+ negative.
+\end_layout
+
+\begin_layout Section
+The standard fit
+\end_layout
+
+\begin_layout Standard
+The first step here will be to re-fit the measurements to the standard formula
+ used to represent angle of attack 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, from the Processing Algorithms technical note:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\alpha=c_{0}+\frac{\Delta p_{\alpha}}{q}(c_{1}+c_{2}M)\label{eq:stdAOA}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\Delta p_{\alpha}$
+\end_inset
+
+ is the pressure difference between upward and downward ports on the radome
+ (ADIFR), 
+\begin_inset Formula $q$
+\end_inset
+
+ is dynamic pressure (QCF), and 
+\begin_inset Formula $M$
+\end_inset
+
+ is the Mach number calculated using the uncorrected static and dynamic
+ pressure (PSF and QCF).
+ The three coefficients specified in that document are 
+\begin_inset Formula $\{c\}=\{4.605,$
+\end_inset
+
+18.44, 6.75} and these are the coefficients used in the initial processing.
+\end_layout
+
+\begin_layout Standard
+The approach used here is described in detail in the Wind Uncertainty technical
+ note.
+ It is to use a reference value for angle of attack, 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+, defined by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\alpha^{*}=\theta-\frac{w_{p}}{V}\label{eq:alpha-star}
+\end{equation}
+
+\end_inset
+
+which would equal the angle of attack if the vertical wind were zero, and
+ then determine the coefficients in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:stdAOA"
+
+\end_inset
+
+) that minimize the difference between 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<vw-rf1, include=TRUE, fig.cap=FCap1>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AOAREF <- (Data$PITCH - Data$VSPD_G / Data$TASF * 180 / pi) 
+\end_layout
+
+\begin_layout Plain Layout
+
+# - Data$ADIFR / Data$QCF * 21.22 
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data$AOAREF <- SmoothInterp (Data$AOAREF)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WICS <- SmoothInterp (Data$WIC)
+\end_layout
+
+\begin_layout Plain Layout
+
+V <- c("Time", "WIC", "WICS")
+\end_layout
+
+\begin_layout Plain Layout
+
+D3 <- Data[Data$RF == 1, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+plotWAC(D3[, V], col=c('blue', 'red'), legend.position='top')
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$M <- MachNumber (Data$PSF, Data$QCF)
+\end_layout
+
+\begin_layout Plain Layout
+
+# plot (Data$M, Data$AOAREF-14.859*Data$ADIFR / Data$QCF, pch=20, col='blue',
+ xlab='Mach Number', ylab='Residual Error [deg.]')
+\end_layout
+
+\begin_layout Plain Layout
+
+# lines (c(0,1), c(4.378,4.378), lwd=3, lty=2, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Data used
+\end_layout
+
+\begin_layout Standard
+This memo will use measurements from rf01--rf02.
+ Some data restrictions are needed, for two reasons: 
+\end_layout
+
+\begin_layout Enumerate
+Near the start and end of flights, there are periods where flaps and/or
+ landing gear are deployed, leading to large potential errors in angle of
+ attack.
+ For CSET, the mid-ocean cloud penetrations are flown at low airspeed, so
+ care must be taken to exclude only the periods at the start and end of
+ flights and not those of low-speed cloud penetrations.
+ It appears that if TASX is required to exceed 130
+\begin_inset space ~
+\end_inset
+
+m/s or the Mach number to exceed 0.38, this provide a suitable delineation
+ between these two cases, so that will be used to qualify data for this
+ study.
+ In addition, brief periods at the start and end of flights were excluded
+ to avoid flight segments that otherwise produced large residual error.
+ Only the flight times listed in the following table were used for that
+ reason:
+\begin_inset Newline newline
+\end_inset
+
+ 
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Flight
+\series default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Start [UTC]
+\series default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+End [UTC]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+rf01 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17:40:00 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+22:10:00
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+rf02 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:10:00 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+21:00:00
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+(altitude variation?)
+\end_layout
+
+\begin_layout Section
+New coefficients using the standard formula
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fits, include=TRUE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit <- function(ft) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (summary(ft)$call)
+\end_layout
+
+\begin_layout Plain Layout
+
+  print ("Coefficients:")
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (summary(ft)$coefficients)
+\end_layout
+
+\begin_layout Plain Layout
+
+ print (sprintf ("Residual standard deviation: %.3f, dof=%d", summary(ft)$sigma,
+ summary(ft)$df[2]))
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (sprintf ("R-squared %.3f", summary(ft)$r.squared))
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$QR <- Data$ADIFR / Data$QCF
+\end_layout
+
+\begin_layout Plain Layout
+
+DQ <- Data
+\end_layout
+
+\begin_layout Plain Layout
+
+# DQ <- Data[Data$PSXC > 250, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+f <- lm (AOAREF~QR+I(QR*M), data=DQ)
+\end_layout
+
+\begin_layout Plain Layout
+
+# SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+cf <- coef(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+# f <- lm (AOAREF~QR+I(QR*M)+Time, data=DQ)
+\end_layout
+
+\begin_layout Plain Layout
+
+# SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+# f <- lm (AOAREF~QR+I(QR*M)+M, data=DQ)
+\end_layout
+
+\begin_layout Plain Layout
+
+# SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A fit of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:stdAOA"
+
+\end_inset
+
+) to the composite data, qualified as in Sect.
+\begin_inset space ~
+\end_inset
+
+3, led to best-fit coefficients {
+\begin_inset Formula $c_{1--3}$
+\end_inset
+
+} = {4.187, 14.867, 6.797}.
+ A comparison of the angle of attack produced by (1) with these coefficients
+ to the reference values given by (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:alpha-star"
+
+\end_inset
+
+) is shown in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:summarize-fit"
+
+\end_inset
+
+.
+ The residual standard deviation for this fit is reduced slightly from the
+ preliminary fit, from 0.12
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+ to 0.10
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+, so it appears worthwhile to use this three-coefficient fit instead.
+ Several other options were considered, including direct dependence on Mach
+ number, air density, pressure, altitude, and powers and products of these,
+ but none provided significant (>0.01) reduction in the standard deviation
+ of the residuals so it does not appear useful to include more complex terms
+ in the fit.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<summarize-fit, include=TRUE, fig.cap="Calculated value of angle of attack
+ vs the reference value used in the fit.">>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AK <- cf[1] + Data$ADIFR/Data$QCF * (cf[2] + cf[3] * Data$M)
+\end_layout
+
+\begin_layout Plain Layout
+
+DQ$AK <- cf[1] + DQ$ADIFR/DQ$QCF * (cf[2] + cf[3] * DQ$M)
+\end_layout
+
+\begin_layout Plain Layout
+
+plot (DQ$AOAREF, DQ$AK, pch=20, col='blue', xlab='Reference Value [deg.]',
+ ylab='Calculated Value from (1)')
+\end_layout
+
+\begin_layout Plain Layout
+
+lines (c(1,4.5), c(1,4.5), lwd=3, lty=2, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+New values of the vertical wind
+\end_layout
+
+\begin_layout Standard
+A new value of the vertical wind based on the new coefficients can be estmated
+ from the previous value (WIC) modified to be WIX=WIC+(
+\begin_inset Formula $\alpha$
+\end_inset
+
+-AKRD)
+\begin_inset Formula $\pi$
+\end_inset
+
+V/180 where 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is given by (1), 
+\begin_inset Formula $V$
+\end_inset
+
+ is the airspeed and 
+\begin_inset Formula $\pi/180$
+\end_inset
+
+ is needed to convert from degrees to radians.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:new-vw"
+
+\end_inset
+
+ repeats Fig.
+\begin_inset space ~
+\end_inset
+
+1 for flight 3 with the addition of this new measurement of the vertical
+ wind.
+ The orange trace (WIXS, WIX with 60-s smoothing) represents the new variable,
+ which shows mean values close to zero for most of the flight and is a significa
+nt improvement over WIC.
+ However, the offset before 18:00 illustrates the remaining problem: Measurement
+s from upper levels, here about FL290 before 18:00, continue to show a bias.
+ The final segment beginning about 22:15 shows a smaller bias.
+ Similar review of all flights shows good results from below 25,000 ft but
+ inconsistent results above that level.
+ This is clear in a scatterplot of WIX vs GGALT (Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:WIXvsGGALT"
+
+\end_inset
+
+) and in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:error-bar-plot"
+
+\end_inset
+
+, which shows mean values of the vertical wind in 13 altitude bins for WIX
+ (with error bars showing the standard deviation) and also for WIC.
+ There are evidently different patterns for measurements from above 8000
+\begin_inset space ~
+\end_inset
+
+m (about 26,000 ft) and a larger range of values there, with some approximately
+ showing the expected zero mean and other showing a significant offset.
+ Because the fit was restricted to measurements with pressure above 250
+\begin_inset space ~
+\end_inset
+
+hPa (about 10 km), the departure above this level can be attributed partially
+ to extrapolation beyond its range of validity.
+ However, the measurements from 8--10 km appear to show two patterns, one
+ approximately consistent with the fit and one significantly low, so there
+ appears to be inconsistency in the measurements that will be difficult
+ to represent with a single set of sensitivity coefficients.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<new-vw, include=TRUE, fig.cap="As for Fig.
+\backslash
+ 1 but adding the new variable WIX for the vertical wind.">>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIXS <- SmoothInterp (Data$WIX)
+\end_layout
+
+\begin_layout Plain Layout
+
+V <- c("Time", "WIC", "WICS", "WIXS")
+\end_layout
+
+\begin_layout Plain Layout
+
+D3 <- Data[Data$RF == 1, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+plotWAC(D3[, V], col=c('blue', 'red', 'darkorange'), lwd=c(1,2,3),legend.position
+='top')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+<<WIXvsGGALT, include=TRUE, eval=TRUE, fig.cap="WIX vs GGALT for all measurements
+ from the five research flights, one ferry flight, and one test flight used
+ for this study.">>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+D1 <- Data[Data$RF == 1,]
+\end_layout
+
+\begin_layout Plain Layout
+
+D1 <- D1[abs(D1$VSPD_G) < 3, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+D2 <- Data[Data$RF == 2,]
+\end_layout
+
+\begin_layout Plain Layout
+
+D2 <- D2[abs(D2$VSPD_G) < 3, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(D1$GGALT, D1$WIX, pch=20, col='blue', xlim=c(0,15000))
+\end_layout
+
+\begin_layout Plain Layout
+
+points(D2$GGALT, D2$WIX, pch=20, col='red')
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(c(0,15000),c(0,0), lwd=3, lty=2, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+\color blue
+-- End of Memo --
+\end_layout
+
+\begin_layout Standard
+Reproducibility:
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+include enough info to re-run.
+ in zip, include program, pdf if not too big, and subset data, not entire
+ file.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Project:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Archive package:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}.zip
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Contains:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+attachment list below
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Program:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}.Rnw
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Original Data:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+/scr/raf
+\backslash
+_data/
+\backslash
+Sexpr{Project}/
+\backslash
+Sexpr{Flight}.nc
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Git:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+git@github.com:WilliamCooper/
+\backslash
+Sexpr{thisFileName}.git
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+attachm{
+\backslash
+Sexpr{thisFileName}.Rnw
+\backslash
+
+\backslash
+
+\backslash
+Sexpr{thisFileName}.pdf
+\backslash
+
+\backslash
+
+\backslash
+Sexpr{SaveRData}
+\backslash
+
+\backslash
+SessionInfo}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+cc{first attachment
+\backslash
+
+\backslash
+second
+\backslash
+
+\backslash
+3rd att}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+attach{attachment}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+attachm{first
+\backslash
+
+\backslash
+second} %
+\backslash
+cc{first attachment
+\backslash
+
+\backslash
+second
+\backslash
+
+\backslash
+3rd att}
+\end_layout
+
+\begin_layout Plain Layout
+
+<<save-system-info, echo=FALSE>>= 
+\end_layout
+
+\begin_layout Plain Layout
+
+cat (toLatex(sessionInfo()), file="SessionInfo")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\begin_layout Plain Layout
+
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo %s", thisFileName, thisFileNa
+me, thisFileName, SaveRData))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+%
+\backslash
+attach{attachment}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+attachm{ProgramFile
+\backslash
+
+\backslash
+Document.pdf
+\backslash
+
+\backslash
+SaveRData}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%
+\backslash
+cc{first attachment
+\backslash
+
+\backslash
+second
+\backslash
+
+\backslash
+3rd att}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
