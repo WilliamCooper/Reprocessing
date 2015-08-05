@@ -10,10 +10,10 @@ RPlot1 <- function (data, Flight=NA) {
                  strftime(data$Time[i], format="20%y-%m-%d", tz='UTC'), 
                  SE[1], SE[2]), cex=0.75, font.main=1)
   par(mar=c(5,5,2,4)+0.1)
-  plotWAC(data$Time, data$GGALT/0.3048, ylab="Altitude [ft]")
+  plotWAC(data$Time, data[, VRPlot[[1]][5]]/0.3048, ylab="Altitude [ft]")
   #axis(4,at=axTicks(2),labels=round(axTicks(2)*0.3048)) ## this adds a metric axis on right side but at even foot intervals
   axis(4, labels = NA, tck = 0.02,col='white',lwd=0,lwd.ticks=3) # erase the foot ticks plotWAC puts on right axis
-  par(new=T);plot(data$Time,data$GGALT,axes=F,bty='n',xlab='',ylab='',type='n');axis(4,tck=0.02) ## this adds a metric axis on the right side at even meter intervals
+  par(new=T);plot(data$Time,data[, VRPlot[[1]][5]], axes=F,bty='n', xlab='',ylab='',type='n');axis(4,tck=0.02) ## this adds a metric axis on the right side at even meter intervals
   mtext('Altitude [m]',4,3)
   AddFooter ()
 }

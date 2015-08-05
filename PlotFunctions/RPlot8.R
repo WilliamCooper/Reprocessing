@@ -1,6 +1,5 @@
 ### plot 8: total pressure (static + dynamic)
 RPlot8 <- function (data) { 
-  ## needs PSF, QCF, PS_A, QC_A
   op <- par (mar=c(5,4,1,1)+0.1, oma=c(1.1,0,0,0))
   layout(matrix(1:1, ncol = 1), widths = 1, heights = 5)
   DF <- data[, c("Time", "PSF", "PS_A")]
@@ -10,7 +9,7 @@ RPlot8 <- function (data) {
   colnames(DF) <- c("Time", "PtotF", "PtotAvionics", "Diff*20+500")
   plotWAC (DF, col=c('blue', 'darkgreen', 'red'), ylab='Ptot [hPa]',
            legend.position='topright')
-  hline(520, 'red'); hline(480, 'red')
+  abline(h=520, col='red', lty=2); abline(h=480, col='red', lty=2)
   title (sprintf ("mean difference: %.1f", 
                   mean (DF$PtotF-DF$PtotAvionics, na.rm=TRUE)), cex.main=0.75)
   hline (0.2); hline (-0.2)

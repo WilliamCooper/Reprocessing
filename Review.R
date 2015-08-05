@@ -15,8 +15,9 @@ require(ggplot2)
 require(grid)
 require(ggthemes)
 Project <- sub (".*/", "", getwd())
-setwd (sprintf ("~/RStudio/%s", Project))
+setwd (sprintf ("/scr/raf/cooperw/RStudio/%s", Project))
 Project <- "HIPPO-2"
+source("getNetCDF.R")
 
 ## if command arguments are supplied, via 'Rscript Review.R "rf01" "-1" then
 ## these will over-ride the interactive commands below. Arguments are all strings:
@@ -96,7 +97,14 @@ print (sprintf ("processing %s", fname))
 # VarList must include all variable names that are used in this routine
 ## VarList is a file that contains all the variables needed. It loads
 ## 'VarList' as a vector of those names. Add new names to that file.
-source("./VarList")
+source ("./Configuration.R")
+VarList <- vector()
+for (i in 1:length(VRPlot)) {
+  for (j in 1:length (VRPlot[[i]])) {
+    VarList <- c(VarList, VRPlot[[i]][j])
+  }
+}
+# source("./VarList")
 Data <- getNetCDF (fname, VarList)
 
 # data: select only points where TASX > 110, and optionally limit time range
@@ -107,12 +115,13 @@ DataV <- DataV[(!is.na (DataV$TASX)) & (DataV$TASX > 110), ]
 
 #--------------------------------------------------------------------
 # functions used later:
-hline <- function(y, col='black', lwd=1) {
+hline <- function(y, col='black', lwd=1, lty=2) {
   ## note: 'Data' is a 'free variable' and needs to exist in the calling environment 
-  SE <- getStartEnd(Data$Time)
-  lines (c(Data$Time[getIndex(Data$Time, SE[1])], 
-           Data$Time[getIndex (Data$Time, SE[2])]), 
-         c(y, y), col=col, lty=2, lwd=lwd)
+#   SE <- getStartEnd(Data$Time)
+#   lines (c(Data$Time[getIndex(Data$Time, SE[1])], 
+#            Data$Time[getIndex (Data$Time, SE[2])]), 
+#          c(y, y), col=col, lty=2, lwd=lwd)
+  abline(h=y, col=col, lwd=lwd, lty=lty)
 }
 
 formatTime <- function (time) {
@@ -135,9 +144,9 @@ SmoothInterp <- function (x) {
 
 if (SavePlotsToFiles) {
   if (SavePlotsToFiles == 2) {
-    plotfile = sprintf("~/RStudio/%s/%s%sPlotsP.pdf", Project, Project, Flight)
+    plotfile = sprintf("/scr/raf/cooperw/RStudio/%s/%s%sPlotsP.pdf", Project, Project, Flight)
   } else {
-    plotfile = sprintf("~/RStudio/%s/%s%sPlots.pdf", "Reprocessing/", Project, Flight)
+    plotfile = sprintf("/scr/raf/cooperw/RStudio/%s/%s%sPlots.pdf", "Reprocessing-joint/", Project, Flight)
   }
   cairo_pdf (filename = plotfile, onefile=TRUE)
   ## enable the next to get individual png files instead of one large pdf
@@ -248,8 +257,10 @@ if (SavePlotsToFiles) {
 ## make the html file, but only for SavePlotsToFiles == 1
   if (SavePlotsToFiles == 1) {
     plothtml <- sprintf ("%s%sPlots.html", Project, Flight)
+    npsl <- sprintf("%d", nplots[1])
+    for (i in 2:length(nplots)) {npsl <- sprintf("%s,%d", npsl, nplots[i])}
     syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"Review.R\",",
-                     "format=\"Rmd\")'", sprintf ("%s -1 3 ", Flight), sep=' ')
+                     "format=\"Rmd\")'", sprintf ("%s %s 3 ", Flight, npsl), sep=' ')
     system (syscmd, wait=TRUE)
     system (sprintf ("mv Review.html %s", plothtml))
   }

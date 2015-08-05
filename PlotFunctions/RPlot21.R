@@ -7,8 +7,12 @@ RPlot21 <- function(data) {
   # op <- par (mar=c(5,4,1,2.5)+0.1,oma=c(1.1,0,0,0))
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
   op <- par (mar=c(2,4,1,1)+0.1,oma=c(1.1,0,0,0))
-  plotWAC (data[, c("Time", "RSTB")])
+  if ("RSTB" %in% VRPlot[[21]]) {
+    plotWAC (data[, c("Time", "RSTB")])
+  }
   op <- par (mar=c(5,4,1,1)+0.1)
-  plotWAC (data[, c("Time", "IRBC", "IRTC")], ylab="IRxC", legend.position='bottom')
+  if ("IRBC" %in% VRPlot[[21]] && "IRTC" %in% VRPlot[[21]]) {
+    plotWAC (data[, c("Time", "IRBC", "IRTC")], ylab="IRxC", legend.position='bottom')
+  }
   AddFooter ()
 }
