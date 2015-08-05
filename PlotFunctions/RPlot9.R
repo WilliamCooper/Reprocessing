@@ -4,7 +4,7 @@ RPlot9 <- function (data) {
   op <- par (mar=c(2,5,1,1)+0.1,oma=c(1.1,0,0,0))
   layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,6))
   # set high transparency (30) to avoid obscuring first trace
-  tgreen <- rgb(0,100,0,60,maxColorValue=255)
+  tgreen <- rgb(0,200,0,120,maxColorValue=255)
   line.colors=c('blue', tgreen, 'red')
   line.widths <- c(1,1,2)
   line.types <- c(1,3,2)

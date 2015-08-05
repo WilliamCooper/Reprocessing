@@ -26,7 +26,6 @@ RPlot7 <- function (data) {
   axis (4, at=c(100,120,140), labels=c("-2", "0", "2"), col='red', col.axis='red', cex.axis=0.7)
   abline (h=140, col='red', lty=2); abline (h=100, col='red', lty=2)
   ltext <- sprintf("red: (%s-%s)*10+120", QC[length(QC)], QC[1])
-  ltext <- 
   legend("bottomleft", c(ltext, 
                          "dashed red: +/- 2 hPa [diff]"), cex=0.75)
   labl <- QC
@@ -46,6 +45,10 @@ RPlot7 <- function (data) {
   plotWAC (data[, c("Time", TAS)], 
            col=c('blue', 'darkorange', 'darkgreen', 'red'), ylab='TASy [m/s]', 
            legend.position='top')
+  points(data$Time, (data[, VRPlot[[7]][3]] - data[, VRPlot[[7]][1]])*20+200, type='l',
+                     col='red')  
+  legend("bottomleft", c(ltext, "dashed red: +/- 2 hPa [diff]"), cex=0.75)
+  hline(220); hline(180)
   labl <- TAS
   labl <- sub("TAS", "", labl)
   titl <- "Mean diff: "

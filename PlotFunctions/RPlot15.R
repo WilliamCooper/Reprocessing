@@ -8,11 +8,10 @@ RPlot15 <- function(data) {
   for (c in CU) {
     nm <- names(data)[grepl(c, names(data))]
     v <- sub("_", "", c)
-    data[, v] <- data[, nm]
+    data[, v] <- SmoothInterp (data[, nm])
     va <- c(va, v)
   }
   # remove zeroes for log plot:
-  if ("CONCN" %in% names(data)) {data$CONCN[!is.na(data$CONCN) & (data$CONCN <= 0)] <- NA}
   for (v in va) {
     data[!is.na(data[, v]) & (data[, v] <= 0), v] <- NA
   }
@@ -20,6 +19,7 @@ RPlot15 <- function(data) {
   plotWAC (data[, c("Time", va)], 
            logxy='y', ylim=c(1,1.e5), 
            ylab=expression (paste ("CONCy [cm"^"-3"*"]")))
+  title ("1-min filter", cex.main=0.75)
   op <- par (mar=c(5,4,1,1)+0.1)
   C <- VRPlot[[15]]
   C <- C[which("CONC" == substr(C, 1, 4) & "CONCU" != substr(C,1,5))]
@@ -27,7 +27,7 @@ RPlot15 <- function(data) {
   for (c in C) {
     nm <- names(data)[grepl(c, names(data))]
     v <- sub("_", "", c)
-    data[, v] <- data[, nm]
+    data[, v] <- SmoothInterp (data[, nm])
     va2 <- c(va2, v)
   }
   for (v in va2) {
@@ -35,6 +35,7 @@ RPlot15 <- function(data) {
   }
   plotWAC (data[, c("Time", va2)],
            logxy='y', ylim=c(0.001,1e4), ylab=expression(paste("CONCy [cm"^"-3"*"]")))
+  title ("1-min filter", cex.main=0.75)
   AddFooter ()
   op <- par (mar=c(2,4,1,1)+0.1)
   nm6 <- names(data)[grepl("USHFLW_", names(data))]
@@ -56,7 +57,7 @@ RPlot15 <- function(data) {
   op <- par (mar=c(5,4,1,1)+0.1)
   plotWAC (data.frame (data$Time, UREF, USCAT), 
            ylab="laser V", legend.position='topright', ylim=c(0,10))
-  hline (2.05, 'blue'); hline (1.95, 'darkgreen'); hline(6, 'red'); hline (9.95, 'red')
+  hline (2.10, 'blue'); hline (1.90, 'darkgreen'); hline(6, 'red'); hline (9.95, 'red')
   title ("dashed-blue: lower limit for UREF; dashed-green: upper limit for USCAT", cex.main=0.65)
   AddFooter ()
 }

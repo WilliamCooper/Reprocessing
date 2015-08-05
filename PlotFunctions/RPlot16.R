@@ -12,7 +12,7 @@ RPlot16 <- function (data) {
     data[, v] <- SmoothInterp(data[, nm])
     va <- c(va, v)
   }
-  plotWAC (data[, c("Time", va)], ylim=c(0,2), ylab="DBARU/P", legend.position="topright")
+  plotWAC (data[, c("Time", va)], ylim=c(0,0.5), ylab="DBARU/P", legend.position="topright")
   title ("1-min filter", cex.main=0.75)
   DB <- VRPlot[[16]]
   DB <- DB[which (("DBAR" == substr(DB, 1, 4)) & ("DBARU" != substr(DB, 1, 5))
@@ -83,6 +83,7 @@ RPlot16 <- function (data) {
 #   AVGTRNS <- data[, nm8]
 #   nm9 <- names(data)[grepl("CDPLSRP_", names(data))]
 #   CDPLSRP <- data[, nm9]
+    hline(3, 'red')
 # 
 #   # DBAR:
 #   op <- par (mar=c(2,4,1,1)+0.1,oma=c(1.1,0,0,0))

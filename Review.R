@@ -15,7 +15,7 @@ require(ggplot2)
 require(grid)
 require(ggthemes)
 Project <- sub (".*/", "", getwd())
-setwd (sprintf ("/scr/raf/cooperw/RStudio/%s", Project))
+setwd (sprintf ("~/RStudio/%s", Project))
 Project <- "HIPPO-2"
 source("getNetCDF.R")
 
@@ -144,9 +144,9 @@ SmoothInterp <- function (x) {
 
 if (SavePlotsToFiles) {
   if (SavePlotsToFiles == 2) {
-    plotfile = sprintf("/scr/raf/cooperw/RStudio/%s/%s%sPlotsP.pdf", Project, Project, Flight)
+    plotfile = sprintf("~/RStudio/%s/%s%sPlotsP.pdf", Project, Project, Flight)
   } else {
-    plotfile = sprintf("/scr/raf/cooperw/RStudio/%s/%s%sPlots.pdf", "Reprocessing-joint/", Project, Flight)
+    plotfile = sprintf("~/RStudio/%s/%s%sPlots.pdf", "Reprocessing/", Project, Flight)
   }
   cairo_pdf (filename = plotfile, onefile=TRUE)
   ## enable the next to get individual png files instead of one large pdf
@@ -258,7 +258,9 @@ if (SavePlotsToFiles) {
   if (SavePlotsToFiles == 1) {
     plothtml <- sprintf ("%s%sPlots.html", Project, Flight)
     npsl <- sprintf("%d", nplots[1])
-    for (i in 2:length(nplots)) {npsl <- sprintf("%s,%d", npsl, nplots[i])}
+    if (length (nplots) > 1) {
+      for (i in 2:length(nplots)) {npsl <- sprintf("%s,%d", npsl, nplots[i])}
+    }
     syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"Review.R\",",
                      "format=\"Rmd\")'", sprintf ("%s %s 3 ", Flight, npsl), sep=' ')
     system (syscmd, wait=TRUE)

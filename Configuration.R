@@ -8,7 +8,8 @@
 ##    required to be as specified here in plotTrack() ).
 if (Project == "HIPPO-2") {
       ## track plot: don't change any exc. GGALT
-  VRPlot <- list(PV1=c("LATC", "LONC", "WDC", "WSC", "GGALT"))
+      ## (PALT and PSXC are included to check the pressure altitude calculation)
+  VRPlot <- list(PV1=c("LATC", "LONC", "WDC", "WSC", "GGALT", "PALT", "PSXC"))
       ## RPlot2: uses same variables as RPlot1
   VRPlot[[2]] <- VRPlot[[1]]
       ## RPlot3: T vs time, specify any number of temperatures 
@@ -41,6 +42,8 @@ if (Project == "HIPPO-2") {
   VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "WI")
       ## IRU velocity errors from differences (Schuler oscillation); don't change
   VRPlot$PV10 <- c("GGVEW", "VEW", "GGVNS", "VNS", "GGQUAL")
+  ## for plotting effect of complementary filter
+  VRPlot$PV10 <- c(VRPlot$PV10, "VEWC", "VNSC")
       ## compare calculated AOA/SS vs measured to check sensitivity coefficients
       ## 3rd variable is aircraft vertical speed, preferable is GGVSPD, not in HIPPO-2
   VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_G", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
@@ -63,6 +66,8 @@ if (Project == "HIPPO-2") {
   VRPlot$PV18 <- c("PSFC", "ATX", "DPXC", "GGALT")
       ## time history and vertical profile of potential temperatures:
   VRPlot$PV19 <- c("THETA", "THETAV", "THETAE", "THETAP", "THETAQ", "PSFC")
+      ## additions for checking calculations:
+  VRPlot$PV19 <- c(VRPlot$PV19, "ATX", "PSXC", "EWX")
       ## plot sample of CDP size distributions
   VRPlot$PV20 <- c("CCDP_", "TASX")
       ## radiometers not present in HIPPO-2
