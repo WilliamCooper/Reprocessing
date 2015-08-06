@@ -12,7 +12,7 @@ RPlot23 <- function (data) {
   tref <- sub ('seconds since ', '', time_units$value)
   Time <- as.POSIXct(as.POSIXct(tref, tz='UTC')+Time, tz='UTC')
   CellSizes <- ncatt_get (netCDFfile, nm1, "CellSizes")
-  CellLimitsD <- CellSizes$value
+  CellLimits <- CellSizes$value
   layout(matrix(1:6, ncol = 2), widths = c(5,5), heights = c(5,5,6))
   ## yes, I know, bad-practice-reference to calling environment for StartTime
   ifelse (StartTime > 0, jstart <- getIndex(Time, StartTime), jstart <- 1)
@@ -26,14 +26,14 @@ RPlot23 <- function (data) {
     S1DC <- C1DC[,j]
     ## convert distributions to number per L per um
     for (m in 2:length(S1DC)) {
-      S1DC[m] <- S1DC[m] / (CellLimitsD[m] - CellLimitsD[m-1])
+      S1DC[m] <- S1DC[m] / (CellLimits[m] - CellLimits[m-1])
     }
     S1DC[S1DC <= 0] <- 1e-4
-    if ((any(S1DC > 5, na.rm=TRUE))) {
+    if ((any(S1DC > 0.1, na.rm=TRUE))) {
       kount <- kount + 1
       ifelse ((kount %% 3), op <- par (mar=c(2,2,1,1)+0.1),
               op <- par (mar=c(5.2,2,1,1)+0.1))
-      plot (CellLimitsD, S1DC, type='s', ylim=c(1.e-1,1.e3), 
+      plot (CellLimits, S1DC, type='s', ylim=c(1.e-2,1.e2), 
             xlab="Diameter [um]", log="y", col='blue', lwd=2)
       title(sprintf("Time=%s", strftime (Time[j], format="%H:%M:%S", tz='UTC')), 
             cex.main=.75)

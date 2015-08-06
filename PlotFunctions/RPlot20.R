@@ -4,15 +4,24 @@ RPlot20 <- function (data) {
   kount = 0
   netCDFfile = nc_open(fname)
   namesCDF <- names (netCDFfile$var)
-  nm1 <- namesCDF[grepl("CCDP_", namesCDF)]
-  CCDP <- ncvar_get (netCDFfile, nm1)
+  if ("CCDP_" %in% VRPlot[[20]]) {
+    nm1 <- namesCDF[grepl("CCDP_", namesCDF)]
+    CCDP <- ncvar_get (netCDFfile, nm1)
+    CellSizes <- ncatt_get (netCDFfile, nm1, "CellSizes")
+    CellLimitsD <- CellSizes$value
+  }
+  if ("CS100_" %in% VRPlot[[20]]) {
+    nm1 <- namesCDF[grepl("CS100_", namesCDF)]
+    CFSSP <- ncvar_get (netCDFfile, nm1)
+    CellSizes <- ncatt_get (netCDFfile, nm1, "CellSizes")
+    CellLimitsF <- CellSizes$value
+  }
   Time <- ncvar_get (netCDFfile, "Time")
   TASX <- ncvar_get (netCDFfile, "TASX")
   time_units <- ncatt_get (netCDFfile, "Time", "units")
   tref <- sub ('seconds since ', '', time_units$value)
   Time <- as.POSIXct(as.POSIXct(tref, tz='UTC')+Time, tz='UTC')
-  CellSizes <- ncatt_get (netCDFfile, nm1, "CellSizes")
-  CellLimitsD <- CellSizes$value
+
   layout(matrix(1:6, ncol = 2), widths = c(5,5), heights = c(5,5,6))
   ## yes, I know, bad-practice-reference to calling environment for StartTime
   ifelse (StartTime > 0, jstart <- getIndex(Time, StartTime), jstart <- 1)
@@ -23,12 +32,15 @@ RPlot20 <- function (data) {
     if (is.na(Time[j])) {next}
     if (!is.na(TASX[j]) && (TASX[j] < 90)) {next}
     if (kount >= 24) {break}
-    CDP <- CCDP[,j]
+    if (exists("CCDP")) {CDP <- CCDP[,j]}
+    if (exists("CFSSP")) {FSSP <- CFSSP[,j]}
     ## convert distributions to number per cm per um
-    for (m in 2:length(CDP)) {
-      CDP[m] <- CDP[m] / (CellLimitsD[m] - CellLimitsD[m-1])
+    if (exists ("CDP")) {
+      for (m in 2:length(CDP)) {
+        CDP[m] <- CDP[m] / (CellLimitsD[m] - CellLimitsD[m-1])
+      }
+      CDP[CDP <= 0] <- 1e-4
     }
-    CDP[CDP <= 0] <- 1e-4
     if ((any(CDP > 1, na.rm=TRUE))) {
       kount <- kount + 1
       ifelse ((kount %% 3), op <- par (mar=c(2,2,1,1)+0.1),

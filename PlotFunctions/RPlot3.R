@@ -1,16 +1,18 @@
 ### plot 3: plot all temperatures, one plot
 RPlot3 <- function (data) { 
-  ## needs ATH1, ATH2, AT_A
   par(oma=c(1.1,0,0,0))
   ylb <- expression (paste ("temperature  ATy  [", degree, "C]"))
-  plotWAC (data[, c("Time", "ATHL1", "ATHL2", "ATHR1", "ATHR2", "AT_A")],
+  plotWAC (data[, c("Time", VRPlot[[3]])],
            ylab=ylb, lty=c(1,1,1,2), lwd=c(2,1.5,1,2,1),
            legend.position='bottomleft')
-  #        lwd=c(2,1.5,1,2), legend.position=NA) # pulling legend out of plotWAC to increase font size
-  # legend('bottomright',c("ATH2", "ATH1", "AT_A"),col=c("blue","darkgreen","red"),text.col=c("blue","darkgreen","red"),lty=c(1,1,2),lwd=c(2,1.5,1))
-  title(sprintf("Means HL2-HL1: %.2f; HR1-HL1: %.2f; _A-HL1: %.2f", 
-                mean (data$ATHL2-data$ATHL1, na.rm=TRUE), 
-                mean (data$ATHR1-data$ATHL1, na.rm=TRUE),
-                mean (data$AT_A-data$ATHL1, na.rm=TRUE)), cex.main=0.8)
+  labl <- VRPlot[[3]]
+  labl <- sub("AT", "", labl)
+  titl <- "Mean diff "
+  for (i in 2:length(labl)) {
+    titl <- sprintf("%s%s-%s: %.2f; ", titl, labl[i],labl[1],
+                    mean(data[, VRPlot[[3]][i]] -
+                         data[, VRPlot[[3]][1]], na.rm=TRUE))
+  }
+  title(titl, cex.main=0.8)
   AddFooter ()
 }

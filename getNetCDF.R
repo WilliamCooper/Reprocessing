@@ -56,6 +56,7 @@ getNetCDF <- function (fname, VarList, Start=0, End=0, F=0) {
   ## check that requested variables are present in netCDF file; fail otherwise
   namesCDF <- names (netCDFfile$var)
   for (V in VarList) {
+    if (is.na(V)) {next}
     if (length (which (grepl (V, namesCDF)))) {next}
     cat (sprintf ("requested variable %s not in netCDF file;\n ---->ngetNetCDF returning with error", V))
     return (-1)
@@ -130,6 +131,7 @@ getNetCDF <- function (fname, VarList, Start=0, End=0, F=0) {
   
   ## Add the requested variables:------------------------------------------------
   for (V in VarList) {
+    if (is.na(V)) {next}
     ## fill in location-tag for variable name if needed:
     if (substr(V, nchar(V), nchar(V)) == '_') {
       for (ncn in namesCDF) {

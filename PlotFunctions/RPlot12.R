@@ -1,13 +1,16 @@
 ### Plot 12: IRU comparisons
 RPlot12 <- function (data) {
-  ## needs PITCH, ROLL, THDG, PITCH_IRS2, ROLL_IRS2, THDG_IRS2
+  ## variables can include PITCH, ROLL, THDG from IRUs
   ## apply project-dependent offsets:
-  pitch_offset <- 0.15
-  roll_offset <- -0.17
-  thdg_offset <- -0.54
+  pitch_offset <- 0.37
+  roll_offset <- -0.26
+  thdg_offset <- -0.35
+  # pitch_offset <- roll_offset <- thdg_offset <- 0
   layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,6))
   op <- par (mar=c(2,4,1,2)+0.1,oma=c(1.1,0,0,0))
-  DF <- data[, c("Time", "PITCH", "PITCH_IRS2")]
+  PITCH <- VRPlot[[12]]
+  PITCH <- PITCH[which("PITCH" == substr(PITCH, 1, 5))]
+  DF <- data[, c("Time", PITCH)]
   DF$PITCH_IRS2 <- DF$PITCH_IRS2 - pitch_offset
   DF$DifferenceX50 <- (DF$PITCH - DF$PITCH_IRS2) * 50
   line.colors=c('blue', 'darkorange', 'red', 'skyblue')
@@ -21,7 +24,9 @@ RPlot12 <- function (data) {
   title( sprintf ("mean difference: %.2f +/- %.2f after offset %.2f", 
                   mean (data$PITCH-DF$PITCH_IRS2, na.rm=TRUE),
                   sd   (data$PITCH-DF$PITCH_IRS2, na.rm=TRUE), pitch_offset))
-  DF <- data[, c("Time", "ROLL", "ROLL_IRS2")]
+  ROLL <- VRPlot[[12]]
+  ROLL <- ROLL[which("ROLL" == substr(ROLL, 1, 4))]
+  DF <- data[, c("Time", ROLL)]
   DF$ROLL_IRS2 <- DF$ROLL_IRS2 - roll_offset
   DF$DifferenceX50 <- (DF$ROLL - DF$ROLL_IRS2) * 50
   line.colors=c('blue', 'darkorange', 'red', 'skyblue')
@@ -36,6 +41,9 @@ RPlot12 <- function (data) {
                   mean (data$ROLL-DF$ROLL_IRS2, na.rm=TRUE),
                   sd   (data$ROLL-DF$ROLL_IRS2, na.rm=TRUE), roll_offset))
   op <- par (mar=c(5,4,1,2)+0.1)
+  THDG <- VRPlot[[12]]
+  THDG <- THDG[which("THDG" == substr(THDG, 1, 4))]
+  DF <- data[, c("Time", THDG)]
   DF <- data[, c("Time", "THDG", "THDG_IRS2")]
   DF$THDG_IRS2 <- DF$THDG_IRS2 - thdg_offset
   DF$THDG_IRS2[DF$THDG-DF$THDG_IRS2 > 180] <- DF$THDG_IRS2[DF$THDG-DF$THDG_IRS2 > 180] + 360

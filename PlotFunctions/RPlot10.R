@@ -26,5 +26,16 @@ RPlot10 <- function (data) {
   DF <- data[, c("Time", "GGQUAL")]
   plotWAC(DF, ylim=c(0,10))
   AddFooter ()
+  layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+  op <- par (mar=c(2,4,1,2)+0.1,oma=c(1.1,0,0,0))
+  DF <- data.frame(Time=data$Time)
+  DF$DVEW <- data$VEWC - data$VEW
+  DF$DVNS <- data$VNSC - data$VNS
+  DF$DVEWG <- data$VEWC - data$GGVEW
+  DF$DVNSG <- data$VNSC - data$GGVNS
+  plotWAC(DF[, c("Time", "DVEW", "DVEWG")])
+  op <- par (mar=c(5,4,1,2)+0.1)
+  plotWAC(DF[, c("Time", "DVNS", "DVNSG")])
+  AddFooter()
 }
 
