@@ -8,9 +8,12 @@ RPlot19 <- function (data) {
   op <- par (mar=c(5,4,1,1)+0.1)
   ## check THETAP:
   data$TP2 <- EquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
-  plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2")], 
+  data$TQ2 <- WetEquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
+  plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2", "PLWCC")], 
            ylab="ad. pot. temperatures", legend.position = "top")
-  title (sprintf("mean difference THETAE-TP2=%.2f", mean(data$THETAE-data$TP2, na.rm=TRUE)), cex.main=0.7)
+  title (sprintf("mean difference THETAE-TP2=%.2f THETAQ-TQ2=%.2f", 
+                 mean(data$THETAE-data$TP2, na.rm=TRUE),
+                 mean(data$THETAQ-data$TQ2, na.rm=TRUE)), cex.main=0.7)
   AddFooter ()
   # plots vs pressure:
   layout(matrix(2:1, ncol = 2), widths = c(5,5), heights = 1)
