@@ -17,6 +17,7 @@ require(ggthemes)
 Project <- sub (".*/", "", getwd())
 setwd (sprintf ("~/RStudio/%s", Project))
 Project <- "HIPPO-2"
+source("getNetCDF.R")
 
 ## if command arguments are supplied, via 'Rscript Review.R "rf01" "-1" then
 ## these will over-ride the interactive commands below. Arguments are all strings:

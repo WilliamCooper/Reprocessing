@@ -91,7 +91,7 @@ ProjectDir <- "HIPPO"
 fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
 VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT")
 # Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
-SaveRData <- sprintf("%s.Rdata.gz", thisFileName)
+SaveRData <- sprintf("%s.Rdata", thisFileName)
 
 hline <- function(y, col='black', lwd=1) {
   ## note: 'Data' is a 'free variable' and needs to exist in the calling environment 
@@ -125,28 +125,39 @@ SmoothInterp <- function (x) {
 <<get-data, include=FALSE>>=
 
 ## compile a composite data.frame 
-Flights <- c("rf01", "rf02")
-for (flt in Flights) {
-  fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
-  fno <- 30
-  if (grepl("rf", flt)) {
-    fno <- as.integer (sub("rf0", "", flt))
+Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11")
+ReloadData <- FALSE
+if (ReloadData) {
+  for (flt in Flights) {
+    fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
+    fno <- 30
+    if (grepl("rf", flt)) {
+      fno <- as.integer (sub("rf", "", flt))
+    }
+    if (grepl ("tf02", flt)) {fno <- -2}
+    if (grepl ("ff01", flt)) {fno <- -1}
+    D <- getNetCDF (fname, VarList, F=fno)
+    # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
+    # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
+    if (exists ("Data")) {
+      Data <- rbind (Data, D)
+    } else {
+      Data <- D
+    }
   }
-  if (grepl ("tf02", flt)) {fno <- -2}
-  if (grepl ("ff01", flt)) {fno <- -1}
-  D <- getNetCDF (fname, VarList, F=fno)
-  # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
-  # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
-  if (exists ("Data")) {
-    Data <- rbind (Data, D)
-  } else {
-    Data <- D
-  }
-}
-Data <- Data[Data$TASF > 130, ]
+  Data <- Data[Data$TASF > 130, ]
 ## SPECIAL ##
 # best: Data$VSPD_G <- Data$VSPD_G * 0.98	## residual from 0.152 to 0.148
 # this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
+  save(Data, file=SaveRData)
+} else {
+  load(SaveRData)
+}
+Data <- Data[!is.na(Data$Time), ]
+Data <- Data[Data$RF != 5, ]
+Data <- Data[Data$RF != 4, ]
+Data <- Data[Data$RF != 3, ]
+
 FCap1 <- c("Vertical wind, HIPPO-2 flight 1. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing.", "Residual error as defined in (1) as a function of Mach number. The dashed orange line is the mean value, 4.378.")
 
 @
@@ -204,15 +215,15 @@ V <- c("Time", "WIC", "WICS")
 D3 <- Data[Data$RF == 1, ]
 plotWAC(D3[, V], col=c('blue', 'red'), legend.position='top')
 Data$M <- MachNumber (Data$PSF, Data$QCF)
-# plot (Data$M, Data$AOAREF-14.859*Data$ADIFR / Data$QCF, pch=20, col='blue', xlab='Mach Number', ylab='Residual Error [deg.]')
-# lines (c(0,1), c(4.378,4.378), lwd=3, lty=2, col='darkorange')
+plot (Data$M, Data$AOAREF-14.859*Data$ADIFR / Data$QCF, pch=20, col='blue', xlab='Mach Number', ylab='Residual Error [deg.]')
+lines (c(0,1), c(4.378,4.378), lwd=3, lty=2, col='darkorange')
 
 @
 
 
 \section{Data used}
 
-This memo will use measurements from rf01--rf02. Some data restrictions
+This memo will use measurements from rf01--rf11. Some data restrictions
 are needed, for two reasons: 
 \begin{enumerate}
 \item Near the start and end of flights, there are periods where flaps and/or
