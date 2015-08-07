@@ -13,6 +13,7 @@ RPlot1 <- function (data, Flight=NA) {
   DF <- data.frame(Time=data$Time)
   DF$GGALTF <- data[, VRPlot[[1]][5]]/0.3048
   DF$PALTF <- data[, VRPlot[[1]][6]]/0.3048
+  data[is.na(data$PSXC), "PSXC"] <- 1013.25
   DF$PA2 <- PressureAltitude(data$PSXC)/0.3048
   plotWAC(DF[, c("Time", "GGALTF", "PALTF", "PA2")], ylab="Altitude [ft]")
   #axis(4,at=axTicks(2),labels=round(axTicks(2)*0.3048)) ## this adds a metric axis on right side but at even foot intervals

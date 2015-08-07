@@ -7,6 +7,8 @@ RPlot19 <- function (data) {
            legend.position = "top")
   op <- par (mar=c(5,4,1,1)+0.1)
   ## check THETAP:
+  ## (beware of missing EWX:)
+  data <- data[!is.na(data$EWX), ]
   data$TP2 <- EquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
   data$TQ2 <- WetEquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
   plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2", "PLWCC")], 

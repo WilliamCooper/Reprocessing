@@ -1,5 +1,4 @@
 %% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
-%% Do not edit unless you really know what you are doing.
 \documentclass[12pt]{article}
 \usepackage{mathptmx}
 \usepackage[T1]{fontenc}
@@ -85,11 +84,11 @@ require(ggthemes)
 require(vioplot)
 require(plyr)
 Directory <- DataDirectory ()
-Flight <- "rf01" 				# XXX change this
-Project = "HIPPO-2"			 # XXX change this
+Flight <- "rf01" 			
+Project = "HIPPO-2"			 
 ProjectDir <- "HIPPO"
 fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
-VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT")
+VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX")
 # Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
 SaveRData <- sprintf("%s.Rdata", thisFileName)
 
@@ -125,8 +124,10 @@ SmoothInterp <- function (x) {
 <<get-data, include=FALSE>>=
 
 ## compile a composite data.frame 
-Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11")
+Flights <- c("tf02", "rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11")
 ReloadData <- FALSE
+# ReloadData <- TRUE
+Data <- data.frame()
 if (ReloadData) {
   for (flt in Flights) {
     fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
@@ -137,6 +138,9 @@ if (ReloadData) {
     if (grepl ("tf02", flt)) {fno <- -2}
     if (grepl ("ff01", flt)) {fno <- -1}
     D <- getNetCDF (fname, VarList, F=fno)
+    .ggalt <- zoo::na.approx (as.vector(D$GGALT), maxgap=2000, na.rm = FALSE)
+    # try 7-pt derivative, 3rd order:
+    D$GGVS <- signal::sgolayfilt (.ggalt, 3, 7, m=1)  # m=1 for first deriv.
     # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
     # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
     if (exists ("Data")) {
@@ -146,17 +150,26 @@ if (ReloadData) {
     }
   }
   Data <- Data[Data$TASF > 130, ]
-## SPECIAL ##
-# best: Data$VSPD_G <- Data$VSPD_G * 0.98	## residual from 0.152 to 0.148
-# this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
+  Data <- Data[abs(Data$ROLL) < 4, ]
   save(Data, file=SaveRData)
 } else {
   load(SaveRData)
 }
-Data <- Data[!is.na(Data$Time), ]
-Data <- Data[Data$RF != 5, ]
-Data <- Data[Data$RF != 4, ]
-Data <- Data[Data$RF != 3, ]
+## SPECIAL ##
+# best: Data$VSPD_G <- Data$VSPD_G * 0.98  ## residual from 0.152 to 0.148
+# this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
+Data$VSPD_G <- 0.06 + 0.98 * Data$VSPD_G  ## removes cal coefficients in processing
+D3 <- Data[Data$RF == 3, ]
+D5 <- Data[Data$RF == 5, ]
+D3 <- D3[!is.na(D3$Time), ]
+SkipRange3 <- c(setRange(D3$Time, 221500, 224500),setRange(D3$Time, 234500, 235900),
+               setRange(D3$Time, 245000, 251000), setRange(D3$Time, 280000, 0))
+SkipRange3 <- SkipRange3 + which(Data$Time[Data$RF == 3][1] == Data$Time)
+D5 <- D5[!is.na(D5$Time), ]
+SkipRange5 <- setRange(D5$Time, 0, 213000)
+SkipRange5 <- SkipRange5 + which(Data$Time[Data$RF == 5][1] == Data$Time)
+Data[c(SkipRange3, SkipRange5), ] <- NA
+# Data <- Data[Data$RF == 10, ]  ## restrict to one flight
 
 FCap1 <- c("Vertical wind, HIPPO-2 flight 1. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing.", "Residual error as defined in (1) as a function of Mach number. The dashed orange line is the mean value, 4.378.")
 
@@ -166,16 +179,14 @@ FCap1 <- c("Vertical wind, HIPPO-2 flight 1. The blue trace is WIC; the red trac
 
 \section{The problem to address}
 
-Review of HIPPO-2 measurements from the first two research flights
+Review of HIPPO-2 measurements 
 shows that there is often a significant offset in vertical wind and
 that there is much variability in that offset from flight to flight
-and even within flights. For example, for HIPPO-2 flight 1, Fig.\textasciitilde{}\textbackslash{}ref\{fig:vw-rf1\}
+and even within flights. For example, for HIPPO-2 flight 1, Fig.~\ref{fig:vw-rf11}
 shows the measurements of vertical wind. The blue line shows 1-Hz
 measurements, and the red line is the result after 60-s smoothing.
 The offset is significant and varies during the flight. Other flights
-show similar problems but with some inconsistency, esp.\textasciitilde{}for
-upper-level flight where the offset is sometimes positive and sometimes
-negative.
+show similar problems but with some inconsistency.
 
 
 \section{The standard fit}
@@ -205,14 +216,36 @@ which would equal the angle of attack if the vertical wind were zero,
 and then determine the coefficients in (\ref{eq:stdAOA}) that minimize
 the difference between $\alpha^{*}$ and $\alpha$.
 
+For HIPPO-2 and all projects before SPRITES-II, there is the problem that
+the highest-quality measurement of the rate of climb of the aircraft, GGVSPD,
+was not available. The alternatives are VSPD and VSPD\_G, the latter from the
+avionic-system GPS. Both are updated using the pressure altitude as reference,
+so both have the potential to introduce long-distance biases, especially in
+cases like HIPPO where the flights do not return to the same airport and
+may extend through atmospheric regions with important baroclinity so that
+there can be an important gradient in geometric altitude for flight along a
+surface of constant pressure, and hence a false update applied to the vertical
+motion of the aircraft. 
+
+As a test, the measured altitude GGALT was differentiated to obtain an alternate
+measurement of rate of climb. This new variable was consistent with VSPD\_G, for
+example with mean difference and standard deviation of the difference for HIPPO-2
+flight 1 of -0.02$\pm$0.15\ m/s. The variance spectra characterizing VSPD\_G and
+the new rate-of-climb variable were hard to distinguish, with coherence above 0.95
+and phase shift within about 10$^{\circ}$ at all frequencies. However, the fit
+procedure that follows in this memo gave a larger residual standard deviation
+for the new variable than for VSPD\_G, so VSPD\_G will be used in the following.
+
 <<vw-rf1, include=TRUE, fig.cap=FCap1>>=
 
 Data$AOAREF <- (Data$PITCH - Data$VSPD_G / Data$TASF * 180 / pi) 
+Data$AOAREF <- (Data$PITCH - Data$GGVS / Data$TASF * 180 / pi) 
+Data <- Data[(Data$AOAREF > 1) & (Data$AOAREF < 6), ]
 # - Data$ADIFR / Data$QCF * 21.22 
 # Data$AOAREF <- SmoothInterp (Data$AOAREF)
 Data$WICS <- SmoothInterp (Data$WIC)
 V <- c("Time", "WIC", "WICS")
-D3 <- Data[Data$RF == 1, ]
+D3 <- Data[Data$RF == 3, ]
 plotWAC(D3[, V], col=c('blue', 'red'), legend.position='top')
 Data$M <- MachNumber (Data$PSF, Data$QCF)
 plot (Data$M, Data$AOAREF-14.859*Data$ADIFR / Data$QCF, pch=20, col='blue', xlab='Mach Number', ylab='Residual Error [deg.]')
@@ -228,11 +261,12 @@ are needed, for two reasons:
 \begin{enumerate}
 \item Near the start and end of flights, there are periods where flaps and/or
 landing gear are deployed, leading to large potential errors in angle
-of attack. For CSET, the mid-ocean cloud penetrations are flown at
-low airspeed, so care must be taken to exclude only the periods at
-the start and end of flights and not those of low-speed cloud penetrations.
-It appears that if TASX is required to exceed 130~m/s or the Mach
-number to exceed 0.38, this provide a suitable delineation between
+of attack. For HIPPO, there are frequent descents to low level followed by
+climbs, and in some cases where they are missed approaches flaps may have
+been deplowed, so it is best to exclude periods of low-speed flight unless
+at levels well above the surface where they may have arisen in the course of
+speed runs. It appears that if TASX is required to exceed 130~m/s or the Mach
+number to exceed 0.38 in the case where GGALT is greater than 2000, this provide a suitable delineation between
 these two cases, so that will be used to qualify data for this study.
 In addition, brief periods at the start and end of flights were excluded
 to avoid flight segments that otherwise produced large residual error.
@@ -245,9 +279,17 @@ that reason:\\
 \hline 
 \hline 
 rf01  & 17:40:00  & 22:10:00\tabularnewline
+\hline rf02  & 15:10:00  & 21:00:00\tabularnewline
 \hline 
-rf02  & 15:10:00  & 21:00:00\tabularnewline
+rf03  & 21:09:05  & 22:15:00\tabularnewline
 \hline 
+ & 22:45:00 & 23:45:00\tabularnewline
+ \hline
+ & 23:59:00 & 24:50:00\tabularnewline
+ \hline
+ & 25:10:00 & 28:00:00\tabularnewline
+\hline
+rf05 & 21:30:00 & 
 \end{tabular}
 \item (altitude variation?)
 \end{enumerate}
@@ -334,22 +376,27 @@ set of sensitivity coefficients.
 
 <<new-vw, include=TRUE, fig.cap="As for Fig.\ 1 but adding the new variable WIX for the vertical wind.">>=
 
-Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. - (Data$GGVS-Data$VSPD_G)
 Data$WIXS <- SmoothInterp (Data$WIX)
 V <- c("Time", "WIC", "WICS", "WIXS")
-D3 <- Data[Data$RF == 1, ]
+D3 <- Data[Data$RF == 3, ]
 plotWAC(D3[, V], col=c('blue', 'red', 'darkorange'), lwd=c(1,2,3),legend.position='top')
 
 
-<<WIXvsGGALT, include=TRUE, eval=TRUE, fig.cap="WIX vs GGALT for all measurements from the five research flights, one ferry flight, and one test flight used for this study.">>=
+<<WIXvsGGALT, include=TRUE, eval=TRUE, fig.cap="WIX vs GGALT for all measurements from the eleven research flights and one test flight used for this study.">>=
 
-D1 <- Data[Data$RF == 1,]
-D1 <- D1[abs(D1$VSPD_G) < 3, ]
-D2 <- Data[Data$RF == 2,]
-D2 <- D2[abs(D2$VSPD_G) < 3, ]
-plot(D1$GGALT, D1$WIX, pch=20, col='blue', xlim=c(0,15000))
-points(D2$GGALT, D2$WIX, pch=20, col='red')
+# D1 <- Data[Data$RF == 1,]
+# D1 <- D1[abs(D1$VSPD_G) < 3, ]
+# D2 <- Data[Data$RF == 2,]
+# D2 <- D2[abs(D2$VSPD_G) < 3, ]
+plot(Data$GGALT, Data$WIX, pch=20, col='blue', xlim=c(0,15000))
 lines(c(0,15000),c(0,0), lwd=3, lty=2, col='darkorange')
+for (i in 1:11){
+  plotWAC(Data[Data$RF == i, c("Time", "WIX", "WIXS")])
+  lineWAC(Data$Time, Data$GGVS/10, col='red')
+  title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIX"], na.rm=TRUE)))
+}
+
 
 @
 
