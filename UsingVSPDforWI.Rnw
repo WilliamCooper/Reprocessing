@@ -1,0 +1,203 @@
+%% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\begin{document}
+\EOLmemo 
+
+\global\addressee={Algorithm Documentation File}  % >>change "File" to the "To:" name desired
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}} & Argument against using VSPD for vertical wind\tabularnewline
+\end{tabular}
+
+\bigskip
+
+<<initialization,echo=FALSE,include=FALSE>>=
+
+require(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+options(digits=3)
+thisFileName <- "UsingVSPDforWI"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+library(knitr)
+require(ggthemes)
+require(vioplot)
+require(plyr)
+Directory <- DataDirectory ()
+Flight <- "rf10" 			
+Project = "HIPPO-2"			
+fname = sprintf("%sHIPPO/%s%s.nc", Directory,Project,Flight)
+Data <- getNetCDF (fname, standardVariables(c("WI", "VSPD", "VSPD_G", "PSF", "QCF", "ADIFR", "PITCH", "ATX", "DPXC", "PSXC")))
+# Data <- Data[Data$TASX > 130, ]
+# Data <- Data[abs(Data$ROLL) < 4, ]
+Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02   ## correct for erroneous calibration	
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+@
+
+
+\section{Summary}
+
+This memo documents the reasons why VSPD should not be used for vertical
+wind and why the variable WI, conventionally based on VSPD, should
+be retired.
+
+
+\section{Weaknesses of VSPD}
+
+VSPD is the vertical aircraft speed, or rate of climb, provided by
+the IRU. The IRUs in use on both aircraft use updating to the pressure
+altitude to control the known instability that arises from integrating
+vertical acceleration to get rate-of-climb. As a result, the rate-of-climb
+represented by VSPD is with reference to a standard atmosphere, and
+if the atmospheric stratification differs from the standard atmosphere
+the resulting rate-of-climb will not be the geometric-altitude rate
+of climb, as needed for the calculation of vertical wind.
+
+
+\section{Illustration of the problem}
+
+<<difference-VSPD-VSPD_G, include=TRUE, fig.cap="Comparison of VSPD and VSPD\\_G for HIPPO-2 flight 10.">>=
+
+Data$QR <- Data$ADIFR / Data$QCF
+Data$M  <- MachNumber(Data$PSF, Data$QCF)
+cf <- c(5.151, 15.651, 7.303)
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+Data$WI <- Data$VSPD + (Data$AK-Data$PITCH)*Data$TASX * pi / 180
+Data$Difference <- Data$VSPD_G - Data$VSPD
+Data$WIC <- Data$WI + Data$VSPD_G - Data$VSPD
+plotWAC(Data[, c("Time", "VSPD", "VSPD_G", "Difference")])
+
+@
+
+Figure \ref{fig:difference-VSPD-VSPD_G} shows the two measurements
+VSPD and VSPD\_G and also the difference between them. The difference
+is negatively correlated with VSPD and has a magnitude of around 1~m/s.
+This is then reflected in WI, and shown in Fig.~\ref{fig:example-of-errors},
+where the red trace is VSPD/10 to provide a reference for changes
+in rate-of-climb. With this atmospheric stratification, there is an
+obvious error in WI that is correlated with VSPD. Other HIPPO flights
+show similar errors, sometimes with positive correlation and sometimes
+with negative correlation between WI and VSPD depending on the atmospheric
+stratification. WIC, based on VSPD\_G, does not show this error.
+
+<<example-of-errors, include=TRUE, fig.cap="WI for HIPPO-2 flight 10.">>=
+
+plotWAC(Data[, c("Time", "WI", "WIC")])
+lineWAC(Data$Time, Data$VSPD/10, col='red', lty=2)
+
+@
+
+<<sounding, include=TRUE, fig.cap="Sounding for the period from 21:00:00 to 24:00:00 on HIPPO-2 flight 10.">>=
+
+source("SkewT.R")
+DS <- Data[setRange(Data$Time, 210000, 235959), c("PSXC", "ATX", "DPXC")]
+names(DS) <- c("Pressure", "Temperature", "DewPoint")
+ggSpecs <- SkewTSounding(DS, AverageInterval=10)
+P <- vector("numeric", 86)
+T <- vector("numeric", 86)
+DP <- vector("numeric", 86)
+for (i in 1:86) {
+  DP[i] <- 0
+  P[i] <- (i+14)*10
+  T[i] <- 15.-0.0065 * PressureAltitude (P[i])
+  if (P[i] < 226.3206) {T[i] <- 216.65 - 273.15}
+}
+ggAdd <- SkewTSounding(P, T, DP, ADD=TRUE)
+print(ggSpecs + geom_path (data = SkewTSounding (P, T, DP, ADD=TRUE), aes(x=T, y=P), col='red', lwd=1.5)
+
+@
+
+\begin{center}
+\textsf{\textcolor{blue}{-- End of Memo --}}
+\par\end{center}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/HIPPO/\Sexpr{Project}\Sexpr{Flight}.nc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}} & git@github.com:WilliamCooper/\Sexpr{thisFileName}.git\tabularnewline
+\end{tabular}
+
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\\Sexpr{SaveRData}\\SessionInfo}
+%\cc{first attachment\\second\\3rd att}
+%\attach{attachment}
+%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+<<save-system-info, echo=FALSE>>= 
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, SaveRData))
+
+@ 
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}
