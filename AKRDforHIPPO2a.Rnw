@@ -1,7 +1,9 @@
 %% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
 \documentclass[12pt]{article}
 \usepackage{mathptmx}
 \usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
 \usepackage[letterpaper]{geometry}
 \geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
 \usepackage{fancyhdr}
@@ -19,21 +21,18 @@
 \providecommand{\tabularnewline}{\\}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-\input colordvi
-\usepackage{color}
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}\definecolor{messagecolor}{rgb}{0, 0, 0}\definecolor{warningcolor}{rgb}{1, 0, 1}\definecolor{errorcolor}{rgb}{1, 0, 0}\input colordvi
 \fancyhead{}
 \fancyfoot[CE,CO]{}
 \newtoks{\addressee} \global\addressee={}
 \newdimen\longindent \longindent=3.5truein
 \fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
 \renewcommand{\headrulewidth}{0.0pt}
-\newenvironment{lyxlist}[1]
-{\begin{list}{}
+\newenvironment{lyxlist}[1]{\begin{list}{}
 {\settowidth{\labelwidth}{#1}
 \setlength{\leftmargin}{\labelwidth}
 \addtolength{\leftmargin}{\labelsep}
-\renewcommand{\makelabel}[1]{##1\hfil}}}
-{\end{list}}
+\renewcommand{\makelabel}[1]{##1\hfil}}}{\end{list}}
 \newcommand{\datetoday}{\number\day\space
      \ifcase\month\or January\or February\or March\or April\or May\or
      June\or July\or August\or September\or October\or November\or
@@ -56,20 +55,24 @@
 \end{lyxlist}}
 %usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
 
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+
 \makeatother
 
 \begin{document}
-\EOLmemo 
+\EOLmemo
 
-\global\addressee={HIPPO reprocessing file}  % >>change "File" to the "To:" name desired
+\global\addressee={HIPPO reprocessing file} % >>change "File" to the "To:" name desired
 
 \begin{tabular}{ll}
-\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
-\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Subject:}}} & vertical wind for HIPPO-2\tabularnewline
+\textsf{\textsc{\textcolor{blue}{To:}}}  & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}}  & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}}  & vertical wind for HIPPO-2\tabularnewline
 \end{tabular}
 
-\bigskip
+\bigskip{}
+
 
 <<initialization,echo=FALSE,include=FALSE>>=
 
@@ -120,7 +123,6 @@ SmoothInterp <- function (x) {
   return (signal::filter(signal::sgolay(3, 61), d))
 }
 
-
 @
 
 <<get-data, include=FALSE>>=
@@ -156,7 +158,7 @@ if (ReloadData) {
 ## SPECIAL ##
 # best: Data$VSPD_G <- Data$VSPD_G * 0.98  ## residual from 0.152 to 0.148
 # this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
-Data$VSPD_G <- 0.06 + Data$VSPD_G/1.02  ## removes cal coefficients in processing
+Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients
 D3 <- Data[Data$RF == 3, ]
 D5 <- Data[Data$RF == 5, ]
 D3 <- D3[!is.na(D3$Time), ]
@@ -174,17 +176,17 @@ FCap1 <- c("Vertical wind, HIPPO-2 flight 1. The blue trace is WIC; the red trac
 @
 
 
-
 \section{The problem to address}
 
-Review of HIPPO-2 measurements 
-shows that there is often a significant offset in vertical wind and
-that there is much variability in that offset from flight to flight
-and even within flights. For example, for HIPPO-2 flight 1, Fig.~\ref{fig:vw-rf11}
-shows the measurements of vertical wind. The blue line shows 1-Hz
-measurements, and the red line is the result after 60-s smoothing.
-The offset is significant and varies during the flight. Other flights
-show similar problems but with some inconsistency.
+Review of HIPPO-2 measurements shows that there is often a significant
+offset in vertical wind and that there is much variability from flight
+to flight and even within flights. For example, for HIPPO-2 flight
+1, Fig.~\ref{fig:vw-rf11} shows the measurements of vertical wind.
+The blue line shows 1-Hz measurements, and the red line is the result
+after 60-s smoothing. The offset is significant and varies during
+the flight. Other flights show similar problems but with some inconsistency,
+often showing pronounced correlation between rate-of-climb and WIC
+(e.g., flight 10).
 
 
 \section{The standard fit}
@@ -214,25 +216,29 @@ which would equal the angle of attack if the vertical wind were zero,
 and then determine the coefficients in (\ref{eq:stdAOA}) that minimize
 the difference between $\alpha^{*}$ and $\alpha$.
 
-For HIPPO-2 and all projects before SPRITES-II, there is the problem that
-the highest-quality measurement of the rate of climb of the aircraft, GGVSPD,
-was not available. The alternatives are VSPD and VSPD\_G, the latter from the
-avionic-system GPS. The former is updated using the pressure altitude as reference,
-which might introduce long-distance biases, especially in
-cases like HIPPO where the flights do not return to the same airport and
-may extend through atmospheric regions with important baroclinity so that
-there can be an important gradient in geometric altitude for flight along a
-surface of constant pressure, and hence a false update applied to the vertical
-motion of the aircraft. 
+For HIPPO-2 and all projects before SPRITES-II, there is the problem
+that the highest-quality measurement of the rate of climb of the aircraft,
+GGVSPD, was not available. The alternatives are VSPD and VSPD\_G,
+the latter from the avionics-system GPS. The former is updated using
+the pressure altitude as reference, which can introduce long-distance
+biases, especially in cases like HIPPO where the flights do not return
+to the same airport. Such flights may extend through atmospheric regions
+with important baroclinity or significant departures from the standard
+atmosphere, so there can be an important gradient in geometric altitude
+for flight along a surface of constant pressure and hence a false
+update applied to the vertical motion of the aircraft. See the Algorithm
+Documentation memo UsingVSPDforWI.pdf for a discussion of this problem.
 
-As a test, the measured altitude GGALT was differentiated to obtain an alternate
-measurement of rate of climb. This new variable was consistent with VSPD\_G, for
-example with mean difference and standard deviation of the difference for HIPPO-2
-flight 1 of -0.02$\pm$0.15\ m/s. The variance spectra characterizing VSPD\_G and
-the new rate-of-climb variable were hard to distinguish, with coherence above 0.95
-and phase shift within about 10$^{\circ}$ at all frequencies. However, the fit
-procedure that follows in this memo gave a larger residual standard deviation
-for the new variable than for VSPD\_G, so VSPD\_G will be used in the following.
+As a test, the measured altitude GGALT was differentiated to obtain
+an alternate measurement of rate of climb. This new variable was consistent
+with VSPD\_G, for example with mean difference and standard deviation
+of the difference for HIPPO-2 flight 1 of -0.02$\pm$0.15\ m/s. The
+variance spectra characterizing VSPD\_G and the new rate-of-climb
+variable were hard to distinguish, with coherence above 0.95 and phase
+shift within about 10$^{\circ}$ at all frequencies. However, the
+fit procedure that follows in this memo gave a larger residual standard
+deviation for the new variable than for VSPD\_G, so VSPD\_G will be
+used in the following.
 
 <<vw-rf1, include=TRUE, fig.cap=FCap1>>=
 
@@ -259,53 +265,63 @@ are needed, for two reasons:
 \begin{enumerate}
 \item Near the start and end of flights, there are periods where flaps and/or
 landing gear are deployed, leading to large potential errors in angle
-of attack. For HIPPO, there are frequent descents to low level followed by
-climbs, and in some cases where they are missed approaches flaps may have
-been deplowed, so it is best to exclude periods of low-speed flight unless
-at levels well above the surface where they may have arisen in the course of
-speed runs. It appears that if TASX is required to exceed 130~m/s or the Mach
-number to exceed 0.38 in the case where GGALT is greater than 2000, this provide a suitable delineation between
-these two cases, so that will be used to qualify data for this study.
-\item A few other regions needed to be excluded because it appeared that ADIFR was questionable, perhaps
-because there were blockages in the lines or apertures.
+of attack. For HIPPO, there are frequent descents to low level followed
+by climbs, and in some cases where they are missed approaches flaps
+may have been deplowed, so it is best to exclude periods of low-speed
+flight unless at levels well above the surface where they may have
+arisen in the course of speed runs. It appears that if TASX is required
+to exceed 130~m/s, this provide a suitable delineation between these
+two cases, so that will be used to qualify data for this study. 
+\item A few other regions needed to be excluded because it appeared that
+ADIFR was questionable, perhaps because there were blockages in the
+lines or apertures. These regions were identified by significant departures
+in plots like Fig.~\ref{fig:summarize-fit} below. In addition, because
+there are additional potential uncertainties for measurements in turns,
+the data used in the following were restricted to cases where the
+roll was between $-4$ and $4^{\circ}$.
 \end{enumerate}
-
 Only the flight times listed in the following table were used for
-those reasons:\\
- %
+those reasons. The composite set of data had more than 250,000 1-s
+measurements.
+
+\noindent \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline 
 \textbf{Flight}  & \textbf{Start {[}UTC{]}}  & \textbf{End {[}UTC{]}}\tabularnewline
 \hline 
-\hline
-tf02 & 172115 & 213214 \tabularnewline
-\hline
+\hline 
+tf02  & 17:21:15  & 21:32:14 \tabularnewline
+\hline 
 rf01  & 17:40:00  & 22:10:00\tabularnewline
-\hline rf02  & 15:10:00  & 21:00:00\tabularnewline
+\hline 
+rf02  & 15:10:00  & 21:00:00\tabularnewline
 \hline 
 rf03  & 21:09:05  & 22:15:00\tabularnewline
 \hline 
- & 22:45:00 & 23:45:00\tabularnewline
- \hline
- & 23:59:00 & 24:50:00\tabularnewline
- \hline
- & 25:10:00 & 28:00:00\tabularnewline
-\hline
-rf05 & 21:30:00 & 271217\tabularnewline
-\hline
-rf06 & 212555 & 285500\tabularnewline
-\hline
-rf07 & 211308 & 285407\tabularnewline
-\hline
-rf08 & 230239 & 312526\tabularnewline
-\hline
-rf09 & 201032 & 274108\tabularnewline
-\hline
-rf10 & 191046 & 262346\tabularnewline
-\hline
-rf11 & 184042 & 232044\tabularnewline
-\hline
+ & 22:45:00  & 23:45:00\tabularnewline
+\hline 
+ & 23:59:00  & 24:50:00\tabularnewline
+\hline 
+ & 25:10:00  & 28:00:00\tabularnewline
+\hline 
+rf04 & 20:07:07 & 28:08:40\tabularnewline
+\hline 
+rf05  & 21:30:00  & 27:12:17\tabularnewline
+\hline 
+rf06  & 21:25:55  & 28:55:00\tabularnewline
+\hline 
+rf07  & 21:13:08  & 28:54:07\tabularnewline
+\hline 
+rf08  & 23:02:39  & 31:25:26\tabularnewline
+\hline 
+rf09  & 20:10:32  & 27:41:08\tabularnewline
+\hline 
+rf10  & 19:10:46  & 26:23:46\tabularnewline
+\hline 
+rf11  & 18:40:42  & 23:20:44\tabularnewline
+\hline 
 \end{tabular}
+\par\end{center}
 
 
 \section{New coefficients using the standard formula}
@@ -327,17 +343,18 @@ cf <- coef(f)
 @
 
 A fit of (\ref{eq:stdAOA}) to the composite data, qualified as in
-Sect.~3, led to best-fit coefficients \{$c_{1--3}$\} = \{\Sexpr{round(cf[1], 3)},
-\Sexpr{round(cf[2], 3)}, \Sexpr{round(cf[3], 3)}\}. A comparison of the angle of attack produced by (1)
-with these coefficients to the reference values given by (\ref{eq:alpha-star})
-is shown in Fig.~\ref{fig:summarize-fit}. The residual standard
-deviation for this fit was reduced slightly (about 10\%) from the fit that used only the first term,
-so it appears worthwhile
-to use this three-coefficient fit instead. Several other options were
-considered, including direct dependence on Mach number, air density,
-pressure, altitude, and powers and products of these, but none provided
-significant (>0.01) further reduction in the standard deviation of the residuals
-so it does not appear useful to include more complex terms in the fit.
+Sect.~3, led to best-fit coefficients \{$c_{1--3}$\} = \{\Sexpr{cf[1]},
+\Sexpr{cf[2]}, \Sexpr{cf[3]}\}. A comparison of the angle of attack
+produced by (1) with these coefficients to the reference values given
+by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:summarize-fit}.
+The residual standard deviation for this fit was reduced slightly
+(about 10\%) from the fit that used only the first term, so it appears
+worthwhile to use this three-coefficient fit instead. Several other
+options were considered, including direct dependence on Mach number,
+air density, pressure, altitude, and powers and products of these,
+but none provided significant (>0.01) further reduction in the standard
+deviation of the residuals so it does not appear useful to include
+more complex terms in the fit.
 
 <<summarize-fit, include=TRUE, fig.cap="Calculated value of angle of attack vs the reference value used in the fit.">>=
 
@@ -352,37 +369,24 @@ lines (c(1,4.5), c(1,4.5), lwd=3, lty=2, col='darkorange')
 
 \section{New values of the vertical wind}
 
-A new value of the vertical wind based on the new coefficients can
-be estmated from the previous value (WIC) modified to be WIX=WIC+($\alpha$-AKRD)$\pi$V/180
+Normally, a new value of the vertical wind based on the new coefficients
+can be estmated from the previous value (WIC) modified to be WIX=WIC+($\alpha$-AKRD)$\pi$V/180
 where $\alpha$ is given by (1), $V$ is the airspeed and $\pi/180$
-is needed to convert from degrees to radians. Figure~\ref{fig:new-vw}
-repeats Fig.~1 for flight 3 with the addition of this new measurement
-of the vertical wind. The orange trace (WIXS, WIX with 60-s smoothing)
-represents the new variable, which shows mean values close to zero
-for most of the flight and is a significant improvement over WIC.
-However, the offset before 18:00 illustrates the remaining problem:
-Measurements from upper levels, here about FL290 before 18:00, continue
-to show a bias. The final segment beginning about 22:15 shows a smaller
-bias. Similar review of all flights shows good results from below
-25,000 ft but inconsistent results above that level. This is clear
-in a scatterplot of WIX vs GGALT (Fig.~\ref{fig:WIXvsGGALT}) and
-in Fig.~\ref{fig:error-bar-plot}, which shows mean values of the
-vertical wind in 13 altitude bins for WIX (with error bars showing
-the standard deviation) and also for WIC. There are evidently different
-patterns for measurements from above 8000~m (about 26,000 ft) and
-a larger range of values there, with some approximately showing the
-expected zero mean and other showing a significant offset. Because
-the fit was restricted to measurements with pressure above 250~hPa
-(about 10 km), the departure above this level can be attributed partially
-to extrapolation beyond its range of validity. However, the measurements
-from 8--10 km appear to show two patterns, one approximately consistent
-with the fit and one significantly low, so there appears to be inconsistency
-in the measurements that will be difficult to represent with a single
-set of sensitivity coefficients.
+is needed to convert from degrees to radians. In addition, because
+WIC as in the reprocessing files was based on VSPD, it is necessary
+to add (VSPD\_G-VSPD) to WIX. Figure~\ref{fig:new-vw} repeats Fig.~1
+for flight 3 with the addition of this new measurement of the vertical
+wind. The orange trace (WIXS, WIX with 60-s smoothing) represents
+the new variable, which shows mean values close to zero for most of
+the flight and is a significant improvement over WIC. 
+
+For reference, the plots of new vertical wind WIX for each of the
+HIPPO-2 research flights are appended to this memo, beginning with
+Fig.~\ref{fig:all-flights1}.
 
 <<new-vw, include=TRUE, fig.cap="As for Fig.\ 1 but adding the new variable WIX for the vertical wind.">>=
 
-Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. ## - (Data$GGVS-Data$VSPD_G)
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD)
 Data$WIXS <- SmoothInterp (Data$WIX)
 Data$GGVSPD <- Data$VSPD_G   ## needed by WindProcessor; GGVSPD not available
 DataW <- Data
@@ -419,26 +423,37 @@ for (i in 1:11){
 
 @
 
+
+\section{Recommendation}
+
+Change the WIC dependency to VSPD\_G, remove the erroneous calibration
+coefficients applied to GSPD\_G, and use the sensitivity coefficients
+\{\Sexpr{cf[1], \Sexpr{cf[2], \Sexpr{cf[3] for HIPPO-2.
+
+\clearpage
+
 \begin{center}
-\textsf{\textcolor{blue}{-- End of Memo --}}
+\textsf{\textcolor{blue}{-- End of Memo --}} 
 \par\end{center}
 
 Reproducibility:
 
 \begin{tabular}{ll}
-\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Program:}}} & AKRDforHIPPO2a.Rnw\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/\Sexpr{Project}/\Sexpr{Flight}.nc, etc \tabularnewline
-\textsf{\textsc{\textcolor{blue}{Data Archive:}}} & NCAR HPSS (not github) \tabularnewline
-\textsf{\textsc{\textcolor{blue}{Git:}}} & https://github.com/WilliamCooper/Reprocessing.git\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Project:}}}  & WI-HIPPO2\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & WI-HIPPO2.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}}  & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}}  & AKRDforHIPPO2a.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}}  & /scr/raf\_data/HIPPO/HIPPO-2rf01.nc, etc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Data Archive:}}}  & NCAR HPSS (not github) \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}}  & https://github.com/WilliamCooper/Reprocessing.git\tabularnewline
 \end{tabular}
 
-\attachm{AKRDforHIPPO2a.Rnw\\AKRDforHIPPO2a.pdf\\SessionInfo}
-%\cc{first attachment\\second\\3rd att}
+\attachm{AKRDforHIPPO2a.Rnw\\
+AKRDforHIPPO2a.pdf\\
+SessionInfo} %\cc{first attachment\\second\\3rd att}%\attach{attachment}%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+
 %\attach{attachment}
-%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+
 <<save-system-info, echo=FALSE>>= 
 cat (toLatex(sessionInfo()), file="SessionInfo")
 
@@ -448,7 +463,7 @@ system (sprintf("zip %s.zip AKRDforHIPPO2a.Rnw AKRDforHIPPO2a.pdf SessionInfo", 
 
 @ 
 
-%\attach{attachment}
+
 
 %\attachm{ProgramFile\\Document.pdf\\SaveRData}
 
