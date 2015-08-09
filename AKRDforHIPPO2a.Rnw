@@ -79,6 +79,7 @@
 require(knitr)
 opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
 opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+options(digits=3)
 thisFileName <- "WI-HIPPO2"
 require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
 require(ggplot2)
@@ -376,7 +377,7 @@ is needed to convert from degrees to radians. In addition, because
 WIC as in the reprocessing files was based on VSPD, it is necessary
 to add (VSPD\_G-VSPD) to WIX. Figure~\ref{fig:new-vw} repeats Fig.~1
 for flight 3 with the addition of this new measurement of the vertical
-wind. The orange trace (WIXS, WIX with 60-s smoothing) represents
+wind. The red trace (WIXS, WIX with 60-s smoothing) represents
 the new variable, which shows mean values close to zero for most of
 the flight and is a significant improvement over WIC. 
 
@@ -398,7 +399,7 @@ DataW <- WindProcessor(DataW)  ## will then have both WICN and WIN
 Data$WIN <- DataW$WIN
 Data$WICNS <- SmoothInterp (Data$WICN)
 Data$WINS  <- SmoothInterp (Data$WIN)
-V <- c("Time", "WIC", "WICNS", "WINS")
+V <- c("Time", "WICS", "WIX", "WIXS")
 D3 <- Data[Data$RF == 3, ]
 plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position='top')
 
@@ -412,23 +413,14 @@ plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position
 # plot(Data$GGALT, Data$WIX, pch=20, col='blue', xlim=c(0,15000))
 # lines(c(0,15000),c(0,0), lwd=3, lty=2, col='darkorange')
 
-<<all-flights, include=TRUE, fig.cap="recalculated vertical wind WICN and, with new coefficients, WIN">>=
-
-for (i in 1:11){
-  plotWAC(Data[Data$RF == i, c("Time", "WIN", "WINS")])
-  lineWAC(Data$Time, Data$GGVS/10, col='green')
-  title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIN"], na.rm=TRUE)))
-}
-
-
 @
 
 
 \section{Recommendation}
 
 Change the WIC dependency to VSPD\_G, remove the erroneous calibration
-coefficients applied to GSPD\_G, and use the sensitivity coefficients
-\{\Sexpr{cf[1], \Sexpr{cf[2], \Sexpr{cf[3] for HIPPO-2.
+coefficients applied to VSPD\_G, and use the sensitivity coefficients
+\{\Sexpr{cf[1]}, \Sexpr{cf[2]}, \Sexpr{cf[3]}\} for HIPPO-2.
 
 \clearpage
 
@@ -451,6 +443,16 @@ Reproducibility:
 \attachm{AKRDforHIPPO2a.Rnw\\
 AKRDforHIPPO2a.pdf\\
 SessionInfo} %\cc{first attachment\\second\\3rd att}%\attach{attachment}%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+
+<<all-flights, include=TRUE, fig.cap="Recalculated vertical wind WIX and, with 60-s smoothing, WIXS. The red line is VSPD\\_G/10 and is included to check for dependence on the rate-of-climb of the aircraft.">>=
+
+for (i in 1:11){
+  plotWAC(Data[Data$RF == i, c("Time", "WIX", "WIXS")])
+  lineWAC(Data$Time, Data$GGVS/10, col='green')
+  title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIN"], na.rm=TRUE)))
+}
+
+@
 
 %\attach{attachment}
 
