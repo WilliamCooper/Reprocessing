@@ -16,9 +16,15 @@ RPlot9 <- function (data) {
            col=line.colors, lwd=line.widths, lty=line.types, ylab="WSC [m/s]",legend.position=NA,cex.axis=1.5,cex.lab=1.5)
   legend('bottomright',c("WSC", "IWS"),col=c("blue",tgreen),text.col=c("blue",tgreen),lty=c(1,3),lwd=c(1,1))
   op <- par (mar=c(5,5,2,1)+0.1)
-  plotWAC (data[, c("Time", "WIC", "WI")], ylab="vertical wind WIC [m/s]",cex.axis=1.5,cex.lab=1.5)
-  title (sprintf ("flight-average vertical wind: %.02f", 
-                  mean (data$WIC, na.rm=TRUE)), cex.main=1.5)
+  cf <- c(5.151, 15.654, 7.299)
+  data$AK <- data$AK <- cf[1] + data$ADIFR/data$QCF * (cf[2] + cf[3] * MachNumber(data$PSF, data$QCF))
+  data$VSPD_G <- (data$VSPD_G + 0.06) / 1.02
+  data$WIX <- data$WIC + (data$AK-data$AKRD)*pi*data$TASF/180. + (data$VSPD_G-data$VSPD)
+  data$WIXS <- SmoothInterp (data$WIX)
+  plotWAC (data[, c("Time", "WIC", "WIX", "WIXS")], ylab="vertical wind WIC [m/s]",cex.axis=1.5,cex.lab=1.5)
+  title (sprintf ("flight-average vertical wind: WIC %.02f WIX %.02f", 
+                  mean (data$WIC, na.rm=TRUE)
+                  mean (data$WIX, na.rm=TRUE)), cex.main=1.5)
   hline (2); hline (-2); hline (0,'red')
   AddFooter ()
   op <- par (mar=c(2,4,1,1)+0.1)

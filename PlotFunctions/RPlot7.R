@@ -25,7 +25,7 @@ RPlot7 <- function (data) {
   points (data$Time, (data[, QC[length(QC)]]-data[, QC[1]])*10+120, type='l', col='red')
   axis (4, at=c(100,120,140), labels=c("-2", "0", "2"), col='red', col.axis='red', cex.axis=0.7)
   abline (h=140, col='red', lty=2); abline (h=100, col='red', lty=2)
-  ltext <- sprintf("red: (%s-%s)*10+120", QC[length(QC)], QC[1])
+  ltext <- sprintf("red: (%s-%s)*10+200", QC[length(QC)], QC[1])
   legend("bottomleft", c(ltext, 
                          "dashed red: +/- 2 hPa [diff]"), cex=0.75)
   labl <- QC

@@ -79,8 +79,11 @@ RPlot5 <- function (data) {
     for (i in 1:length(MRVAR)) {
       data[, MRVAR[i]] <- 0.622 * data[, VEW[i]] / (data$PSFC-data[, VEW[i]]) * 1000
     }
-    data$H2OMR_GMD <- data$H2OMR_GMD / 1000.
-    plotWAC (data[, c("Time", MRVAR, "H2OMR_GMD")], ylab="mixing ratio [g/kg]",
+    if ("H2OMR_GMD" %in% names(data)) {
+      MRVAR <- c(MRVAR, "H2OMR_GMD")
+      data$H2OMR_GMD <- data$H2OMR_GMD / 1000.
+    }
+    plotWAC (data[, c("Time", MRVAR)], ylab="mixing ratio [g/kg]",
              logxy='y', ylim=c(0.01, 100),cex.lab=1.5,cex.axis=1.5)
   }
   op <- par (mar=c(5,5,1,1)+0.1)

@@ -11,7 +11,7 @@ RPlot19 <- function (data) {
   data <- data[!is.na(data$EWX), ]
   data$TP2 <- EquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
   data$TQ2 <- WetEquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
-  plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2", "PLWCC")], 
+  plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2")], 
            ylab="ad. pot. temperatures", legend.position = "top")
   title (sprintf("mean difference THETAE-TP2=%.2f THETAQ-TQ2=%.2f", 
                  mean(data$THETAE-data$TP2, na.rm=TRUE),
