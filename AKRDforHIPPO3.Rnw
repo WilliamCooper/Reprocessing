@@ -178,25 +178,34 @@ j1 <- which(D6$Time[SkipRange6[1]] == Data$Time)
 j2 <- which(D6$Time[SkipRange6[length(SkipRange6)]] == Data$Time)
 Data[j1:j2, ] <- NA
 
-FCap1 <- c("Vertical wind, HIPPO-3 flight 3. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing.", "Residual error as defined in (1) as a function of Mach number. The dashed orange line is the mean value, 4.378.")
+FCap1 <- "Vertical wind, HIPPO-3 flight 3. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing."
+# , "Residual error as defined in (1) as a function of Mach number. The dashed orange line is the mean value, 4.378.")
 
 @
 
 
-\section{The problem to address}
+\section{Summary}
 
-Review of HIPPO-3 measurements shows that there is often a significant
-offset in vertical wind and that there is much variability from flight
-to flight and even within flights. For example, for HIPPO-3 flight
-1, Fig.~\ref{fig:vw-rf11} shows the measurements of vertical wind.
+As in HIPPO-2, there is often a significant offset in vertical wind in HIPPO-3 and much variability, esp. correlated with climbs and descents.  For example, for HIPPO-3 flight
+3, Fig.~\ref{fig:vw-rf3} shows the measurements of vertical wind.
 The blue line shows 1-Hz measurements, and the red line is the result
 after 60-s smoothing. The offset is significant and varies during
 the flight. Other flights show similar problems but with some inconsistency,
-often showing pronounced correlation between rate-of-climb and WIC
-(e.g., flight 10).
+often showing pronounced correlation between rate-of-climb and WIC.
+
+The problems are the same as in HIPPO-2, so the same solution applies:
+
+\begin{enumerate}
+\item Replace dependence of WIC on VSPD with dependence on VSPD\_G.
+\item Remove calibration coefficients that are applied to VSPD\_G.
+\item Use new sensitivity coefficients.
+\item Eliminate variable WI, conventionally based on VSPD.
+\end{enumerate}
+
+The remainder of this memo discusses the sensitivity coefficients.
 
 
-\section{The standard fit}
+\section{The standard fit (as for HIPPO-2)}
 
 The first step here will be to re-fit the measurements to the standard
 formula used to represent angle of attack $\alpha$, from the Processing
@@ -234,20 +243,12 @@ with important baroclinity or significant departures from the standard
 atmosphere, so there can be an important gradient in geometric altitude
 for flight along a surface of constant pressure and hence a false
 update applied to the vertical motion of the aircraft. See the Algorithm
-Documentation memo UsingVSPDforWI.pdf for a discussion of this problem.
+Documentation memo UsingVSPDforWI.pdf for a discussion of this problem. For 
+this reason, VSPD\_G will be used here to represent the rate-of-climb of the
+aircraft.
 
-As a test, the measured altitude GGALT was differentiated to obtain
-an alternate measurement of rate of climb. This new variable was consistent
-with VSPD\_G, for example with mean difference and standard deviation
-of the difference for HIPPO-3 flight 1 of -0.02$\pm$0.15\ m/s. The
-variance spectra characterizing VSPD\_G and the new rate-of-climb
-variable were hard to distinguish, with coherence above 0.95 and phase
-shift within about 10$^{\circ}$ at all frequencies. However, the
-fit procedure that follows in this memo gave a larger residual standard
-deviation for the new variable than for VSPD\_G, so VSPD\_G will be
-used in the following.
 
-<<vw-rf1, include=TRUE, fig.cap=FCap1>>=
+<<vw-rf3, include=TRUE, fig.cap=FCap1>>=
 
 Data$AOAREF <- (Data$PITCH - (Data$VSPD_G / Data$TASF) * (180 / pi)) 
 # Data$AOAREF <- (Data$PITCH - (Data$GGVS / Data$TASF) * (180 / pi)) 
@@ -259,76 +260,17 @@ V <- c("Time", "WIC", "WICS")
 D3 <- Data[Data$RF == 3, ]
 plotWAC(D3[, V], col=c('blue', 'red'), legend.position='top')
 Data$M <- MachNumber (Data$PSF, Data$QCF)
-plot (Data$M, Data$AOAREF-14.859*Data$ADIFR / Data$QCF, pch=20, col='blue', xlab='Mach Number', ylab='Residual Error [deg.]')
-lines (c(0,1), c(4.378,4.378), lwd=3, lty=2, col='darkorange')
+# plot (Data$M, Data$AOAREF-14.859*Data$ADIFR / Data$QCF, pch=20, col='blue', xlab='Mach Number', ylab='Residual Error [deg.]')
+# lines (c(0,1), c(4.378,4.378), lwd=3, lty=2, col='darkorange')
 
 @
 
 
 \section{Data used}
 
-This memo will use measurements from rf01--rf11. Some data restrictions
-are needed, for two reasons: 
-\begin{enumerate}
-\item Near the start and end of flights, there are periods where flaps and/or
-landing gear are deployed, leading to large potential errors in angle
-of attack. For HIPPO, there are frequent descents to low level followed
-by climbs, and in some cases where they are missed approaches flaps
-may have been deplowed, so it is best to exclude periods of low-speed
-flight unless at levels well above the surface where they may have
-arisen in the course of speed runs. It appears that if TASX is required
-to exceed 130~m/s, this provide a suitable delineation between these
-two cases, so that will be used to qualify data for this study. 
-\item A few other regions needed to be excluded because it appeared that
-ADIFR was questionable, perhaps because there were blockages in the
-lines or apertures. These regions were identified by significant departures
-in plots like Fig.~\ref{fig:summarize-fit} below. In addition, because
-there are additional potential uncertainties for measurements in turns,
-the data used in the following were restricted to cases where the
-roll was between $-4$ and $4^{\circ}$.
-\end{enumerate}
-Only the flight times listed in the following table were used for
-those reasons. The composite set of data had more than 250,000 1-s
-measurements.
-
-\noindent \begin{center}
-\begin{tabular}{|c|c|c|}
-\hline 
-\textbf{Flight}  & \textbf{Start {[}UTC{]}}  & \textbf{End {[}UTC{]}}\tabularnewline
-\hline 
-\hline 
-tf02  & 17:21:15  & 21:32:14 \tabularnewline
-\hline 
-rf01  & 17:40:00  & 22:10:00\tabularnewline
-\hline 
-rf02  & 15:10:00  & 21:00:00\tabularnewline
-\hline 
-rf03  & 21:09:05  & 22:15:00\tabularnewline
-\hline 
- & 22:45:00  & 23:45:00\tabularnewline
-\hline 
- & 23:59:00  & 24:50:00\tabularnewline
-\hline 
- & 25:10:00  & 28:00:00\tabularnewline
-\hline 
-rf04 & 20:07:07 & 28:08:40\tabularnewline
-\hline 
-rf05  & 21:30:00  & 27:12:17\tabularnewline
-\hline 
-rf06  & 21:25:55  & 28:55:00\tabularnewline
-\hline 
-rf07  & 21:13:08  & 28:54:07\tabularnewline
-\hline 
-rf08  & 23:02:39  & 31:25:26\tabularnewline
-\hline 
-rf09  & 20:10:32  & 27:41:08\tabularnewline
-\hline 
-rf10  & 19:10:46  & 26:23:46\tabularnewline
-\hline 
-rf11  & 18:40:42  & 23:20:44\tabularnewline
-\hline 
-\end{tabular}
-\par\end{center}
+The study described in this memo used combined measurements from rf01--rf11 and tf01--tf02. Two restrictions were applied: TASX > 130 and absolute value of ROLL < 4. In
+addition, it was necessary to eliminate 23:09:00--23:33:00 from flight 6 because of
+apparent blockage affecting ADIFR. The resulting data set included about 250,000 1-s measurements.
 
 
 \section{New coefficients using the standard formula}
@@ -352,26 +294,26 @@ cf <- coef(f)
 
 @
 
-A fit of (\ref{eq:stdAOA}) to the composite data, qualified as in
+For HIPPO-2, the coefficients found were \{5.151, 15.654, 7.299\}. For HIPPO-3, a 
+fit of (\ref{eq:stdAOA}) to the composite data, qualified as in
 Sect.~3, led to best-fit coefficients \{$c_{1--3}$\} = \{\Sexpr{cf[1]},
-\Sexpr{cf[2]}, \Sexpr{cf[3]}\}. A comparison of the angle of attack
+\Sexpr{cf[2]}, \Sexpr{cf[3]}\}. These coefficients produce almost the same result for
+angle of attack as the HIPPO-2 coefficients. Using the HIPPO-3 coefficients gave a residual
+standard deviation of 0.111$^{\circ}$ while the corresponding standard deviation for the
+HIPPO-2 coefficients was 0.113$^{\circ}$. Either set of coefficients could be used for
+reprocessing. A comparison of the angle of attack
 produced by (1) with these coefficients to the reference values given
-by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:summarize-fit}.
-The residual standard deviation for this fit was reduced slightly
-(about 10\%) from the fit that used only the first term, so it appears
-worthwhile to use this three-coefficient fit instead. Several other
-options were considered, including direct dependence on Mach number,
-air density, pressure, altitude, and powers and products of these,
-but none provided significant (>0.01) further reduction in the standard
-deviation of the residuals so it does not appear useful to include
-more complex terms in the fit.
+by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:summarize-fit}. 
 
 <<summarize-fit, include=TRUE, fig.cap="Calculated value of angle of attack vs the reference value used in the fit.">>=
 
 SummarizeFit(f)
       ## new angle-of-attack
 Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
-plot (Data$AOAREF, Data$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
+Data$AK2 <- 5.151 + Data$QR * (15.654 + 7.299 * Data$M)
+DataFit <- Data
+DataFit[!is.na(Data$AOAREF) & !is.na(Data$AK) & (abs(Data$AOAREF-Data$AK) > 0.5), ] <- NA
+plot (DataFit$AOAREF, DataFit$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
 lines (c(1,4.5), c(1,4.5), lwd=3, lty=2, col='darkorange')
 
 @
@@ -379,7 +321,7 @@ lines (c(1,4.5), c(1,4.5), lwd=3, lty=2, col='darkorange')
 
 \section{New values of the vertical wind}
 
-Normally, a new value of the vertical wind based on the new coefficients
+A new value of the vertical wind based on the new coefficients
 can be estmated from the previous value (WIC) modified to be WIX=WIC+($\alpha$-AKRD)$\pi$V/180
 where $\alpha$ is given by (1), $V$ is the airspeed and $\pi/180$
 is needed to convert from degrees to radians. In addition, because
@@ -453,11 +395,11 @@ Reproducibility:
 AKRDforHIPPO3.pdf\\
 SessionInfo} %\cc{first attachment\\second\\3rd att}%\attach{attachment}%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
 
-<<all-flights, include=TRUE, fig.cap="Recalculated vertical wind WIX and, with 60-s smoothing, WIXS. The red line is VSPD\\_G/10 and is included to check for dependence on the rate-of-climb of the aircraft.">>=
+<<all-flights, include=TRUE, fig.cap="Recalculated vertical wind WIX and, with 60-s smoothing, WIXS. The bright green line is VSPD\\_G/10 and is included to check for dependence on the rate-of-climb of the aircraft.">>=
 
 for (i in 1:11){
   plotWAC(Data[Data$RF == i, c("Time", "WIX", "WIXS")])
-  lineWAC(Data$Time, Data$GGVS/10, col='green')
+  lineWAC(Data$Time, Data$VSPD_G/10, col='green')
   title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIN"], na.rm=TRUE)))
 }
 

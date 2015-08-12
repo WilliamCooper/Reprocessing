@@ -111,6 +111,9 @@ Data <- getNetCDF (fname, VarList)
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
 DataV <- DataV[(!is.na (DataV$TASX)) & (DataV$TASX > 110), ]
+## special for HIPPO-2
+## declare obviously bad VCSEL measurements to be missing
+DataV$DP_VXL[DataV$DP_VXL > 30] <- NA
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]
 

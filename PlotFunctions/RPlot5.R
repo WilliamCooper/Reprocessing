@@ -2,6 +2,9 @@
 RPlot5 <- function (data) { 
   ## if EW_VXL or CAVP missing, fill in:
   if (!("EW_VXL" %in% names(data))) {data$EW_VXL <- MurphyKoop (data$DP_VXL)}
+  ## special in HIPPO-2 to avoid VCSEL spikes
+  # data$EW_VXL[data$EW_VXL > 20] <- NA
+    
   if (!("CAVP_DPL" %in% names(data))) {
     data$CAVP_DPL <- data$PSFC*(1.065+0.001575*data$QCFC
                      - 1.2498*MachNumber (data$PSFC, data$QCFC))
@@ -91,7 +94,9 @@ RPlot5 <- function (data) {
   for (i in 1:length (RHVAR)) {
     data[, RHVAR[i]] <- 100 * data[, VEW[i]] / MurphyKoop (data$ATX, data$PSFC)
   }
-  plotWAC (data[, c("Time", RHVAR)], lty=c(1,1,2), lwd=1, ylab="relative humidity [%]",cex.lab=1.5,cex.axis=1.5, legend.position='topright', ylim=c(0,150))
+  plotWAC (data[, c("Time", RHVAR)], lty=c(1,1,2), lwd=1, 
+           ylab="relative humidity [%]",cex.lab=1.5,cex.axis=1.5, 
+           legend.position='topright', ylim=c(0,150))
   # pulling legend out of plotWAC to increase font size
   # legend('topright',c("RHDPL", "RHDPR", "RHVXL"),col=c("blue","darkgreen","red"),text.col=c("blue","darkgreen","red"),lty=c(1,1,2),lwd=1)
   abline (h=100, col='red', lty=2)
