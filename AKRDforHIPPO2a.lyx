@@ -42,6 +42,9 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \end_preamble
 \use_default_options false
+\begin_modules
+knitr
+\end_modules
 \maintain_unincluded_children false
 \language english
 \language_package none
@@ -348,6 +351,11 @@ opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
 \begin_layout Plain Layout
 
 opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(digits=3)
 \end_layout
 
 \begin_layout Plain Layout
@@ -1900,7 +1908,7 @@ reference "fig:new-vw"
 
 1 for flight 3 with the addition of this new measurement of the vertical
  wind.
- The orange trace (WIXS, WIX with 60-s smoothing) represents the new variable,
+ The red trace (WIXS, WIX with 60-s smoothing) represents the new variable,
  which shows mean values close to zero for most of the flight and is a significa
 nt improvement over WIC.
  
@@ -2007,7 +2015,7 @@ Data$WINS  <- SmoothInterp (Data$WIN)
 
 \begin_layout Plain Layout
 
-V <- c("Time", "WIC", "WICNS", "WINS")
+V <- c("Time", "WICS", "WIX", "WIXS")
 \end_layout
 
 \begin_layout Plain Layout
@@ -2075,8 +2083,8 @@ plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position
 
 \begin_layout Plain Layout
 
-<<all-flights, include=TRUE, fig.cap="recalculated vertical wind WICN and,
- with new coefficients, WIN">>=
+<<all-flights, include=TRUE, fig.cap="recalculated vertical wind WIX and,
+ with 60-s smoothing, WIXS">>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -2090,7 +2098,7 @@ for (i in 1:11){
 
 \begin_layout Plain Layout
 
-  plotWAC(Data[Data$RF == i, c("Time", "WIN", "WINS")])
+  plotWAC(Data[Data$RF == i, c("Time", "WIX", "WIXS")])
 \end_layout
 
 \begin_layout Plain Layout
@@ -2141,7 +2149,7 @@ status open
 
 
 \backslash
-Sexpr{cf[1]
+Sexpr{cf[1]}
 \end_layout
 
 \end_inset
@@ -2154,7 +2162,7 @@ status open
 
 
 \backslash
-Sexpr{cf[2]
+Sexpr{cf[2]}
 \end_layout
 
 \end_inset
@@ -2167,12 +2175,12 @@ status open
 
 
 \backslash
-Sexpr{cf[3]
+Sexpr{cf[3]}
 \end_layout
 
 \end_inset
 
- for HIPPO-2.
+} for HIPPO-2.
 \end_layout
 
 \begin_layout Standard
@@ -2572,10 +2580,6 @@ system (sprintf("zip %s.zip AKRDforHIPPO2a.Rnw AKRDforHIPPO2a.pdf SessionInfo",
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
 
 \end_layout
 
