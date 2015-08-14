@@ -413,10 +413,84 @@ VSPD is the vertical aircraft speed, or rate of climb, provided by the IRU.
  The IRUs in use on both aircraft use updating to the pressure altitude
  to control the known instability that arises from integrating vertical
  acceleration to get rate-of-climb.
- As a result, the rate-of-climb represented by VSPD is with reference to
+ As a result, the rate-of-climb represented by VSPD is adjusted to match
  a standard atmosphere, and if the atmospheric stratification differs from
  the standard atmosphere the resulting rate-of-climb will not be the geometric-a
 ltitude rate of climb, as needed for the calculation of vertical wind.
+\end_layout
+
+\begin_layout Standard
+This can be seen best from the hydrostatic equation, expressed as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{dz}{dp}=-\frac{R_{a}T}{pg}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+w=\frac{dz}{dt}=-\frac{R_{d}T}{pg}\frac{dp}{dt}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $dz/dt$
+\end_inset
+
+ is the rate of climb in terms of geometric altitude.
+ For given climb conditions (T, p, and dp/dt), this only matches the climb
+ rate in a standard atmosphere if the temperature equals that of a standard
+ atmosphere, 
+\begin_inset Formula $T_{s}$
+\end_inset
+
+.
+ Otherwise, the error in rate-of-climb 
+\begin_inset Formula $w$
+\end_inset
+
+ is:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\delta w}{w}=\frac{R_{d}}{wpg}(T-T_{s})\frac{dp}{dt}=(\frac{T-T_{s}}{T})\,\,\,\,.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As an extreme example, if the temperature is 20
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C different from a standard atmosphere and the climb rate is 10 m/s where
+ the flight temperature is about -70
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C, the error is about 1 m/s.
+ This error enters directly into WI when calculated from VSPD.
 \end_layout
 
 \begin_layout Section
@@ -516,7 +590,7 @@ ref{fig:difference-VSPD-VSPD_G}
 \end_inset
 
 m/s.
- This is then reflected in WI, and shown in Fig.
+ This is then reflected in WI, as shown by the blue line in Fig.
 \begin_inset space ~
 \end_inset
 
@@ -533,14 +607,32 @@ ref{fig:example-of-errors}
 
 \end_inset
 
-, where the red trace is VSPD/10 to provide a reference for changes in rate-of-c
-limb.
- With this atmospheric stratification, there is an obvious error in WI that
- is correlated with VSPD.
- Other HIPPO flights show similar errors, sometimes with positive correlation
+.
+ In that figure, the red trace is VSPD/10 to provide a reference for changes
+ in rate-of-climb, and errors in WI are clearly correlated with errors in
+ VSPD.
+ Because HIPPO flights encountered such a wide range of atmospheric soundings,
+ other HIPPO flights show similar errors but sometimes with positive correlation
  and sometimes with negative correlation between WI and VSPD depending on
  the atmospheric stratification.
- WIC, based on VSPD_G, does not show this error.
+ WIC, based on VSPD_G (the green line in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:example-of-errors}
+\end_layout
+
+\end_inset
+
+), does not show this error.
  The reason for this error is evident from Fig.
 \begin_inset space ~
 \end_inset
@@ -564,24 +656,7 @@ ref{fig:sounding}
  in that plot.
  The temperatures are far below the standard-atmosphere temperatures, shown
  as the red line, so that is the reason that VSPD is significantly different
- from VSPD_G and so introduces the errors seen in Fig.
-\begin_inset space ~
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ref{fig:example-of-errors}
-\end_layout
-
-\end_inset
-
-.
+ from VSPD_G.
 \end_layout
 
 \begin_layout Standard
@@ -724,6 +799,43 @@ print(ggSpecs + geom_path (data = SkewTSounding (P, T, DP, ADD=TRUE), aes(x=T,
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Possible solutions
+\end_layout
+
+\begin_layout Enumerate
+If we want to retain VSPD as a representation of the rate-of-climb, it should
+ be multiplied by 
+\begin_inset Formula $T/T_{s}$
+\end_inset
+
+where 
+\begin_inset Formula $T_{s}$
+\end_inset
+
+ is the temperature in a standard atmosphere at the same pressure and both
+ are expressed in absolute units (K).
+ In that case we might want to introduce a new variable called ROC for rate-of-c
+limb and calculate it from VSPD, ATX and PSXC from
+\end_layout
+
+\begin_layout LyX-Code
+ROC = VSPD * (ATX + 273.15) / 
+\end_layout
+
+\begin_layout LyX-Code
+             (StandardAtmosphereTemperature (PSXC) + 273.15).
+\end_layout
+
+\begin_layout Enumerate
+Alternately we could drop WI and use only WIC based on a GPS-provided rate-of-cl
+imb.
+ Because changing the definition of WI may be confusing, especially with
+ differing definitions in use, I favor this.
+ Maybe a compromise between these solutions is to define a new variable
+ (WIR?) based on rate-of-climb represented by ROC.
 \end_layout
 
 \begin_layout Standard
