@@ -133,7 +133,7 @@ SmoothInterp <- function (x) {
 ## compile a composite data.frame 
 Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12", "rf13")
 ReloadData <- FALSE
-ReloadData <- TRUE
+# ReloadData <- TRUE
 Data <- data.frame()
 if (ReloadData) {
   for (flt in Flights) {
@@ -286,7 +286,7 @@ aircraft.
 
 <<vw-rf3, include=TRUE, fig.cap=FCap1>>=
 
-Data$PITCH <- Data$PITCH - CorrectPitch(Data)
+# Data$PITCH <- Data$PITCH - CorrectPitch(Data)
 Data$AOAREF <- (Data$PITCH - (Data$VSPD_G / Data$TASF) * (180 / pi)) 
 # Data$AOAREF <- (Data$PITCH - (Data$GGVS / Data$TASF) * (180 / pi)) 
 # Data <- Data[(Data$AOAREF > 1) & (Data$AOAREF < 6), ]
