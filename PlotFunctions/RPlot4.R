@@ -11,7 +11,7 @@ RPlot4 <- function (data) {
       plot (data[, c(VRPlot[[4]][1], VRPlot[[4]][i])], pch=20,ylab=ylb)
       lines (c(-70.,30.), c(-69.,31.), col="darkorange", lwd=2, lty=2)
       lines (c(-70.,30.), c(-71.,29.), col="darkorange", lwd=2, lty=2)
-      par(new=T)
+      par(new=TRUE)
       plot (data[, VRPlot[[4]][1]], 
             data[, VRPlot[[4]][i]] - data[, VRPlot[[4]][1]], 
             type='l', col='red',axes=F,xlab='',ylab='',ylim=c(-2,2))

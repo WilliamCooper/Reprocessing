@@ -67,7 +67,7 @@
 \begin{tabular}{ll}
 \textsf{\textsc{\textcolor{blue}{To:}}}  & \the\addressee\tabularnewline
 \textsf{\textsc{\textcolor{blue}{From:}}}  & Al Cooper\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Subject:}}}  & vertical wind for HIPPO-3\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}}  & vertical wind for HIPPO-5\tabularnewline
 \end{tabular}
 
 \bigskip{}
@@ -88,12 +88,14 @@ require(vioplot)
 require(plyr)
 Directory <- DataDirectory ()
 Flight <- "rf01" 			
-Project = "HIPPO-3"			 
+Project = "HIPPO-5"			 
 ProjectDir <- "HIPPO"
 fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
-VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX")
+VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "PITCH_IRS2", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX")
 ## add variables needed to recalculate wind
 VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW", "VNS", "THDG")
+## add variables needed for pitch correction:
+VarList <- c(VarList, "LAT")
 # Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
 SaveRData <- sprintf("%s.Rdata", thisFileName)
 
@@ -128,7 +130,7 @@ SmoothInterp <- function (x) {
 <<get-data, include=FALSE>>=
 
 ## compile a composite data.frame 
-Flights <- c("tf01", "tf02", "rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11")
+Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12", "rf13")
 ReloadData <- FALSE
 # ReloadData <- TRUE
 Data <- data.frame()
@@ -147,14 +149,17 @@ if (ReloadData) {
     D$GGVS <- signal::sgolayfilt (.ggalt, 3, 7, m=1)  # m=1 for first deriv.
     # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
     # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
+    if (fno == 1) {D <- D[setRange (D$Time, 0, 190000), ]}
+    # D$PITCH <- D$PITCH - CorrectPitch(D)
     Data <- rbind (Data, D)
   }
-  Data <- Data[Data$TASF > 130, ]
+  Data <- Data[Data$TASF > 110, ]
   Data <- Data[abs(Data$ROLL) < 4, ]
   save(Data, file=SaveRData)
 } else {
   load(SaveRData)
 }
+Data <- Data[Data$TASF > 130, ]
 ## SPECIAL ##
 # best: Data$VSPD_G <- Data$VSPD_G * 0.98  ## residual from 0.152 to 0.148
 # this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
@@ -170,14 +175,29 @@ Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients
 # SkipRange5 <- SkipRange5 + which(Data$Time[Data$RF == 5][1] == Data$Time)
 # Data[c(SkipRange3, SkipRange5), ] <- NA
 # Data <- Data[Data$RF == 10, ]  ## restrict to one flight
-D6 <- Data[Data$RF == 6, ]
-D6 <- D6[!is.na(D6$Time), ]
-SkipRange6 <- setRange(D6$Time, 230900, 233300)
-j1 <- which(D6$Time[SkipRange6[1]] == Data$Time)
-j2 <- which(D6$Time[SkipRange6[length(SkipRange6)]] == Data$Time)
-Data[j1:j2, ] <- NA
+# D6 <- Data[Data$RF == 6, ]
+# D6 <- D6[!is.na(D6$Time), ]
+# SkipRange6 <- setRange(D6$Time, 230900, 233300)
+# j1 <- which(D6$Time[SkipRange6[1]] == Data$Time)
+# j2 <- which(D6$Time[SkipRange6[length(SkipRange6)]] == Data$Time)
+# Data[j1:j2, ] <- NA
+## eliminate times after 230000 from rf12:
+# D12 <- Data[Data$RF == 12, ]
+# D12 <- D12[!is.na(D12$Time), ]
+# SkipRange <- setRange(D12$Time, 230000, 0)
+# j1 <- which(D12$Time[SkipRange[1]] == Data$Time)
+# j2 <- which(D12$Time[SkipRange[length(SkipRange)]] == Data$Time)
+# Data[j1:j2, ] <- NA
+# ## also eliminate few suspicious times (45640--45650) from rf04:
+# D4 <- Data[Data$RF == 4, ]
+# D4 <- D4[!is.na(D4$Time), ]
+# SkipRange <- setRange(D4$Time, 45640,45650)
+# j1 <- which(D4$Time[SkipRange[1]] == Data$Time)
+# j2 <- which(D4$Time[SkipRange[length(SkipRange)]] == Data$Time)
+# Data[j1:j2, ] <- NA
 
-FCap1 <- "Vertical wind, HIPPO-3 flight 3. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing."
+
+FCap1 <- "Vertical wind, HIPPO-5 flight 3. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing."
 # , "Residual error as defined in (1) as a function of Mach number. The dashed orange line is the mean value, 4.378.")
 
 @
@@ -185,7 +205,7 @@ FCap1 <- "Vertical wind, HIPPO-3 flight 3. The blue trace is WIC; the red trace 
 
 \section{Summary}
 
-As in HIPPO-2, there is often a significant offset in vertical wind in HIPPO-3 and much variability, esp. correlated with climbs and descents.  For example, for HIPPO-3 flight
+As in other HIPPO circuits, there is often a significant offset in vertical wind in HIPPO-5 and much variability, esp.~correlated with climbs and descents.  For example, for HIPPO-5 flight
 3, Fig.~\ref{fig:vw-rf3} shows the measurements of vertical wind.
 The blue line shows 1-Hz measurements, and the red line is the result
 after 60-s smoothing. The offset is significant and varies during
@@ -201,6 +221,22 @@ The problems are the same as in HIPPO-2, so the same solution applies:
 \item Eliminate variable WI, conventionally based on VSPD.
 \end{enumerate}
 
+This does not work as well in HIPPO-5 as in HIPPO-2 or HIPPO-3, and
+it appears that there is some inconsistency in measurements or errors in
+either ADIFR or PITCH. PITCH was checked by applying the pitch-correction
+algorithm discussed in the wind uncertainty technical note, without improvement.
+Detailed looks at ADIFR make it look suspicious. For example, flight 3 has a
+large deviation for the level flight segment in the middle of this flight but
+reasonable new measurements of WIX near the level segments at the start and
+end of the flight, although all were flown at upper levels and similar flight speeds.
+ADIFR is significantly different in the middle flight segment and appears to account for
+the offset in vertical wind. There are other flights that look much better, but many
+with this problem.
+
+I haven't found a solution to this problem. One approach might be to use a filter to
+remove any long-duration offset. The results of applying a high-pass Butterworth filter
+with 600 s time constant are shown in the appended flight-by-flight plots, and this may
+be necessary to get better-looking winds for HIPPO-5.
 The remainder of this memo discusses the sensitivity coefficients.
 
 
@@ -231,7 +267,7 @@ which would equal the angle of attack if the vertical wind were zero,
 and then determine the coefficients in (\ref{eq:stdAOA}) that minimize
 the difference between $\alpha^{*}$ and $\alpha$.
 
-For HIPPO-3 and all projects before SPRITES-II, there is the problem
+For HIPPO-5 and all projects before SPRITES-II, there is the problem
 that the highest-quality measurement of the rate of climb of the aircraft,
 GGVSPD, was not available. The alternatives are VSPD and VSPD\_G,
 the latter from the avionics-system GPS. The former is updated using
@@ -269,7 +305,9 @@ Data$M <- MachNumber (Data$PSF, Data$QCF)
 
 The study described in this memo used combined measurements from rf01--rf11 and tf01--tf02. Two restrictions were applied: TASX > 130 and absolute value of ROLL < 4. In
 addition, it was necessary to eliminate 23:09:00--23:33:00 from flight 6 because of
-apparent blockage affecting ADIFR. The resulting data set included about 250,000 1-s measurements.
+apparent blockage affecting ADIFR. In addition, flight 7 was excluded because it seemed inconsistent with other
+flights, needed different optimum coefficients, and if included had a large residual standard deviation from the fit,
+so it seemed preferable to avoid the danger of distorting the other flights by its inclusion. The resulting data set included about 250,000 1-s measurements.
 
 
 \section{New coefficients using the standard formula}
@@ -285,35 +323,52 @@ SummarizeFit <- function(ft) {
 }
 
 Data$QR <- Data$ADIFR / Data$QCF
-## eliminate outliers
+## add flight-duration variable; fit seems to be improved by its inclusion
+Data$FlightDuration <- Data$ADIFR    ## placeholder
+Data <- Data[!is.na(Data$Time), ]
+for (i in 1:length(Flights)) {
+  FlightDuration <- Data$Time[Data$RF == i] - Data$Time[Data$RF == i][1]
+  j1 <- which(Data$Time[Data$RF == i][1] == Data$Time)
+  j2 <- j1 + length(FlightDuration) - 1
+  Data$FlightDuration[j1:j2] <- FlightDuration
+}
+# DataFit <- Data[Data$RF != 7 & Data$RF > 0, ]
+DataFit <- Data[Data$RF == 4 | Data$RF == 7 | Data$RF == 8, ]
+DataFit <- Data[Data$RF == 3, ]
 DataFit <- Data
-DataFit[!is.na(Data$AOAREF) & !is.na(Data$AK) & (abs(Data$AOAREF-Data$AK) > 0.5), ] <- NA
 f <- lm (AOAREF~QR+I(QR*M), data=DataFit)
 cf <- coef(f)
+D3 <- Data[Data$RF == 3, ]
+f3 <- lm (AOAREF~QR+I(QR*M), data=D3)
+cf3 <- coef(f3)
 
 @
 
-For HIPPO-2, the coefficients found were \{5.151, 15.654, 7.299\}. For HIPPO-3, a 
+For HIPPO-2, the coefficients found were \{5.151, 15.654, 7.299\}. For HIPPO-5, a 
 fit of (\ref{eq:stdAOA}) to the composite data, qualified as in
 Sect.~3, led to best-fit coefficients \{$c_{1--3}$\} = \{\Sexpr{cf[1]},
-\Sexpr{cf[2]}, \Sexpr{cf[3]}\}. These coefficients produce almost the same result for
-angle of attack as the HIPPO-2 coefficients. Using the HIPPO-3 coefficients gave a residual
-standard deviation of 0.111$^{\circ}$ while the corresponding standard deviation for the
-HIPPO-2 coefficients was 0.113$^{\circ}$. Either set of coefficients could be used for
-reprocessing. A comparison of the angle of attack
-produced by (1) with these coefficients to the reference values given
-by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:summarize-fit}. 
+\Sexpr{cf[2]}, \Sexpr{cf[3]}\}. These coefficients are significantly different from those for
+HIPPO-2 or HIPPO-3, and the use of the HIPPO-2 or HIPPO-3 fits leads to significantly
+larger errors. There is evidently some characteristic of the radome that is different in HIPPO-5 vs
+earlier projects, and even after removal of evident outliers the fit represents the reference values with
+greater error than those earlier projects. Figure~\ref{fig:summarize-fit} compares the calculated
+angle of attack
+produced by (1) using these new coefficients to the reference values given
+by (\ref{eq:alpha-star}), where the larger scatter in comparison to the earlier projects
+is evident.  
 
 <<summarize-fit, include=TRUE, fig.cap="Calculated value of angle of attack vs the reference value used in the fit.">>=
 
 SummarizeFit(f)
+SummarizeFit(f3)
       ## new angle-of-attack
 Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+D3$AK <- cf3[1] + D3$QR * (cf3[2] + cf3[3] * D3$M)
 Data$AK2 <- 5.151 + Data$QR * (15.654 + 7.299 * Data$M)
 DataFit <- Data
-DataFit[!is.na(Data$AOAREF) & !is.na(Data$AK) & (abs(Data$AOAREF-Data$AK) > 0.5), ] <- NA
-plot (DataFit$AOAREF, DataFit$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
-lines (c(1,4.5), c(1,4.5), lwd=3, lty=2, col='darkorange')
+# DataFit[!is.na(Data$AOAREF) & !is.na(Data$AK) & (abs(Data$AOAREF-Data$AK) > 0.5), ] <- NA
+# plot (DataFit$AOAREF, DataFit$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
+# lines (c(1,6), c(1,6), lwd=3, lty=2, col='darkorange')
 
 @
 
@@ -332,26 +387,36 @@ the new variable, which shows mean values close to zero for most of
 the flight and is a significant improvement over WIC. 
 
 For reference, the plots of new vertical wind WIX for each of the
-HIPPO-3 research flights are appended to this memo, beginning with
-Fig.~\ref{fig:all-flights1}.
+HIPPO-5 research flights are appended to this memo, beginning with
+Fig.~\ref{fig:all-flights1}. Flight 7 is particularly bad, and special
+fits applied to this flight led to such different coefficients that it
+appears likely that something was wrong with the measurements (e.g., a
+leak in one of the lines). But generally the measurements of vertical
+wind for this project show unusual weakness and a different behavior from that
+of other earlier projects.
 
 <<new-vw, include=TRUE, fig.cap="As for Fig.\ 1 but adding the new variable WIX for the vertical wind.">>=
 
-Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD)
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
 Data$WIXS <- SmoothInterp (Data$WIX)
+D3$WIX <- D3$WIC + (D3$AK-D3$AKRD)*pi*D3$TASF/180. + (D3$VSPD_G-D3$VSPD)  
+D3$WIXS <- SmoothInterp (D3$WIX)
+Data$WIXF <- Data$WIX - ButterworthFilter (Data$WIX, 600)
 Data$GGVSPD <- Data$VSPD_G   ## needed by WindProcessor; GGVSPD not available
 DataW <- Data
 DataW <- WindProcessor(DataW) ## WIN is now based on old coefficients
 Data$WICN <- DataW$WIN
 DataW <- Data
 DataW$ATTACK <- DataW$AKRD <- DataW$AK       ## replace by new-cal-coef value
+DataW$PITCH <- DataW$PITCH_IRS2
 DataW <- WindProcessor(DataW)  ## will then have both WICN and WIN
 Data$WIN <- DataW$WIN
 Data$WICNS <- SmoothInterp (Data$WICN)
 Data$WINS  <- SmoothInterp (Data$WIN)
-V <- c("Time", "WICS", "WIX", "WIXS")
-D3 <- Data[Data$RF == 3, ]
-plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position='top')
+V <- c("Time", "WICS", "WIN", "WINS")
+V <- c("Time", "WICS", "WIX", "WIXS", "WIXF")
+D3T <- Data[Data$RF == 3, ]
+plotWAC(D3T[, V], col=c('blue', 'darkgreen', 'red', 'cyan'), lwd=c(1,2,3,2),legend.position='topright')
 
 
 <<WIXvsGGALT, include=TRUE, eval=TRUE, fig.cap="WIX vs GGALT for all measurements from the eleven research flights and one test flight used for this study.">>=
@@ -370,7 +435,7 @@ plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position
 
 Change the WIC dependency to VSPD\_G, remove the erroneous calibration
 coefficients applied to VSPD\_G, and use the sensitivity coefficients
-\{\Sexpr{cf[1]}, \Sexpr{cf[2]}, \Sexpr{cf[3]}\} for HIPPO-3.
+\{\Sexpr{cf[1]}, \Sexpr{cf[2]}, \Sexpr{cf[3]}\} for HIPPO-5.
 
 \clearpage
 
@@ -381,11 +446,11 @@ coefficients applied to VSPD\_G, and use the sensitivity coefficients
 Reproducibility:
 
 \begin{tabular}{ll}
-\textsf{\textsc{\textcolor{blue}{Project:}}}  & WI-HIPPO2\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & WI-HIPPO2.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Project:}}}  & WI-HIPPO5\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & WI-HIPPO5.zip\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Contains:}}}  & attachment list below\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Program:}}}  & AKRDforHIPPO2a.Rnw\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Original Data:}}}  & /scr/raf\_data/HIPPO/HIPPO-3rf01.nc, etc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}}  & AKRDforHIPPO5.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}}  & /scr/raf\_data/HIPPO/HIPPO-5rf01.nc, etc \tabularnewline
 \textsf{\textsc{\textcolor{blue}{Data Archive:}}}  & NCAR HPSS (not github) \tabularnewline
 \textsf{\textsc{\textcolor{blue}{Git:}}}  & https://github.com/WilliamCooper/Reprocessing.git\tabularnewline
 \end{tabular}
@@ -396,10 +461,10 @@ SessionInfo} %\cc{first attachment\\second\\3rd att}%\attach{attachment}%\attach
 
 <<all-flights, include=TRUE, fig.cap="Recalculated vertical wind WIX and, with 60-s smoothing, WIXS. The bright green line is VSPD\\_G/10 and is included to check for dependence on the rate-of-climb of the aircraft.">>=
 
-for (i in 1:11){
-  plotWAC(Data[Data$RF == i, c("Time", "WIX", "WIXS")])
+for (i in 1:length(Flights)){
+  plotWAC(Data[Data$RF == i, c("Time", "WIXS", "WIXF")])
   lineWAC(Data$Time, Data$VSPD_G/10, col='green')
-  title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIN"], na.rm=TRUE)))
+  title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIX"], na.rm=TRUE)))
 }
 
 @

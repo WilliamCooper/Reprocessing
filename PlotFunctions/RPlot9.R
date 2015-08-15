@@ -23,7 +23,7 @@ RPlot9 <- function (data) {
   data$WIXS <- SmoothInterp (data$WIX)
   plotWAC (data[, c("Time", "WIC", "WIX", "WIXS")], ylab="vertical wind WIC [m/s]",cex.axis=1.5,cex.lab=1.5)
   title (sprintf ("flight-average vertical wind: WIC %.02f WIX %.02f", 
-                  mean (data$WIC, na.rm=TRUE)
+                  mean (data$WIC, na.rm=TRUE),
                   mean (data$WIX, na.rm=TRUE)), cex.main=1.5)
   hline (2); hline (-2); hline (0,'red')
   AddFooter ()
