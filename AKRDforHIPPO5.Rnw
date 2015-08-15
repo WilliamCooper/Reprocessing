@@ -133,7 +133,7 @@ SmoothInterp <- function (x) {
 ## compile a composite data.frame 
 Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12", "rf13")
 ReloadData <- FALSE
-# ReloadData <- TRUE
+ReloadData <- TRUE
 Data <- data.frame()
 if (ReloadData) {
   for (flt in Flights) {
@@ -154,17 +154,14 @@ if (ReloadData) {
     # D$PITCH <- D$PITCH - CorrectPitch(D)
     Data <- rbind (Data, D)
   }
-  Data <- Data[Data$TASF > 110, ]
-  Data <- Data[abs(Data$ROLL) < 4, ]
   save(Data, file=SaveRData)
 } else {
   load(SaveRData)
 }
-Data <- Data[Data$TASF > 130, ]
+Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients
 ## SPECIAL ##
 # best: Data$VSPD_G <- Data$VSPD_G * 0.98  ## residual from 0.152 to 0.148
 # this doesn't help, either sign: Data$VSPD_G <- Data$VSPD_G + 0.05
-Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients
 # D3 <- Data[Data$RF == 3, ]
 # D5 <- Data[Data$RF == 5, ]
 # D3 <- D3[!is.na(D3$Time), ]
@@ -338,11 +335,13 @@ Data$QR <- Data$ADIFR / Data$QCF
 # DataFit <- Data[Data$RF != 7 & Data$RF > 0, ]
 # DataFit <- Data[Data$RF == 4 | Data$RF == 7 | Data$RF == 8, ]
 # DataFit <- Data[Data$RF == 3, ]
-DataFit <- Data
-f <- lm (AOAREF~QR+I(QR*M), data=DataFit)
+DataV <- Data[Data$TASF > 130, ]
+DataV <- DataV[abs(DataV$ROLL) < 4, ]
+DataV <- DataV[abs(Data$VSPD_G) < 1, ]
+f <- lm (AOAREF~QR+I(QR*M), data=DataV)
 cf <- coef(f)
-D3 <- Data[Data$RF == 3, ]
-f3 <- lm (AOAREF~QR+I(QR*M), data=D3)
+D3V <- DataV[DataV$RF == 3, ]
+f3 <- lm (AOAREF~QR+I(QR*M), data=D3V)
 cf3 <- coef(f3)
 
 @
@@ -366,9 +365,10 @@ SummarizeFit(f)
 SummarizeFit(f3)
       ## new angle-of-attack
 Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+D3 <- Data[Data$RF == 3, ]
 D3$AK <- cf3[1] + D3$QR * (cf3[2] + cf3[3] * D3$M)
 Data$AK2 <- 5.151 + Data$QR * (15.654 + 7.299 * Data$M)
-DataFit <- Data
+# DataFit <- Data
 # DataFit[!is.na(Data$AOAREF) & !is.na(Data$AK) & (abs(Data$AOAREF-Data$AK) > 0.5), ] <- NA
 # plot (DataFit$AOAREF, DataFit$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
 # lines (c(1,6), c(1,6), lwd=3, lty=2, col='darkorange')
@@ -467,7 +467,7 @@ SessionInfo} %\cc{first attachment\\second\\3rd att}%\attach{attachment}%\attach
 
 for (i in 1:length(Flights)){
   plotWAC(Data[Data$RF == i, c("Time", "WIXS", "WIXF")])
-  lineWAC(Data$Time, Data$VSPD_G/10, col='green', lty=2)
+  lineWAC(Data$Time, Data$VSPD_G/10, col='green', lwd=0.7, lty=1)
   title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIX"], na.rm=TRUE)))
 }
 
