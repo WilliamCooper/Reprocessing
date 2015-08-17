@@ -133,7 +133,7 @@ SmoothInterp <- function (x) {
 ## compile a composite data.frame 
 Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12", "rf13")
 ReloadData <- FALSE
-ReloadData <- TRUE
+# ReloadData <- TRUE
 Data <- data.frame()
 if (ReloadData) {
   for (flt in Flights) {
@@ -193,6 +193,13 @@ Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients
 # j1 <- which(D4$Time[SkipRange[1]] == Data$Time)
 # j2 <- which(D4$Time[SkipRange[length(SkipRange)]] == Data$Time)
 # Data[j1:j2, ] <- NA
+D2 <- Data[Data$RF == 2, ]
+D2 <- D2[!is.na(D2$Time), ]
+SkipRange <- setRange(D2$Time, 210000, 0)
+j1 <- which(D2$Time[SkipRange[1]] == Data$Time)
+j2 <- which(D2$Time[SkipRange[length(SkipRange)]] == Data$Time)
+Data[j1:j2, ] <- NA
+
 
 
 FCap1 <- "Vertical wind, HIPPO-5 flight 3. The blue trace is WIC; the red trace (WICS) is the same measurement after application of 60-s smoothing."
@@ -337,7 +344,7 @@ Data$QR <- Data$ADIFR / Data$QCF
 # DataFit <- Data[Data$RF == 3, ]
 DataV <- Data[Data$TASF > 130, ]
 DataV <- DataV[abs(DataV$ROLL) < 4, ]
-DataV <- DataV[abs(Data$VSPD_G) < 1, ]
+DataV <- DataV[abs(DataV$VSPD_G) < 1, ]
 f <- lm (AOAREF~QR+I(QR*M), data=DataV)
 cf <- coef(f)
 D3V <- DataV[DataV$RF == 3, ]
@@ -405,6 +412,7 @@ Data$WIXS <- SmoothInterp (Data$WIX)
 D3$WIX <- D3$WIC + (D3$AK-D3$AKRD)*pi*D3$TASF/180. + (D3$VSPD_G-D3$VSPD)  
 D3$WIXS <- SmoothInterp (D3$WIX)
 Data$WIXF <- Data$WIX - ButterworthFilter (Data$WIX, 600)
+Data$WIXFS <- SmoothInterp (Data$WIXF)
 D3$WIXF <- D3$WIX - ButterworthFilter (D3$WIX, 600)
 # Data$GGVSPD <- Data$VSPD_G   ## needed by WindProcessor; GGVSPD not available
 # DataW <- Data
@@ -463,11 +471,11 @@ Reproducibility:
 AKRDforHIPPO5.pdf\\
 SessionInfo} %\cc{first attachment\\second\\3rd att}%\attach{attachment}%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
 
-<<all-flights, include=TRUE, fig.cap="Recalculated vertical wind WIX and, with 60-s smoothing, WIXS. The bright green line is VSPD\\_G/10 and is included to check for dependence on the rate-of-climb of the aircraft.">>=
+<<all-flights, include=TRUE, fig.cap="Recalculated vertical wind WIX and, with 60-s smoothing, WIXS.">>=
 
 for (i in 1:length(Flights)){
-  plotWAC(Data[Data$RF == i, c("Time", "WIXS", "WIXF")])
-  lineWAC(Data$Time, Data$VSPD_G/10, col='green', lwd=0.7, lty=1)
+  plotWAC(Data[Data$RF == i, c("Time", "WIXS", "WIXFS")])
+  # lineWAC(Data$Time, Data$VSPD_G/10, col='green', lwd=0.7, lty=1)
   title(sprintf("Flight %d mean w = %.2f", i, mean(Data[Data$RF == i, "WIX"], na.rm=TRUE)))
 }
 

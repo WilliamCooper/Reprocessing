@@ -235,7 +235,7 @@ print(ggSpecs + geom_path (data = SkewTSounding (P, T, DP, ADD=TRUE), aes(x=T, y
 
 \section{Possible solutions}
 
-<<roc-plot, include=TRUE, fig.cap="Same as for Fig.~\\\ref{fig:difference-VSPD-VSPD\\_G2} but for ROC vs VSPD\\_G.">>=
+<<roc-plot, include=TRUE, fig.cap="Same as for Fig.~2 but for ROC vs VSPD\\_G.">>=
 
 TStdA <- function (PStdA) {
   T <- 15.-0.0065 * PressureAltitude (PStdA)
@@ -252,7 +252,7 @@ title(sprintf("slope coefficient: %.2f", cfr[2]))
 @
 \begin{itemize}
 \item If we want to retain VSPD as a representation of the rate-of-climb,
-it should be multiplied by $T/T_{s}$where $T_{s}$ is the temperature
+it should be multiplied by $T/T_{s}$ where $T_{s}$ is the temperature
 in a standard atmosphere at the same pressure and both are expressed
 in absolute units (K). In that case we might want to introduce a new
 variable called ROC for rate-of-climb and calculate it from VSPD,

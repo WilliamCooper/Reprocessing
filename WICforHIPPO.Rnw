@@ -1,0 +1,303 @@
+%% LyX 2.1.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\begin{document}
+\EOLmemo 
+
+\global\addressee={Reprocessing File}  % >>change "File" to the "To:" name desired
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}} & Vertical wind for HIPPO flights, circuits 2--5\tabularnewline
+\end{tabular}
+
+\bigskip
+
+<<initialization,echo=FALSE,include=FALSE>>=
+
+require(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+options(digits=3)
+thisFileName <- "WICforHIPPO"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+library(knitr)
+require(ggthemes)
+Directory <- DataDirectory ()
+Flight <- "rf08" 				# XXX change this
+Project = "HIPPO-2"			 # XXX change this
+fname = sprintf("%sHIPPO/%s%s.nc", Directory,Project,Flight)
+VarList <- c("ADIFR", "VSPD", "VSPD_G", "PITCH", "PITCH_IRS2", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX")
+## add variables needed to recalculate wind
+VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW", "VNS", "THDG")
+## add variables needed for pitch correction:
+VarList <- c(VarList, "LAT")
+# Data <- getNetCDF (fname, VarList) 
+SaveRData <- sprintf("%s.Rdata.gz", thisFileName)
+hline <- function(y, col='black', lwd=1, lty=2) {
+  ## note: 'Data' is a 'free variable' and needs to exist in the calling environment 
+  # SE <- getStartEnd(Data$Time)
+  # lines (c(Data$Time[getIndex(Data$Time, SE[1])], 
+  #          Data$Time[getIndex (Data$Time, SE[2])]), 
+  #        c(y, y), col=col, lty=2, lwd=lwd)
+  abline(h=y, col = col, lwd = lwd, lty = lty)
+}
+
+formatTime <- function (time) {
+  t <- as.POSIXlt (time)
+  tt <- sprintf ("%d:%02d:%02d", t$hour, t$min, t$sec)
+  return (tt)
+}
+
+SmoothInterp <- function (x) {
+  ## skip if there are fewer than 100 measurements
+  if (length (x[!is.na(x)]) < 100) {return (x)}
+  d <- zoo::na.approx (as.vector(x), maxgap=100, na.rm = FALSE)
+  d[is.na(d)] <- 0
+  return (signal::filter(signal::sgolay(3, 61), d))
+}
+
+@
+
+
+\section{General comments}
+
+The measurements of vertical wind from HIPPO flights appear to need
+different sensitivity coefficients for HIPPO-2/3 vs HIPPO-4/5, and
+the reason for that is not evident. Projects HIPPO-2 and HIPPO-3 are
+consistent and could use the same coefficients without serious error,
+but projects HIPPO-4 and HIPPO-5 each need significantly different
+coefficients and, even with those changes, the results for vertical
+wind appear to produce significant errors that can't be removed by
+AKRD calibration. Prior to January 2012, when the radome was changed,
+the ``standard'' coefficients expected to apply to the radome, determined
+from the PREDICT project, which was in August 2010 and so between
+HIPPO-3 and HIPPO-4, are listed in the following table. The suggested
+coefficients are also listed, and it is clear that the standard coefficients
+do not apply well to any of the HIPPO circuits (all flown before the
+2012 radome change). There was some evident change between HIPPO-3
+and HIPPO-4 (between April 2010 and June 2011), and the results from
+PREDICT are still different. Furthermore, the resulting vertical wind
+in HIPPO-2 and HIPPO-3 looks satisfactory, while there are evident
+problems in HIPPO-4 and HIPPO-5 that do not appear to be correctable
+by calibration coefficients, as discussed in the next section.
+
+\noindent \begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+\textbf{Project} & \textbf{Dates} & \textbf{$c_{1}$} & \textbf{$c_{2}$} & \textbf{$c_{3}$}\tabularnewline
+\hline 
+\hline 
+``standard'' & before 2012 & 5.516 & 19.07 & 2.08\tabularnewline
+\hline 
+HIPPO-2 & Nov. 2009 & 5.151 & 15.651 & 7.303\tabularnewline
+\hline 
+HIPPO-3 & Mar/Apr 2010 & 5.112 & 14.016 & 8.291\tabularnewline
+\hline 
+HIPPO-4 & Jun/Jul 2011 & 4.876 & 9.882 & 12.275\tabularnewline
+\hline 
+HIPPO-5 & Aug/Sept 2011 & 4.854 & 9.496 & 12.921\tabularnewline
+\hline 
+\end{tabular}
+\par\end{center}
+
+
+\section{Illustration and study of the HIPPO-4/HIPPO-5 problem}
+
+Flight 3 of HIPPO-5 illustrates the problem that is present in vertical-wind
+measurements from HIPPO-4 and HIPPO-5. If the coefficients listed
+in the above table, determined from the full-project measurements
+combining all flights, are used the result is the vertical wind shown
+in Fig.~\ref{fig:h5rf03}. If fit coefficients are determine from
+only this flight, to avoid the possibility that other flights might
+have different radome characteristics and so distort the results,
+the coefficient are \{4.76, 7.80, 15.00\}. The resulting fit has only
+minor improvement in the residual standard deviation (0.182 vs 0.188)
+in comparison to using the full-project coefficients as listed in
+the above table. It does not appear to improve the vertical wind,
+however; it lowers the central portion where there appears to be too-high
+vertical wind, but it accomplishes this by lowering the level portions
+near the start and end of the flight. Examination of the components
+entering the vertical wind shows that everything appears normal except
+ADIFR, which has enough offset in the central portion of the plot
+to account for the excess vertical wind.
+
+<<h5rf03, include=TRUE, fig.cap="Vertical wind measurements WIC for HIPPO-5 flight 3.">>=
+
+SaveRData <- "WI-HIPPO5.Rdata"
+load(SaveRData)
+Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients ) Data$AOAREF <- (Data$PITCH - (Data$VSPD_G / Data$TASF) * (180 / pi))  
+Data$M <- MachNumber (Data$PSF, Data$QCF)
+Data$QR <- Data$ADIFR / Data$QCF
+# Data$PITCH <- Data$PITCH - CorrectPitch(Data)
+Data$AOAREF <- (Data$PITCH - (Data$VSPD_G / Data$TASF) * (180 / pi)) 
+# Data$AOAREF <- (Data$PITCH - (Data$GGVS / Data$TASF) * (180 / pi))
+
+D2 <- Data[Data$RF == 2, ]
+D2 <- D2[!is.na(D2$Time), ]
+SkipRange <- setRange(D2$Time, 210000, 0)
+j1 <- which(D2$Time[SkipRange[1]] == Data$Time)
+j2 <- which(D2$Time[SkipRange[length(SkipRange)]] == Data$Time)
+Data[j1:j2, ] <- NA
+
+DataV <- Data[Data$TASF > 130, ]
+DataV <- DataV[abs(DataV$ROLL) < 4, ]
+DataV <- DataV[abs(DataV$VSPD_G) < 1, ]
+f <- lm (AOAREF~QR+I(QR*M), data=DataV)
+cf <- coef(f)       
+## new angle-of-attack 
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
+Data$WIXS <- SmoothInterp (Data$WIX)
+Data$WIXF <- Data$WIX - ButterworthFilter (Data$WIX, 600)
+Data$WIXFS <- SmoothInterp (Data$WIXF)
+D3 <- Data[Data$RF == 3, ] 
+V <- c("Time", "WIXS")
+plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red', 'cyan'), lwd=c(1,2,3,2),legend.position='topright')
+hline(0, col='darkorange', lty=2)
+title(sprintf("Flight 3 mean WIX: %.2f m/s", mean (D3$WIX, na.rm=TRUE)))
+
+<<h5rf04, include=TRUE, fig.cap="As in the preceding figure but for HIPPO-5 flight 4.">>=
+
+D4 <- Data[Data$RF == 4, ] 
+V <- c("Time", "WIXS")
+plotWAC(D4[, V], col=c('blue', 'darkgreen', 'red', 'cyan'), lwd=c(1,2,3,2),legend.position='topright')
+hline(0, col='darkorange', lty=2)
+title(sprintf("Flight 4 mean WIX: %.2f m/s", mean (D4$WIX, na.rm=TRUE)))
+
+@
+
+Figure \ref{fig:h5rf04} shows that a similar but even more problematic
+deviation occurs for Flight 4. Because these features occur throughout
+HIPPO-5, and have both signs, it seems implausible that they are real.
+More likely is that the radome suffers from some problem, like some
+accumulation of dirt or a bug near the ports or a partial obstruction
+in the lines or a leak. To check for this, the measurements of ADIFR
+were considered as functions of altitude or Mach number to see if
+there is a normal pattern for level flight and if there is unusual
+variance in HIPPO-5. Figure \ref{fig:adifr-study}, comparing the
+measurements of ADIFR from flight 4 to those from all other HIPPO-5
+flights except 1, 3, and 4, shows that flight-4 measurements are clear
+outliers. Of course, this would be the case if the vertical wind is
+really low as shown in Fig.~\ref{fig:h5rf04}, but that seems unlikely
+over such an extended distance. It seems more likely that there was
+some problem affecting the radome on this flight and perhaps also
+others in HIPPO-4 and HIPPO-5.
+
+<<adifr-study, include=TRUE, fig.cap="Distribution in ADIFR in altitude bins, for all measurements in HIPPO-5 except those in flights 1, 3, and 4 (green), and for those from flight 4 (blue).">>=
+
+flt <- 4
+DX <- binStats(Data[Data$RF != flt & Data$RF != 1 & Data$RF != 3 & Data$RF != 4, c("ADIFR", "GGALT")], bins=14, xlow=0, xhigh=14000)
+DX4 <- binStats(Data[Data$RF == flt, c("ADIFR", "GGALT")], bins=14, xlow=0, xhigh=14000)
+clr <- c("average", "WIX")
+col <- c ('blue', 'red')
+p <- ggplot(DX, aes(x=xc))
+p <- p + geom_errorbar(aes(ymin=ybar-sigma, ymax=ybar+sigma, colour='excl. 1,3,4'))
+p <- p + geom_errorbar(data=DX4, aes(ymin=ybar-sigma, ymax=ybar+sigma, colour='rf04'))
+
+# p <- p + scale_x_continuous (breaks=c(0,90,180,270,360))
+p <- p + geom_point (aes(y = ybar, colour=clr[1], shape=clr[1]), size=2.5)
+p <- p + geom_line (aes(y=ybar), colour='blue')
+p <- p + xlab("altitude [m]") + ylab("ADIFR [hPa]")
+# p <- p + scale_colour_manual("ADIFR:", labels = clr, values = col)
+# p <- p + scale_shape_manual ("v wind:", labels = clr, values = c(19,19))
+p <- p + theme_WAC() + theme (legend.background=element_rect(colour='black', size=0.3, fill="ivory"))
+print (p)
+
+@
+
+\begin{center}
+\textsf{\textcolor{blue}{-- End of Memo --}}
+\par\end{center}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/\Sexpr{Project}/\Sexpr{Flight}.nc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}} & git@github.com:WilliamCooper/\Sexpr{thisFileName}.git\tabularnewline
+\end{tabular}
+
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\\Sexpr{SaveRData}\\SessionInfo}
+%\cc{first attachment\\second\\3rd att}
+%\attach{attachment}
+%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+<<save-system-info, echo=FALSE>>= 
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, SaveRData))
+
+@ 
+
+%\attach{attachment}
+
+\attachm{ProgramFile\\Document.pdf\\SaveRData}
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}
