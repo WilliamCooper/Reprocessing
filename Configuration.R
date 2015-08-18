@@ -152,7 +152,7 @@ if (Project == "HIPPO-3") {
   VRPlot$PV23 <- c("C1DC_", "TASX")
   # VRPlot$PV30 <- c("CORAW_AL", "FO3_ACD", "COFLOW_AL", "INLETP_AL")
 }
-if (Project == "HIPPO-5") {
+if (Project == "HIPPO-4" || Project == "HIPPO-5") {
   ## track plot: don't change any exc. GGALT
   ## (PALT and PSXC are included to check the pressure altitude calculation)
   VRPlot <- list(PV1=c("LATC", "LONC", "WDC", "WSC", "GGALT", "PALT", "PSXC"))
