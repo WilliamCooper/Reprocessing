@@ -1356,6 +1356,88 @@ print (p)
 \end_layout
 
 \begin_layout Standard
+For this reason, we propose a different solution for HIPPO-4 and HIPPO-5:
+\end_layout
+
+\begin_layout Enumerate
+Determine a fit using only a two-coefficient fit, to obtain the best estimate
+ of the second coefficient relating ADIFR/QCF to AKRD: AOAREF = c[1] + c[2]ADIFR
+/QCF.
+\end_layout
+
+\begin_layout Enumerate
+Use a high-pass filter with long time constant, perhaps 600 s, to adjust
+ the resulting vertical wind to remove the offset.
+\end_layout
+
+\begin_layout Standard
+This avoids the danger that a fit like those shown for HIPPO-4 and HIPPO-5
+ will distort the sensitivity to the radome pressures from periods of faulty
+ radome performance, keep what appears to be a reasonable sensitivity to
+ the ratio ADIFR/QCF, and ensure that the resulting vertical wind will remain
+ near zero in the mean.
+ A 600
+\begin_inset space ~
+\end_inset
+
+s time constant will correspond, at a flight speed of 180 m/s, to a wavelength
+ of at least 100 km, so only vertical motion persisting at least this far
+ will be affected.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<filtered-result, include=TRUE, fig.cap="XX">>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ff <- lm(AOAREF ~ QR, data=DataV)
+\end_layout
+
+\begin_layout Plain Layout
+
+summary(ff)
+\end_layout
+
+\begin_layout Plain Layout
+
+cff <- coef(ff)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AKF <- cff[1] + cff[2] * Data$QR
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(Data$AOAREF, Data$AKF, type='p', pch=20, col='blue)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \align center
 
 \family sans

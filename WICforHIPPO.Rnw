@@ -157,7 +157,7 @@ HIPPO-3 & Mar/Apr 2010 & 5.112 & 14.016 & 8.291\tabularnewline
 \hline 
 HIPPO-4 & Jun/Jul 2011 & 4.876 & 9.882 & 12.275\tabularnewline
 \hline 
-HIPPO-5 & Aug/Sept 2011 & 4.854 & 9.496 & 12.921\tabularnewline
+HIPPO-5 & Aug/Sept 2011 & 5.044 & 9.746 & 9.567\tabularnewline
 \hline 
 \end{tabular}
 \par\end{center}
@@ -264,6 +264,48 @@ p <- p + xlab("altitude [m]") + ylab("ADIFR [hPa]")
 # p <- p + scale_shape_manual ("v wind:", labels = clr, values = c(19,19))
 p <- p + theme_WAC() + theme (legend.background=element_rect(colour='black', size=0.3, fill="ivory"))
 print (p)
+
+@
+
+For this reason, we propose a different solution for HIPPO-4 and HIPPO-5:
+\begin{enumerate}
+\item Determine a fit using only a two-coefficient fit, to obtain the best
+estimate of the second coefficient relating ADIFR/QCF to AKRD: AOAREF
+= c{[}1{]} + c{[}2{]}ADIFR/QCF.
+\item Use a high-pass filter with long time constant, perhaps 600 s, to
+adjust the resulting vertical wind to remove the offset.
+\end{enumerate}
+This avoids the danger that a fit like those shown for HIPPO-4 and
+HIPPO-5 will distort the sensitivity to the radome pressures from
+periods of faulty radome performance, keep what appears to be a reasonable
+sensitivity to the ratio ADIFR/QCF, and ensure that the resulting
+vertical wind will remain near zero in the mean. A 600~s time constant
+will correspond, at a flight speed of 180 m/s, to a wavelength of
+at least 100 km, so only vertical motion persisting at least this
+far will be affected.
+
+<<filtered-result, include=TRUE, fig.cap="XX">>=
+
+ff <- lm(AOAREF ~ QR, data=DataV)
+summary(ff)
+cff <- coef(ff)
+Data$AKF <- cff[1] + cff[2] * Data$QR
+plot(Data$AOAREF, Data$AKF, type='p', pch=20, col='blue')
+
+DataF <- DataV[DataV$RF == 7 | DataV$RF == 8 | DataV$RF > 10, ]
+                                                           
+ff <- lm(AOAREF ~ QR+I(QR*M), data=DataF)
+summary(ff)
+cff <- coef(ff)
+DataV$AKF <- cff[1] + DataV$QR * (cff[2] + cff[3] * DataV$M)
+plot(DataV$AOAREF, DataV$AKF, type='p', pch=20, col='blue')
+lines(c(1,6), c(1,6), col='darkorange', lwd=2, lty=2)
+for (i in 1:13) {
+  print (sprintf("flight %d rms=%.2f", i, sd(DataV[DataV$RF == i,"AOAREF"]-DataV[DataV$RF == i, "AKF"], na.rm=TRUE)))
+}
+plot(DataV$AOAREF, DataV$QR, type='p', pch=20, col='blue')
+
+
 
 @
 
