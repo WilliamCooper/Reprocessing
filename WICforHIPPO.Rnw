@@ -200,6 +200,8 @@ to account for the excess vertical wind.
 SaveRData <- "WI-HIPPO5.Rdata"
 load(SaveRData)
 Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12", "rf13")
+ProjectDir <- "HIPPO"
+Project <- "HIPPO-5"
 ReloadData <- FALSE
 # ReloadData <- TRUE
 Data <- data.frame()
@@ -249,7 +251,10 @@ cf <- coef(f)
 Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
 Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
 Data$WIXS <- SmoothInterp (Data$WIX)
-Data$WIXF <- Data$WIX - ButterworthFilter (Data$WIX, 600)
+bf <- signal::butter (3, 1/600)
+d <- zoo::na.approx (as.vector(Data$WIX), maxgap=100, na.rm = FALSE)
+d[is.na(d)] <- 0
+Data$WIXF <- Data$WIX - signal::filter( bf, d)
 Data$WIXFS <- SmoothInterp (Data$WIXF)
 D3 <- Data[Data$RF == 3, ] 
 V <- c("Time", "WIXS")
@@ -358,7 +363,10 @@ ff <- lm(AOAREF ~ QR+I(QR*M), data=DataF)
 # Data$AK <- cf[1] + Data$QR * (cf[2])
 Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD)
 Data$WIXS <- SmoothInterp (Data$WIX)
-Data$WIXF <- Data$WIX - ButterworthFilter (Data$WIX, 600)
+bf <- signal::butter (3, 1/600)
+d <- zoo::na.approx (as.vector(Data$WIX), maxgap=100, na.rm = FALSE)
+d[is.na(d)] <- 0
+Data$WIXF <- Data$WIX - signal::filter( bf, d)
 Data$WIXFS <- SmoothInterp (Data$WIXF)
 D3 <- Data[Data$RF == 3, ]
 D3 <- D3[!is.na(D3$Time), ]
@@ -389,11 +397,11 @@ Reproducibility:
 \textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/\Sexpr{Project}/\Sexpr{Flight}.nc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/HIPPO/\Sexpr{Project}/\Sexpr{Flight}.nc, etc. Aug 19) \tabularnewline
 \textsf{\textsc{\textcolor{blue}{Git:}}} & git@github.com:WilliamCooper/\Sexpr{thisFileName}.git\tabularnewline
 \end{tabular}
 
-\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\\Sexpr{SaveRData}\\SessionInfo}
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\SessionInfo}
 %\cc{first attachment\\second\\3rd att}
 %\attach{attachment}
 %\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
@@ -402,7 +410,7 @@ cat (toLatex(sessionInfo()), file="SessionInfo")
 
 @ 
 <<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
-system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, SaveRData))
+system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo", thisFileName, thisFileName, thisFileName))
 
 @ 
 
@@ -415,9 +423,15 @@ for (i in 1:13) {
   plotWAC(Data[Data$RF == i, V])
   title (sprintf ("HIPPO-5 flight %d", i))
 }
+
+@
+\clearpage
+
+<<more-flight-results, include=TRUE, fig.cap="Result for unfiltered and filtered vertical wind for HIPPO-4 flights. All plots have 60-s smoothing to reduce noise in these full-flight plots.">>=
 Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12")
 Data <- data.frame()
 SaveRData <- "WI-HIPPO4.Rdata"
+Project <- "HIPPO-4"
 if (ReloadData) {
   for (flt in Flights) {
     fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
@@ -441,6 +455,16 @@ if (ReloadData) {
 } else {
   load(SaveRData)
 }
+Data$QR <- Data$ADIFR / Data$QCF
+Data$M <- MachNumber (Data$PSF, Data$QCF)
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
+Data$WIXS <- SmoothInterp (Data$WIX)
+bf <- signal::butter (3, 1/600)
+d <- zoo::na.approx (as.vector(Data$WIX), maxgap=100, na.rm = FALSE)
+d[is.na(d)] <- 0
+Data$WIXF <- Data$WIX - signal::filter( bf, d)
+Data$WIXFS <- SmoothInterp (Data$WIXF)
 V <- c("Time", "WIXFS", "WIXS")
 for (i in 1:12) {
   plotWAC(Data[Data$RF == i, V])
