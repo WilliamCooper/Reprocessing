@@ -136,12 +136,22 @@ from the PREDICT project, which was in August 2010 and so between
 HIPPO-3 and HIPPO-4, are listed in the following table. The suggested
 coefficients are also listed, and it is clear that the standard coefficients
 do not apply well to any of the HIPPO circuits (all flown before the
-2012 radome change). There was some evident change between HIPPO-3
-and HIPPO-4 (between April 2010 and June 2011), and the results from
-PREDICT are still different. Furthermore, the resulting vertical wind
-in HIPPO-2 and HIPPO-3 looks satisfactory, while there are evident
-problems in HIPPO-4 and HIPPO-5 that do not appear to be correctable
-by calibration coefficients, as discussed in the next section.
+2012 radome change). There is significant difference also vs.~the
+DC3-TEST project, flown just before the last two HIPPO circuits. There
+was some evident change between HIPPO-3 and HIPPO-4 (between April
+2010 and June 2011), and the results from PREDICT are still different.
+Furthermore, the resulting vertical wind in HIPPO-2 and HIPPO-3 looks
+satisfactory, while there are evident problems in HIPPO-4 and HIPPO-5
+that do not appear to be correctable by calibration coefficients,
+as discussed in the next section.
+
+There were apparently no speed runs in the test or research flights
+leading to HIPPO-4 and HIPPO-5, but there were several in flights
+1, 2, and 4 of DC3-TEST. Therefore there may be some argument for
+using these coefficients in preference to those determined from HIPPO-4/5,
+in case some frequent radome problems affect the results from those
+projects. This will be discussed further in the ``Suggested choice''
+section below.
 
 \noindent \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
@@ -158,6 +168,8 @@ HIPPO-3 & Mar/Apr 2010 & 5.112 & 14.016 & 8.291\tabularnewline
 HIPPO-4 & Jun/Jul 2011 & 4.876 & 9.882 & 12.275\tabularnewline
 \hline 
 HIPPO-5 & Aug/Sept 2011 & 5.044 & 9.746 & 9.567\tabularnewline
+\hline 
+DC3-TEST & May 2011 & 5.389 & 20.172 & 0\tabularnewline
 \hline 
 \end{tabular}
 \par\end{center}
@@ -187,6 +199,33 @@ to account for the excess vertical wind.
 
 SaveRData <- "WI-HIPPO5.Rdata"
 load(SaveRData)
+Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12", "rf13")
+ReloadData <- FALSE
+# ReloadData <- TRUE
+Data <- data.frame()
+if (ReloadData) {
+  for (flt in Flights) {
+    fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
+    fno <- 30
+    if (grepl("rf", flt)) {
+      fno <- as.integer (sub("rf", "", flt))
+    }
+    if (grepl ("tf02", flt)) {fno <- -2}
+    if (grepl ("ff01", flt)) {fno <- -1}
+    D <- getNetCDF (fname, VarList, F=fno)
+    .ggalt <- zoo::na.approx (as.vector(D$GGALT), maxgap=2000, na.rm = FALSE)
+    # try 7-pt derivative, 3rd order:
+    D$GGVS <- signal::sgolayfilt (.ggalt, 3, 7, m=1)  # m=1 for first deriv.
+    # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
+    # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
+    if (fno == 1) {D <- D[setRange (D$Time, 0, 190000), ]}
+    # D$PITCH <- D$PITCH - CorrectPitch(D)
+    Data <- rbind (Data, D)
+  }
+  save(Data, file=SaveRData)
+} else {
+  load(SaveRData)
+}
 Data$VSPD_G <- (Data$VSPD_G + 0.06)/1.02  ## removes erroneous cal coefficients ) Data$AOAREF <- (Data$PITCH - (Data$VSPD_G / Data$TASF) * (180 / pi))  
 Data$M <- MachNumber (Data$PSF, Data$QCF)
 Data$QR <- Data$ADIFR / Data$QCF
@@ -267,11 +306,17 @@ print (p)
 
 @
 
+
+\section{Suggested choice}
+
 For this reason, we propose a different solution for HIPPO-4 and HIPPO-5:
 \begin{enumerate}
 \item Determine a fit using only a two-coefficient fit, to obtain the best
 estimate of the second coefficient relating ADIFR/QCF to AKRD: AOAREF
-= c{[}1{]} + c{[}2{]}ADIFR/QCF.
+= c{[}1{]} + c{[}2{]}ADIFR/QCF. It appears preferable to use the fit
+to DC3-TEST data because this program included several speed runs
+suitable for determining these coefficients. Therefore, the suggested
+fit coefficients for HIPPO-4/5 are \{5.389, 20.172, 0\}.
 \item Use a high-pass filter with long time constant, perhaps 600 s, to
 adjust the resulting vertical wind to remove the offset.
 \end{enumerate}
@@ -284,30 +329,54 @@ will correspond, at a flight speed of 180 m/s, to a wavelength of
 at least 100 km, so only vertical motion persisting at least this
 far will be affected.
 
-<<filtered-result, include=TRUE, fig.cap="XX">>=
+
+\section{Resulting vertical wind}
+
+<<filtered-result, include=TRUE, fig.cap="Example of the effect of a 600-s high-pass filter (WIXF) applied to the vertical wind measurement (WIX), from HIPPO-5 flight 3, 18:00:00--18:30:00.">>=
 
 ff <- lm(AOAREF ~ QR, data=DataV)
-summary(ff)
+#summary(ff)
 cff <- coef(ff)
-Data$AKF <- cff[1] + cff[2] * Data$QR
-plot(Data$AOAREF, Data$AKF, type='p', pch=20, col='blue')
+# Data$AKF <- cff[1] + cff[2] * Data$QR
+# plot(Data$AOAREF, Data$AKF, type='p', pch=20, col='blue')
 
 DataF <- DataV[DataV$RF == 7 | DataV$RF == 8 | DataV$RF > 10, ]
                                                            
 ff <- lm(AOAREF ~ QR+I(QR*M), data=DataF)
-summary(ff)
-cff <- coef(ff)
-DataV$AKF <- cff[1] + DataV$QR * (cff[2] + cff[3] * DataV$M)
-plot(DataV$AOAREF, DataV$AKF, type='p', pch=20, col='blue')
-lines(c(1,6), c(1,6), col='darkorange', lwd=2, lty=2)
-for (i in 1:13) {
-  print (sprintf("flight %d rms=%.2f", i, sd(DataV[DataV$RF == i,"AOAREF"]-DataV[DataV$RF == i, "AKF"], na.rm=TRUE)))
-}
-plot(DataV$AOAREF, DataV$QR, type='p', pch=20, col='blue')
+# summary(ff)
+# cff <- coef(ff)
+# DataV$AKF <- cff[1] + DataV$QR * (cff[2] + cff[3] * DataV$M)
+# plot(DataV$AOAREF, DataV$AKF, type='p', pch=20, col='blue')
+# lines(c(1,6), c(1,6), col='darkorange', lwd=2, lty=2)
+# for (i in 1:13) {
+  # print (sprintf("flight %d rms=%.2f", i, sd(DataV[DataV$RF == i,"AOAREF"]-DataV[DataV$RF == i, "AKF"], na.rm=TRUE)))
+# }
+# plot(DataV$AOAREF, DataV$QR, type='p', pch=20, col='blue')
 
-
+# cf[1] <- 5.389
+# cf[2] <- 20.172
+# Data$AK <- cf[1] + Data$QR * (cf[2])
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD)
+Data$WIXS <- SmoothInterp (Data$WIX)
+Data$WIXF <- Data$WIX - ButterworthFilter (Data$WIX, 600)
+Data$WIXFS <- SmoothInterp (Data$WIXF)
+D3 <- Data[Data$RF == 3, ]
+D3 <- D3[!is.na(D3$Time), ]
+r <- setRange(D3$Time, 180000, 183000)
+V <- c("Time", "WIXF", "WIX")
+plotWAC(D3[r, V])
+title("HIPPO-5 flight 3")
 
 @
+
+An example of the result of applying this approach, with 600-s high-pass
+filtering, is shown in Fig.~\ref{fig:filtered-result}. The high-frequency
+structure is mostly preserved well while the significant offset is
+removed. For reference, the full-flight plots of the unfiltered and
+filtered wind that results from this approach are appended, for both
+HIPPO-4 and HIPPO-5. See the sequence of figures starting with Fig.~\ref{fig:all-flight-results}.
+
+\clearpage
 
 \begin{center}
 \textsf{\textcolor{blue}{-- End of Memo --}}
@@ -337,9 +406,46 @@ system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo %s", thisFileName, thisFil
 
 @ 
 
-%\attach{attachment}
-
-\attachm{ProgramFile\\Document.pdf\\SaveRData}
-
 %\cc{first attachment\\second\\3rd att}
+
+<<all-flight-results, include=TRUE, fig.cap="Result for unfiltered and filtered vertical wind for HIPPO-5 flights. All plots have 60-s smoothing to reduce noise in these full-flight plots.">>=
+
+V <- c("Time", "WIXFS", "WIXS")
+for (i in 1:13) {
+  plotWAC(Data[Data$RF == i, V])
+  title (sprintf ("HIPPO-5 flight %d", i))
+}
+Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", "rf12")
+Data <- data.frame()
+SaveRData <- "WI-HIPPO4.Rdata"
+if (ReloadData) {
+  for (flt in Flights) {
+    fname = sprintf("%s%s/%s%s.nc", DataDirectory(),ProjectDir,Project,flt)
+    fno <- 30
+    if (grepl("rf", flt)) {
+      fno <- as.integer (sub("rf", "", flt))
+    }
+    if (grepl ("tf02", flt)) {fno <- -2}
+    if (grepl ("ff01", flt)) {fno <- -1}
+    D <- getNetCDF (fname, VarList, F=fno)
+    .ggalt <- zoo::na.approx (as.vector(D$GGALT), maxgap=2000, na.rm = FALSE)
+    # try 7-pt derivative, 3rd order:
+    D$GGVS <- signal::sgolayfilt (.ggalt, 3, 7, m=1)  # m=1 for first deriv.
+    # if (fno == 1) {D <- D[setRange (D$Time, 174000, 221000), ]}
+    # if (fno == 2) {D <- D[setRange (D$Time, 151000, 210000), ]}
+    if (fno == 1) {D <- D[setRange (D$Time, 0, 190000), ]}
+    # D$PITCH <- D$PITCH - CorrectPitch(D)
+    Data <- rbind (Data, D)
+  }
+  save(Data, file=SaveRData)
+} else {
+  load(SaveRData)
+}
+V <- c("Time", "WIXFS", "WIXS")
+for (i in 1:12) {
+  plotWAC(Data[Data$RF == i, V])
+  title (sprintf ("HIPPO-4 flight %d", i))
+}
+
+@
 \end{document}
