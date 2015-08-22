@@ -66,7 +66,7 @@
 
 \begin{tabular}{ll}
 \textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
-\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper and Jorgen Jensen\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Subject:}}} & Vertical wind for HIPPO flights, circuits 2--5\tabularnewline
 \end{tabular}
 
@@ -150,7 +150,7 @@ leading to HIPPO-4 and HIPPO-5, but there were several in flights
 1, 2, and 4 of DC3-TEST. Therefore there may be some argument for
 using these coefficients in preference to those determined from HIPPO-4/5,
 in case some frequent radome problems affect the results from those
-projects. This will be discussed further in the ``Suggested choice''
+projects. This will be discussed further in the ``Suggested processing''
 section below.
 
 \noindent \begin{center}
@@ -167,7 +167,7 @@ HIPPO-3 & Mar/Apr 2010 & 5.112 & 14.016 & 8.291\tabularnewline
 \hline 
 HIPPO-4 & Jun/Jul 2011 & 4.876 & 9.882 & 12.275\tabularnewline
 \hline 
-HIPPO-5 & Aug/Sept 2011 & 5.044 & 9.746 & 9.567\tabularnewline
+HIPPO-5 & Aug/Sept 2011 & 4.832 & 9.506 & 12.669\tabularnewline
 \hline 
 DC3-TEST & May 2011 & 5.389 & 20.172 & 0\tabularnewline
 \hline 
@@ -249,13 +249,18 @@ f <- lm (AOAREF~QR+I(QR*M), data=DataV)
 cf <- coef(f)       
 ## new angle-of-attack 
 Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+Data$AK2 <- 5.389 + 20.172 * Data$QR
 Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
+Data$WIX2 <- Data$WIC + (Data$AK2-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
 Data$WIXS <- SmoothInterp (Data$WIX)
-bf <- signal::butter (3, 1/600)
+Data$WIX2S <- SmoothInterp (Data$WIX2)
 d <- zoo::na.approx (as.vector(Data$WIX), maxgap=100, na.rm = FALSE)
 d[is.na(d)] <- 0
-Data$WIXF <- Data$WIX - signal::filter( bf, d)
+# Data$WIXF1 <- Data$WIX - signal::filter( signal::butter (3, 1/600), d)
+Data$WIXF <- Data$WIX - signal::filtfilt( signal::butter (3, 1/600), d)
+# Data$WIXF <- Data$WIX - signal::filter(signal::sgolay(3,601), d)
 Data$WIXFS <- SmoothInterp (Data$WIXF)
+# Data$WIXF1S <- SmoothInterp (Data$WIXF1)
 D3 <- Data[Data$RF == 3, ] 
 V <- c("Time", "WIXS")
 plotWAC(D3[, V], col=c('blue', 'darkgreen', 'red', 'cyan'), lwd=c(1,2,3,2),legend.position='topright')
@@ -312,28 +317,26 @@ print (p)
 @
 
 
-\section{Suggested choice}
+\section{Suggested processing}
 
-For this reason, we propose a different solution for HIPPO-4 and HIPPO-5:
-\begin{enumerate}
-\item Determine a fit using only a two-coefficient fit, to obtain the best
-estimate of the second coefficient relating ADIFR/QCF to AKRD: AOAREF
-= c{[}1{]} + c{[}2{]}ADIFR/QCF. It appears preferable to use the fit
-to DC3-TEST data because this program included several speed runs
-suitable for determining these coefficients. Therefore, the suggested
-fit coefficients for HIPPO-4/5 are \{5.389, 20.172, 0\}.
-\item Use a high-pass filter with long time constant, perhaps 600 s, to
-adjust the resulting vertical wind to remove the offset.
-\end{enumerate}
-This avoids the danger that a fit like those shown for HIPPO-4 and
-HIPPO-5 will distort the sensitivity to the radome pressures from
-periods of faulty radome performance, keep what appears to be a reasonable
-sensitivity to the ratio ADIFR/QCF, and ensure that the resulting
-vertical wind will remain near zero in the mean. A 600~s time constant
-will correspond, at a flight speed of 180 m/s, to a wavelength of
-at least 100 km, so only vertical motion persisting at least this
-far will be affected.
+The DC3-TEST coefficients were tested in HIPPO-5, but the results appeared
+to be much worse than those with the tabulated coefficients for HIPPO-5, so
+it appears best to keep those coefficients even though there is suspicion
+that something about the radome-based measurements is problematic in HIPPO-5.
+The suggested solution, to obtain reasonable-looking vertical wind for HIPPO-4
+and HIPPO-5, is to high-pass filter the vertical wind and then provide three
+variables: WIC (which would be what is called WIX in this memo); WIF 
+(filtered WIC), and WIX, the recommended value of vertical wind. For HIPPO-4
+and HIPPO-5, WIX would be WIF; for HIPPO-2 and HIPPO-3, WIX would be WIC without
+filtering. That would be consistent with 'X' used to identify other best choices
+among redundant measurements.
 
+The filter should have a long time constant to avoid affecting real 
+long-wavelength waves. The suggested choice is 600~s, which for airspeed
+above 180~m/s would correspond to a wavelength longer than 100~km. Furthermore,
+the filter should be applied forward and backward or otherwise designed to be
+centered to avoid the phase shift that would occur otherwise. This will
+necessitate second-pass processing to provide the filtered variable.
 
 \section{Resulting vertical wind}
 
@@ -361,19 +364,15 @@ ff <- lm(AOAREF ~ QR+I(QR*M), data=DataF)
 # cf[1] <- 5.389
 # cf[2] <- 20.172
 # Data$AK <- cf[1] + Data$QR * (cf[2])
-Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD)
-Data$WIXS <- SmoothInterp (Data$WIX)
-bf <- signal::butter (3, 1/600)
-d <- zoo::na.approx (as.vector(Data$WIX), maxgap=100, na.rm = FALSE)
-d[is.na(d)] <- 0
-Data$WIXF <- Data$WIX - signal::filter( bf, d)
-Data$WIXFS <- SmoothInterp (Data$WIXF)
+# Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD)
+# Data$WIXS <- SmoothInterp (Data$WIX)
 D3 <- Data[Data$RF == 3, ]
 D3 <- D3[!is.na(D3$Time), ]
 r <- setRange(D3$Time, 180000, 183000)
-V <- c("Time", "WIXF", "WIX")
-plotWAC(D3[r, V])
-title("HIPPO-5 flight 3")
+D3$Wshifted <- D3$WIX-mean(D3$WIX[r]-D3$WIXF[r])
+V <- c("Time", "WIXF", "WIX", "Wshifted")
+plotWAC(D3[r, V], legend.position='topright')
+title("HIPPO-5 flight 3; red line: WIX - mean (WIX-WIXF)")
 
 @
 
@@ -382,7 +381,7 @@ filtering, is shown in Fig.~\ref{fig:filtered-result}. The high-frequency
 structure is mostly preserved well while the significant offset is
 removed. For reference, the full-flight plots of the unfiltered and
 filtered wind that results from this approach are appended, for both
-HIPPO-4 and HIPPO-5. See the sequence of figures starting with Fig.~\ref{fig:all-flight-results}.
+HIPPO-4 and HIPPO-5. See the sequence of figures starting with Fig.~\ref{fig:all-flight-results1}.
 
 \clearpage
 
@@ -418,10 +417,14 @@ system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo", thisFileName, thisFileNa
 
 <<all-flight-results, include=TRUE, fig.cap="Result for unfiltered and filtered vertical wind for HIPPO-5 flights. All plots have 60-s smoothing to reduce noise in these full-flight plots.">>=
 
+V <- c("Time", "WIXFS", "WIXS", "VS")
+Data$VS <- Data$VSPD_G/10
 V <- c("Time", "WIXFS", "WIXS")
 for (i in 1:13) {
   plotWAC(Data[Data$RF == i, V])
-  title (sprintf ("HIPPO-5 flight %d", i))
+  title (sprintf ("HIPPO-5 flight %d mean unfiltered %.2f filtered %.2f", 
+                  i, mean(Data$WIX[Data$RF == i], na.rm=TRUE),
+                  mean(Data$WIXF[Data$RF == i], na.rm=TRUE)))
 }
 
 @
@@ -457,18 +460,23 @@ if (ReloadData) {
 }
 Data$QR <- Data$ADIFR / Data$QCF
 Data$M <- MachNumber (Data$PSF, Data$QCF)
+cf <- c(4.876, 9.882, 12.275)
 Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
 Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180. + (Data$VSPD_G-Data$VSPD) 
 Data$WIXS <- SmoothInterp (Data$WIX)
 bf <- signal::butter (3, 1/600)
 d <- zoo::na.approx (as.vector(Data$WIX), maxgap=100, na.rm = FALSE)
 d[is.na(d)] <- 0
-Data$WIXF <- Data$WIX - signal::filter( bf, d)
+Data$WIXF <- Data$WIX - signal::filtfilt( signal::butter (3, 1/600), d)
 Data$WIXFS <- SmoothInterp (Data$WIXF)
+V <- c("Time", "WIXFS", "WIXS", "VS")
+Data$VS <- Data$VSPD_G/10
 V <- c("Time", "WIXFS", "WIXS")
 for (i in 1:12) {
   plotWAC(Data[Data$RF == i, V])
-  title (sprintf ("HIPPO-4 flight %d", i))
+    title (sprintf ("HIPPO-4 flight %d mean unfiltered %.2f filtered %.2f", 
+                  i, mean(Data$WIX[Data$RF == i], na.rm=TRUE),
+                  mean(Data$WIXF[Data$RF == i], na.rm=TRUE)))
 }
 
 @
