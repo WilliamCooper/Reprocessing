@@ -43,7 +43,7 @@ RPlot7 <- function (data) {
   TAS <- VRPlot[[7]]
   TAS <- TAS[which("TAS" == substr(TAS, 1, 3))]
   plotWAC (data[, c("Time", TAS)], 
-           col=c('blue', 'darkorange', 'darkgreen', 'red'), ylab='TASy [m/s]', 
+           col=c('blue', 'darkorange', 'darkgreen', 'cyan'), ylab='TASy [m/s]', 
            legend.position='top')
   points(data$Time, (data[, VRPlot[[7]][3]] - data[, VRPlot[[7]][1]])*20+200, type='l',
                      col='red')  
