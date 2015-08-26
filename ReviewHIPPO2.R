@@ -17,8 +17,6 @@ require(ggthemes)
 Project <- sub (".*/", "", getwd())
 setwd (sprintf ("~/RStudio/%s", Project))
 Project <- "HIPPO-2"
-source("getNetCDF.R")
-source("PressureAltitude.R")
 
 ## if command arguments are supplied, via 'Rscript Review.R "rf01" "-1" then
 ## these will over-ride the interactive commands below. Arguments are all strings:
@@ -111,6 +109,7 @@ Data <- getNetCDF (fname, VarList)
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
 DataV <- DataV[(!is.na (DataV$TASX)) & (DataV$TASX > 110), ]
+DataV$DP_VXL[DataV$DP_VXL > 30] <- NA
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]
 
@@ -241,11 +240,11 @@ for (np in 3:nps) {
 print('plots generated')
 ## ----manuever-search-----------------------------------------------------
 
-PitchSearch (DataV)
-YawSearch (DataV)
-SpeedRunSearch (DataV)
-CircleSearch (DataV)
-ReverseHeadingSearch (DataV)
+# PitchSearch (DataV)
+# YawSearch (DataV)
+# SpeedRunSearch (DataV)
+# CircleSearch (DataV)
+# ReverseHeadingSearch (DataV)
 
 if (SavePlotsToFiles) {
   dev.off()
