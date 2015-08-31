@@ -161,19 +161,19 @@ if (Project == "HIPPO-4" || Project == "HIPPO-5") {
   ## RPlot2: uses same variables as RPlot1
   VRPlot[[2]] <- VRPlot[[1]]
   ## RPlot3: T vs time, specify any number of temperatures 
-  VRPlot$PV3 <- c("ATHR1", "ATHR2", "ATFH1", "ATFH2", "AT_A")
+  VRPlot$PV3 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
   ## RPlot4: compare temperatures in pairs; specify up to five.
   ## first is reference for comparisons
   VRPlot$PV4 <- VRPlot$PV3
   ## the next line should end with ATX and list dewpoints
   VRPlot$PV5 <- c("DP_VXL", "DP_DPL", "DP_DPR", "ATX")
   ## don't use if CAVP not available:
-  # VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR". "PSFC", "LSRINT_VXL") 
+  VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR", "PSFC", "LSRINT_VXL") 
   ## use only if CAVP not available: will plot surrogate CAVP
   VRPlot$PV5 <- c(VRPlot$PV5, "PSFC", "QCFC", "LSRINT_VXL")           
   ## list of vapor pressures to plot (there is no EW_VXL in HIPPO-2)
   ## then list "MR" (will calculate mixing ratios corresponding to EW)
-  VRPlot$PV5 <- c(VRPlot$PV5, "EW_DPL", "EW_DPR", "MR")  # H2OMR_GMD not in HIPPO-3 files?
+  VRPlot$PV5 <- c(VRPlot$PV5, "EW_DPL", "EW_DPR", "EW_VXL", "MR")  # H2OMR_GMD not in HIPPO-3 files?
   ## pressure measurements, first is reference
   VRPlot$PV6 <- c("PSFC", "PS_A", "PSF")
   ## dynamic pressure measurements, uncorrected, first is reference
@@ -196,7 +196,7 @@ if (Project == "HIPPO-4" || Project == "HIPPO-5") {
   ## 3rd variable is aircraft vertical speed, preferable is GGVSPD, not in HIPPO-2
   VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_A", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
   ## compare IRU attitude angles, IRS1 and IRS2
-  VRPlot$PV12 <- c("PITCH", "PITCH_IRS2", "PITCH_IRS3", "ROLL", "ROLL_IRS2", "ROLL_IRS3", "THDG", "THDG_IRS2", "THDG_IRS3")
+  VRPlot$PV12 <- c("PITCH", "PITCH_IRS2", "ROLL", "ROLL_IRS2",  "THDG", "THDG_IRS2")
   ## compare IRU measurements of acceleration, vertical speed, altitude
   VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_A", "GGALT", "ALT_A")
   ## at present there is no RPlot14; UHSAS is handled later

@@ -51,8 +51,13 @@ RPlot5 <- function (data) {
   # DP cavity pressures and VCSEL laser intensity:
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,5))
   op <- par (mar=c(2,4,1,2.5)+0.1)
-  plotWAC (data[, c("Time", "CAVP_DPR", "CAVP_DPL", "CAVPE_DPR", "CAVPE_DPL", "PSFC")], 
-           lwd=c(1,1,2,2,1), lty=c(1,1,2,2,1), ylab='CAVP [hPa]',legend.position='topleft')
+  if (("CAVPE_DPL" %in% names(data))) {
+    plotWAC (data[, c("Time", "CAVP_DPR", "CAVP_DPL", "CAVPE_DPR", "CAVPE_DPL", "PSFC")], 
+             lwd=c(1,1,2,2,1), lty=c(1,1,2,2,1), ylab='CAVP [hPa]',legend.position='topleft')
+  } else {
+    plotWAC (data[, c("Time", "CAVP_DPR", "CAVP_DPL", "PSFC")], 
+             lwd=c(1,1,2,2,1), lty=c(1,1,2,2,1), ylab='CAVP [hPa]',legend.position='topleft')    
+  }
   # pulling legend out of plotWAC to increase font size
   # legend('bottomright',c("CAVP_DPR", "CAVP_DPL", "PSFC"),col=c("blue","darkgreen","red"),text.col=c("blue","darkgreen","red"),lty=c(1,2,1),lwd=c(2,1,1),cex=0.75)
   title (sprintf ("mean above PSFC: %.1f (DPL) and %.1f (DPR)", 
