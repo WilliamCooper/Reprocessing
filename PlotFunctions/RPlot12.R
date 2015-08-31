@@ -46,8 +46,10 @@ RPlot12 <- function (data) {
   DF <- data[, c("Time", THDG)]
   DF <- data[, c("Time", "THDG", "THDG_IRS2")]
   DF$THDG_IRS2 <- DF$THDG_IRS2 - thdg_offset
-  DF$THDG_IRS2[DF$THDG-DF$THDG_IRS2 > 180] <- DF$THDG_IRS2[DF$THDG-DF$THDG_IRS2 > 180] + 360
-  DF$THDG_IRS2[DF$THDG-DF$THDG_IRS2 < -180] <- DF$THDG_IRS2[DF$THDG-DF$THDG_IRS2 < -180] - 360
+  t <- !is.na(DF$THDG_IRS2) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS2 > 180)
+  DF$THDG_IRS2[t] <- DF$THDG_IRS2[t] + 360
+  t <- !is.na(DF$THDG_IRS2) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS2 < -180)
+  DF$THDG_IRS2[t] <- DF$THDG_IRS2[t] - 360
   DF$DifferenceX500 <- (DF$THDG - DF$THDG_IRS2) * 500 + 180
   line.colors=c('blue', 'darkorange', 'red', 'skyblue')
   line.types <- c(1, 9, 1, 2)
