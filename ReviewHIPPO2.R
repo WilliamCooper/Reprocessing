@@ -108,8 +108,11 @@ Data <- getNetCDF (fname, VarList)
 
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
-DataV <- DataV[(!is.na (DataV$TASX)) & (DataV$TASX > 110), ]
-DataV$DP_VXL[DataV$DP_VXL > 30] <- NA
+namesV <- names(DataV)
+namesV <- namesV[namesV != "Time"]
+t <- !is.na (DataV$TASX) & (DataV$TASX < 110)
+DataV[t, namesV] <- NA
+# DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]
 
@@ -261,7 +264,7 @@ if (SavePlotsToFiles) {
     if (length (nplots) > 1) {
       for (i in 2:length(nplots)) {npsl <- sprintf("%s,%d", npsl, nplots[i])}
     }
-    syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"Review.R\",",
+    syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"ReviewHIPPO2.R\",",
                      "format=\"Rmd\")'", sprintf ("%s %s 3 ", Flight, npsl), sep=' ')
     system (syscmd, wait=TRUE)
     system (sprintf ("mv Review.html %s", plothtml))
