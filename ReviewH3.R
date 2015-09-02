@@ -108,7 +108,15 @@ Data <- getNetCDF (fname, VarList)
 
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
-DataV <- DataV[(!is.na (DataV$TASX)) & (DataV$TASX > 110), ]
+namesV <- names(DataV)
+namesV <- namesV[namesV != "Time"]
+t <- !is.na (DataV$TASX) & (DataV$TASX < 110)
+DataV[t, namesV] <- NA
+## guard against inf. VCSEL limits, as for rf08
+if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
+  DataV$DP_VXL <- rep(0, nrow(DataV))
+}
+# DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]
 
@@ -239,11 +247,11 @@ for (np in 3:nps) {
 print('plots generated')
 ## ----manuever-search-----------------------------------------------------
 
-PitchSearch (DataV)
-YawSearch (DataV)
-SpeedRunSearch (DataV)
-CircleSearch (DataV)
-ReverseHeadingSearch (DataV)
+# PitchSearch (DataV)
+# YawSearch (DataV)
+# SpeedRunSearch (DataV)
+# CircleSearch (DataV)
+# ReverseHeadingSearch (DataV)
 
 if (SavePlotsToFiles) {
   dev.off()
