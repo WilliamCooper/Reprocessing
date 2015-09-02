@@ -46,8 +46,8 @@ RPlot22 <- function (data) {
       plot (CellLimitsU, UHSAS, type='s', ylim=c(1,1.e6), 
             xlab="Diameter [um]", log="y", col='blue', lwd=2)
       # points (CellLimitsP, PCASP, type='s', col='darkgreen')
-      # title(sprintf("size distribution, Time=%s", strftime (Time[j], format="%H:%M:%S", tz='UTC')), 
-      #       cex.main=.75)
+      title(sprintf("size distribution, Time=%s", strftime (Time[j], format="%H:%M:%S", tz='UTC')), 
+           cex.main=.75)
       legend ("topright", legend=c("UHSAS", "PCASP"), col=c('blue', 'darkgreen'), 
               lwd=c(2,1), cex=0.75) 
       if (kount%%6==0)   AddFooter ()
