@@ -112,6 +112,10 @@ namesV <- names(DataV)
 namesV <- namesV[namesV != "Time"]
 t <- !is.na (DataV$TASX) & (DataV$TASX < 110)
 DataV[t, namesV] <- NA
+## guard against inf. VCSEL limits, as for rf08
+if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
+  DataV$DP_VXL <- rep(0, nrow(DataV))
+}
 # DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]
@@ -267,7 +271,7 @@ if (SavePlotsToFiles) {
     syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"ReviewHIPPO2.R\",",
                      "format=\"Rmd\")'", sprintf ("%s %s 3 ", Flight, npsl), sep=' ')
     system (syscmd, wait=TRUE)
-    system (sprintf ("mv Review.html %s", plothtml))
+    system (sprintf ("mv ReviewHIPPO2.html %s", plothtml))
   }
 } else {
   ## message ("press Enter (with focus here) to dismiss the plot and end routine")
