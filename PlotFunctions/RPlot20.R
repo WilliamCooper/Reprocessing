@@ -36,8 +36,10 @@ RPlot20 <- function (data) {
     if (exists("CFSSP")) {FSSP <- CFSSP[,j]}
     ## convert distributions to number per cm per um
     if (exists ("CDP")) {
+      CDPtot <- 0
       for (m in 2:length(CDP)) {
         CDP[m] <- CDP[m] / (CellLimitsD[m] - CellLimitsD[m-1])
+        CDPtot <- CDPtot + CDP[m]
       }
       CDP[CDP <= 0] <- 1e-4
     }
@@ -47,7 +49,7 @@ RPlot20 <- function (data) {
               op <- par (mar=c(5.2,2,1,1)+0.1))
       plot (CellLimitsD, CDP, type='s', ylim=c(1.e-1,1.e3), 
             xlab="Diameter [um]", log="y", col='blue', lwd=2)
-      title(sprintf("Time=%s", strftime (Time[j], format="%H:%M:%S", tz='UTC')), 
+      title(sprintf("Time=%s CONCD=%.1f", strftime (Time[j], format="%H:%M:%S", tz='UTC'), CDPtot), 
             cex.main=.75)
       legend ("topright", legend=c("CDP"), col='blue', 
               lwd=c(2,1), cex=0.75) 
