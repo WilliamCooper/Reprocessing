@@ -43,19 +43,19 @@ RPlot7 <- function (data) {
   TAS <- VRPlot[[7]]
   TAS <- TAS[which("TAS" == substr(TAS, 1, 3))]
   plotWAC (data[, c("Time", TAS)], 
-           col=c('blue', 'darkorange', 'darkgreen', 'red'), ylab='TASy [m/s]', 
+           col=c('blue', 'darkorange', 'darkgreen', 'cyan'), ylab='TASy [m/s]', 
            legend.position='top')
   points(data$Time, (data[, VRPlot[[7]][3]] - data[, VRPlot[[7]][1]])*20+200, type='l',
                      col='red')  
-  legend("bottomleft", c(ltext, "dashed red: +/- 2 hPa [diff]"), cex=0.75)
-  hline(220); hline(180)
+  ltext <- sprintf("red: (%s-%s)*20+200", TAS[length(TAS)], TAS[1])
+  legend("bottomleft", c(ltext, "dashed red: +/- 1 m/s [diff]"), cex=0.75)
+  hline(220, 'red'); hline(180, 'red')
   labl <- TAS
   labl <- sub("TAS", "", labl)
   titl <- "Mean diff: "
   for (i in 2:length(labl)) {
     titl <- sprintf("%s%s-%s: %.2f; ", titl, labl[i],labl[1],
-                    mean(data[, VRPlot[[7]][i]] -
-                           data[, VRPlot[[7]][1]], na.rm=TRUE))
+                    mean(data[, TAS[i]] - data[, TAS[1]], na.rm=TRUE))
   }
   title(titl, cex.main=0.8)
   op <- par (mar=c(5,4,1,1)+0.1)

@@ -11,7 +11,7 @@ RPlot13 <- function (data) {
 VSPD <- VSPD[grep("VSPD", VSPD)]
   plotWAC (data[, c("Time", VSPD)], legend.position='topright')
   title (sprintf ("mean vertical velocity: %.3f (IRS) and %.3f (GPS)",
-                  mean (Data$VSPD, na.rm=TRUE), mean (Data$VSPD_G, na.rm=TRUE)))
+                  mean (Data$VSPD, na.rm=TRUE), mean (Data$VSPD_A, na.rm=TRUE)))
   op <- par (mar=c(5,4,1,1)+0.1)
   ALT <- VRPlot[[13]]
   ALT <- ALT[grep("ALT", ALT)]

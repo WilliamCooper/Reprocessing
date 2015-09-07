@@ -6,6 +6,9 @@
 ##    construct each plot as specified (with some exceptions,
 ##    like the track plot in RPlot1, where the variables are
 ##    required to be as specified here in plotTrack() ).
+pitch_offset = 0.37
+roll_offset = -0.26
+thdg_offset = -0.35
 if (Project == "HIPPO-2") {
       ## track plot: don't change any exc. GGALT
       ## (PALT and PSXC are included to check the pressure altitude calculation)
@@ -13,12 +16,13 @@ if (Project == "HIPPO-2") {
       ## RPlot2: uses same variables as RPlot1
   VRPlot[[2]] <- VRPlot[[1]]
       ## RPlot3: T vs time, specify any number of temperatures 
-  VRPlot$PV3 <- c("ATHL1", "ATHL2", "ATHR1", "ATHR2", "AT_A")
+  VRPlot$PV3 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
       ## RPlot4: compare temperatures in pairs; specify up to five.
       ## first is reference for comparisons
-  VRPlot$PV4 <- c("ATHL1", "ATHL2", "ATHR1", "ATHR2", "AT_A")
+  VRPlot$PV4 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
       ## the next line should end with ATX and list dewpoints
   VRPlot$PV5 <- c("DP_VXL", "DP_DPL", "DP_DPR", "ATX")
+  VRPlot$PV5 <- c(VRPlot$PV5, "CAVPE_DPL", "CAVPE_DPR")
 ## don't use if CAVP not available:
   # VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR". "PSFC", "LSRINT_VXL") 
 ## use only if CAVP not available: will plot surrogate CAVP
@@ -33,24 +37,24 @@ if (Project == "HIPPO-2") {
       ## dynamic pressure measurements, corrected, first is reference
   VRPlot$PV7 <- c(VRPlot$PV7, "QCFC", "QCRC", "QC_A") #plot 7a-bottom
       ## list TAS measurements to plot vs time
-  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TAS_A")    #plot 7b-top
+  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TASDRY", "TAS_A")    #plot 7b-top
       ## and Mach numbers
   VRPlot$PV7 <- c(VRPlot$PV7, "MACHF", "MACHR", "MACH_A") #plot 7b-bottom
       ## plot 8 is total pressure, sum of 1+2 and 3+4; expect agreement
   VRPlot$PV8 <- c("PSF", "QCF", "PS_A", "QC_A")
       ## wind direction, speed, vertical wind: keep these unchanged
-  VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "WI")
+  VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "ADIFR")
       ## IRU velocity errors from differences (Schuler oscillation); don't change
   VRPlot$PV10 <- c("GGVEW", "VEW", "GGVNS", "VNS", "GGQUAL")
   ## for plotting effect of complementary filter
   VRPlot$PV10 <- c(VRPlot$PV10, "VEWC", "VNSC")
       ## compare calculated AOA/SS vs measured to check sensitivity coefficients
       ## 3rd variable is aircraft vertical speed, preferable is GGVSPD, not in HIPPO-2
-  VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_G", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
+  VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_A", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
       ## compare IRU attitude angles, IRS1 and IRS2
   VRPlot$PV12 <- c("PITCH", "PITCH_IRS2", "ROLL", "ROLL_IRS2", "THDG", "THDG_IRS2")
       ## compare IRU measurements of acceleration, vertical speed, altitude
-  VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_G", "GGALT", "ALT_G")
+  VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_A", "GGALT", "ALT_A")
       ## at present there is no RPlot14; UHSAS is handled later
   VRPlot$PV14 <- c(NA)
       ## plot concentrations:
@@ -86,14 +90,15 @@ if (Project == "HIPPO-3") {
   ## RPlot2: uses same variables as RPlot1
   VRPlot[[2]] <- VRPlot[[1]]
   ## RPlot3: T vs time, specify any number of temperatures 
-  VRPlot$PV3 <- c("ATHL1", "ATHL2", "ATHR1", "ATHR2", "AT_A")
+  VRPlot$PV3 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
   ## RPlot4: compare temperatures in pairs; specify up to five.
   ## first is reference for comparisons
-  VRPlot$PV4 <- c("ATHL1", "ATHL2", "ATHR1", "ATHR2", "AT_A")
+  VRPlot$PV4 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
   ## the next line should end with ATX and list dewpoints
   VRPlot$PV5 <- c("DP_VXL", "DP_DPL", "DP_DPR", "ATX")
   ## don't use if CAVP not available:
   # VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR". "PSFC", "LSRINT_VXL") 
+  VRPlot$PV5 <- c(VRPlot$PV5, "CAVPE_DPL", "CAVPE_DPR")
   ## use only if CAVP not available: will plot surrogate CAVP
   VRPlot$PV5 <- c(VRPlot$PV5, "PSFC", "QCFC", "LSRINT_VXL")           
   ## list of vapor pressures to plot (there is no EW_VXL in HIPPO-2)
@@ -106,24 +111,24 @@ if (Project == "HIPPO-3") {
   ## dynamic pressure measurements, corrected, first is reference
   VRPlot$PV7 <- c(VRPlot$PV7, "QCFC", "QCRC", "QC_A") #plot 7a-bottom
   ## list TAS measurements to plot vs time
-  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TAS_A")    #plot 7b-top
+  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TAS_A", "TASDRY")    #plot 7b-top
   ## and Mach numbers
   VRPlot$PV7 <- c(VRPlot$PV7, "MACHF", "MACHR", "MACH_A") #plot 7b-bottom
   ## plot 8 is total pressure, sum of 1+2 and 3+4; expect agreement
   VRPlot$PV8 <- c("PSF", "QCF", "PS_A", "QC_A")
   ## wind direction, speed, vertical wind: keep these unchanged
-  VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "WI", "ADIFR")  # need ADIFR for WIX
+  VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "ADIFR")  # need ADIFR for WIX
   ## IRU velocity errors from differences (Schuler oscillation); don't change
   VRPlot$PV10 <- c("GGVEW", "VEW", "GGVNS", "VNS", "GGQUAL")
   ## for plotting effect of complementary filter
   VRPlot$PV10 <- c(VRPlot$PV10, "VEWC", "VNSC")
   ## compare calculated AOA/SS vs measured to check sensitivity coefficients
   ## 3rd variable is aircraft vertical speed, preferable is GGVSPD, not in HIPPO-2
-  VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_G", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
+  VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_A", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
   ## compare IRU attitude angles, IRS1 and IRS2
   VRPlot$PV12 <- c("PITCH", "PITCH_IRS2", "ROLL", "ROLL_IRS2", "THDG", "THDG_IRS2")
   ## compare IRU measurements of acceleration, vertical speed, altitude
-  VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_G", "GGALT", "ALT_G")
+  VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_A", "GGALT", "ALT_A")
   ## at present there is no RPlot14; UHSAS is handled later
   VRPlot$PV14 <- c(NA)
   ## plot concentrations:
@@ -153,25 +158,28 @@ if (Project == "HIPPO-3") {
   # VRPlot$PV30 <- c("CORAW_AL", "FO3_ACD", "COFLOW_AL", "INLETP_AL")
 }
 if (Project == "HIPPO-4" || Project == "HIPPO-5") {
+  pitch_offset = 0.178
+  roll_offset = -0.192
+  thdg_offset = -0.536
   ## track plot: don't change any exc. GGALT
   ## (PALT and PSXC are included to check the pressure altitude calculation)
   VRPlot <- list(PV1=c("LATC", "LONC", "WDC", "WSC", "GGALT", "PALT", "PSXC"))
   ## RPlot2: uses same variables as RPlot1
   VRPlot[[2]] <- VRPlot[[1]]
   ## RPlot3: T vs time, specify any number of temperatures 
-  VRPlot$PV3 <- c("ATHR1", "ATHR2", "ATFH1", "ATFH2", "AT_A")
+  VRPlot$PV3 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
   ## RPlot4: compare temperatures in pairs; specify up to five.
   ## first is reference for comparisons
   VRPlot$PV4 <- VRPlot$PV3
   ## the next line should end with ATX and list dewpoints
   VRPlot$PV5 <- c("DP_VXL", "DP_DPL", "DP_DPR", "ATX")
   ## don't use if CAVP not available:
-  # VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR". "PSFC", "LSRINT_VXL") 
+  VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR", "PSFC", "LSRINT_VXL") 
   ## use only if CAVP not available: will plot surrogate CAVP
   VRPlot$PV5 <- c(VRPlot$PV5, "PSFC", "QCFC", "LSRINT_VXL")           
   ## list of vapor pressures to plot (there is no EW_VXL in HIPPO-2)
   ## then list "MR" (will calculate mixing ratios corresponding to EW)
-  VRPlot$PV5 <- c(VRPlot$PV5, "EW_DPL", "EW_DPR", "MR")  # H2OMR_GMD not in HIPPO-3 files?
+  VRPlot$PV5 <- c(VRPlot$PV5, "EW_DPL", "EW_DPR", "EW_VXL", "MR")  # H2OMR_GMD not in HIPPO-3 files?
   ## pressure measurements, first is reference
   VRPlot$PV6 <- c("PSFC", "PS_A", "PSF")
   ## dynamic pressure measurements, uncorrected, first is reference
@@ -179,24 +187,24 @@ if (Project == "HIPPO-4" || Project == "HIPPO-5") {
   ## dynamic pressure measurements, corrected, first is reference
   VRPlot$PV7 <- c(VRPlot$PV7, "QCFC", "QCRC", "QC_A") #plot 7a-bottom
   ## list TAS measurements to plot vs time
-  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TAS_A")    #plot 7b-top
+  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TAS_A", "TASDRY")    #plot 7b-top
   ## and Mach numbers
   VRPlot$PV7 <- c(VRPlot$PV7, "MACHF", "MACHR", "MACH_A") #plot 7b-bottom
   ## plot 8 is total pressure, sum of 1+2 and 3+4; expect agreement
   VRPlot$PV8 <- c("PSF", "QCF", "PS_A", "QC_A")
   ## wind direction, speed, vertical wind: keep these unchanged
-  VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "WI", "ADIFR")  # need ADIFR for WIX
+  VRPlot$PV9 <- c("WDC", "IWD", "WSC", "IWS", "WIC", "ADIFR")  # need ADIFR for WIX
   ## IRU velocity errors from differences (Schuler oscillation); don't change
   VRPlot$PV10 <- c("GGVEW", "VEW", "GGVNS", "VNS", "GGQUAL")
   ## for plotting effect of complementary filter
   VRPlot$PV10 <- c(VRPlot$PV10, "VEWC", "VNSC")
   ## compare calculated AOA/SS vs measured to check sensitivity coefficients
   ## 3rd variable is aircraft vertical speed, preferable is GGVSPD, not in HIPPO-2
-  VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_G", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
+  VRPlot$PV11 <- c("AKRD", "PITCH", "VSPD_A", "TASX", "SSRD", "WDC", "WSC", "GGVEW", "GGVNS") 
   ## compare IRU attitude angles, IRS1 and IRS2
-  VRPlot$PV12 <- c("PITCH", "PITCH_IRS2", "PITCH_IRS3", "ROLL", "ROLL_IRS2", "ROLL_IRS3", "THDG", "THDG_IRS2", "THDG_IRS3")
+  VRPlot$PV12 <- c("PITCH", "PITCH_IRS2", "ROLL", "ROLL_IRS2",  "THDG", "THDG_IRS2")
   ## compare IRU measurements of acceleration, vertical speed, altitude
-  VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_G", "GGALT", "ALT_G")
+  VRPlot$PV13 <- c("ACINS", "ACINS_IRS2", "VSPD", "VSPD_A", "GGALT", "ALT_A")
   ## at present there is no RPlot14; UHSAS is handled later
   VRPlot$PV14 <- c(NA)
   ## plot concentrations:
