@@ -106,8 +106,49 @@ for (i in 1:length(VRPlot)) {
     VarList <- c(VarList, VRPlot[[i]][j])
   }
 }
+VarList <- c(VarList, "RTH1", "RTH2")
 # source("./VarList")
 Data <- getNetCDF (fname, VarList)
+## correct temperature calibrations
+## old one: -83.734 22.175 0.28489
+## new:  -85.7346, 25.1258, -0.28625
+c <- vector("numeric", 3)
+cx <- vector("numeric", 3)
+c[1] = -83.734
+c[2] = 22.175
+c[3] = 0.28489
+cx[1] = -85.7346
+cx[2] = 25.1258
+cx[3] = -0.28625
+
+rad <- (c[2]**2-4.*(c[1]-Data$RTH1)*c[3])**0.5
+Volts <- (-c[2] + rad) / (2.*c[3])
+Data$RTH1 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+# Data$ATH1 <- AirTemperature (Data$RTH1, Data$PSFC, Data$QCFC)
+c[1] = 0
+c[2] = 1
+c[3] = 0
+## -81.450545, 24.175946, -0.268566
+## -84.307695 23.102058 0.305282
+cx[1] = -81.4505
+cx[2] = 24.1759
+cx[3] = -0.268566
+
+## cal at end of HIPPO-5 (same sensor, looks to be different A2D channel -- don't use)
+# cx[1] <- -84.307695 
+# cx[2] <- 23.102058 
+# cx[3] <- 0.305282
+Volts <- Data$RTH2
+Data$RTH2 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+Data$ATH2 <- AirTemperature (Data$RTH2, Data$PSFC, Data$QCFC)
+## alternate 
+cx[1] <- -79.964778 
+cx[2] <- 21.567790 
+cx[3] <- 0.258956
+Data$RTH2 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+Data$ATH2Y <- AirTemperature (Data$RTH2, Data$PSFC, Data$QCFC)
+Data$ATX <- Data$ATH3
+
 
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
@@ -231,7 +272,7 @@ RPlot21Cap <- "Radiometric temperatures, RSTB (top panel, surface temperature) a
 
 
 ## temporary, as test:
-# VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
+VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
 ### This section loops through plot functions, first loading them from 'PlotFunctions'
 ### and then running them with the appropriate data.
 for (np in 1:2) {
