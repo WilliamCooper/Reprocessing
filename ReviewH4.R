@@ -124,7 +124,7 @@ cx[3] = -0.28625
 rad <- (c[2]**2-4.*(c[1]-Data$RTH1)*c[3])**0.5
 Volts <- (-c[2] + rad) / (2.*c[3])
 Data$RTH1 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
-# Data$ATH1 <- AirTemperature (Data$RTH1, Data$PSFC, Data$QCFC)
+Data$ATH1 <- AirTemperature (Data$RTH1, Data$PSFC, Data$QCFC)
 c[1] = 0
 c[2] = 1
 c[3] = 0
