@@ -17,9 +17,9 @@ require(ggthemes)
 WorkDir <- sub (".*/", "", getwd())
 setwd (sprintf ("~/RStudio/%s", WorkDir))
 Project <- "HIPPO-5"
-source("getNetCDF.R")
-source("PressureAltitude.R")
-source("~cooperw/RStudio/Ranadu/R/PotentialTemperatures.R")
+# source("getNetCDF.R")
+# source("PressureAltitude.R")
+# source("~cooperw/RStudio/Ranadu/R/PotentialTemperatures.R")
 
 ## if command arguments are supplied, via 'Rscript Review.R "rf01" "-1" then
 ## these will over-ride the interactive commands below. Arguments are all strings:
@@ -106,12 +106,69 @@ for (i in 1:length(VRPlot)) {
     VarList <- c(VarList, VRPlot[[i]][j])
   }
 }
+## these are needed for translation to new cal coefficients
+VarList <- c(VarList, "RTH1", "RTH2", "RTH3", "RTH4")
 # source("./VarList")
 Data <- getNetCDF (fname, VarList)
 
+## correct temperature calibrations
+UseNewCal <- TRUE
+c <- vector("numeric", 3)
+cx <- vector("numeric", 3)
+## RTH1 (Rosemount)
+c[1] = -87.788
+c[2] = 26.510
+c[3] = -0.31981
+cx[1] = -84.942
+cx[2] = 23.673
+cx[3] = 0.20332
+rad <- (c[2]**2-4.*(c[1]-Data$RTH1)*c[3])**0.5
+Volts <- (-c[2] + rad) / (2.*c[3])
+Data$RTH1 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+if (UseNewCal) {Data$ATH1 <- AirTemperature (Data$RTH1, Data$PSFC, Data$QCFC)}
+c[1] = -84.308
+c[2] = 23.102
+c[3] = 0.30528
+cx[1] = -83.718
+cx[2] = 23.250
+cx[3] = 0.18589
+rad <- (c[2]**2-4.*(c[1]-Data$RTH2)*c[3])**0.5
+Volts <- (-c[2] + rad) / (2.*c[3])
+Data$RTH2 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+if (UseNewCal) {Data$ATH2 <- AirTemperature (Data$RTH2, Data$PSFC, Data$QCFC)}
+c[1] = -82.990
+c[2] = 22.512
+c[3] = 0.39721
+cx[1] = -82.697
+cx[2] = 22.856
+cx[3] = 0.23639
+rad <- (c[2]**2-4.*(c[1]-Data$RTH3)*c[3])**0.5
+Volts <- (-c[2] + rad) / (2.*c[3])
+Data$RTH3 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+if (UseNewCal) {Data$ATH3 <- AirTemperature (Data$RTH3, Data$PSFC, Data$QCFC)}
+c[1] = -83.566
+c[2] = 22.704
+c[3] = 0.39350
+cx[1] = -82.739
+cx[2] = 22.795
+cx[3] = 0.26341
+rad <- (c[2]**2-4.*(c[1]-Data$RTH4)*c[3])**0.5
+Volts <- (-c[2] + rad) / (2.*c[3])
+Data$RTH4 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+if (UseNewCal) {Data$ATH4 <- AirTemperature (Data$RTH4, Data$PSFC, Data$QCFC)}
+Data$ATX <- Data$ATH3
+
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
-DataV <- DataV[(!is.na (DataV$TASX)) & (DataV$TASX > 110), ]
+namesV <- names(DataV)
+namesV <- namesV[namesV != "Time"]
+t <- !is.na (DataV$TASX) & (DataV$TASX < 110)
+DataV[t, namesV] <- NA
+## guard against inf. VCSEL limits, as for rf08
+if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
+  DataV$DP_VXL <- rep(0, nrow(DataV))
+}
+# DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]
 
@@ -170,11 +227,11 @@ RPlotn <- function(data) {
 
 #----------------------------------------------------------------------------
 ### this section loads functions for searches for maneuvers
-source ("./PlotFunctions/SpeedRunSearch.R")
-source ("./PlotFunctions/CircleSearch.R")
-source ("./PlotFunctions/PitchSearch.R")
-source ("./PlotFunctions/YawSearch.R")
-source ("./PlotFunctions/ReverseHeadingSearch.R")
+# source ("./PlotFunctions/SpeedRunSearch.R")
+# source ("./PlotFunctions/CircleSearch.R")
+# source ("./PlotFunctions/PitchSearch.R")
+# source ("./PlotFunctions/YawSearch.R")
+# source ("./PlotFunctions/ReverseHeadingSearch.R")
 SE <- getStartEnd (Data$Time)
 i <- getIndex (Data$Time, SE[1])
 FigFooter=sprintf("%s %s %s %s-%s UTC,",Project,toupper(Flight),strftime(Data$Time[i], format="%Y-%m-%d", tz='UTC'),strftime(Data$Time[i], format="%H:%M:%S", tz='UTC'),strftime(Data$Time[getIndex(Data$Time,SE[2])], format="%H:%M:%S", tz='UTC'))
@@ -221,6 +278,9 @@ RPlot21Cap <- "Radiometric temperatures, RSTB (top panel, surface temperature) a
 
 ## ----plot-loop-----------------------------------------------------------
 
+
+## temporary, as test:
+VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
 ### This section loops through plot functions, first loading them from 'PlotFunctions'
 ### and then running them with the appropriate data.
 for (np in 1:2) {
@@ -242,11 +302,11 @@ for (np in 3:nps) {
 print('plots generated')
 ## ----manuever-search-----------------------------------------------------
 
-PitchSearch (DataV)
-YawSearch (DataV)
-SpeedRunSearch (DataV)
-CircleSearch (DataV)
-ReverseHeadingSearch (DataV)
+# PitchSearch (DataV)
+# YawSearch (DataV)
+# SpeedRunSearch (DataV)
+# CircleSearch (DataV)
+# ReverseHeadingSearch (DataV)
 
 if (SavePlotsToFiles) {
   dev.off()
