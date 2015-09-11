@@ -160,6 +160,9 @@ DataV[t, namesV] <- NA
 if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
   DataV$DP_VXL <- rep(0, nrow(DataV))
 }
+if (min(DataV$DP_DPR, na.rm=TRUE) == Inf) {
+  DataV$DP_DPR <- rep(0, nrow(DataV))
+}
 # DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]

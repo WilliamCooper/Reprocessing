@@ -45,7 +45,7 @@ RPlot7 <- function (data) {
   plotWAC (data[, c("Time", TAS)], 
            col=c('blue', 'darkorange', 'darkgreen', 'cyan'), ylab='TASy [m/s]', 
            legend.position='top')
-  points(data$Time, (data[, VRPlot[[7]][3]] - data[, VRPlot[[7]][1]])*20+200, type='l',
+  points(data$Time, (data[, TAS[length(TAS)]] - data[, TAS[1]]) *20+200, type='l',
                      col='red')  
   ltext <- sprintf("red: (%s-%s)*20+200", TAS[length(TAS)], TAS[1])
   legend("bottomleft", c(ltext, "dashed red: +/- 1 m/s [diff]"), cex=0.75)

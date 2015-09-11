@@ -187,7 +187,7 @@ if (Project == "HIPPO-4" || Project == "HIPPO-5") {
   ## dynamic pressure measurements, corrected, first is reference
   VRPlot$PV7 <- c(VRPlot$PV7, "QCFC", "QCRC", "QC_A") #plot 7a-bottom
   ## list TAS measurements to plot vs time
-  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TAS_A", "TASDRY")    #plot 7b-top
+  VRPlot$PV7 <- c(VRPlot$PV7, "TASF", "TASR", "TASDRY", "TAS_A")    #plot 7b-top
   ## and Mach numbers
   VRPlot$PV7 <- c(VRPlot$PV7, "MACHF", "MACHR", "MACH_A") #plot 7b-bottom
   ## plot 8 is total pressure, sum of 1+2 and 3+4; expect agreement

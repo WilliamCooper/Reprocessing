@@ -54,7 +54,11 @@ print(sprintf("Project is %s", Project))
 ## find max rf in data directory, use as default if none supplied via command line:
 Fl <- sort (list.files (sprintf ("%s%s/", DataDirectory (), Project), 
                         sprintf ("%s_rf...nc", Project)), decreasing = TRUE)[1]
-# Flight <- sub (Project, '',  sub (".nc", '', Fl)); Flight <- sub ('_', '', Flight)
+## use next plot file instead as default
+Fl <- sort (list.files (sprintf ("~/RStudio/Reprocessing"), 
+                        sprintf ("%srf..Plots.pdf", Project)), decreasing = TRUE)[1]
+Flight <- sub (Project, '',  sub ("Plots.pdf", '', Fl))
+Flight <- sprintf("rf%02d", as.numeric(substr(Flight, 3, 4))+1)
 
 if (length (run.args) > 0) {
   Flight <- run.args[1]
@@ -167,6 +171,12 @@ DataV[t, namesV] <- NA
 ## guard against inf. VCSEL limits, as for rf08
 if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
   DataV$DP_VXL <- rep(0, nrow(DataV))
+}
+if (min(DataV$DP_DPR, na.rm=TRUE) == Inf) {
+  DataV$DP_DPR <- rep(0, nrow(DataV))
+}
+if (min(DataV$DP_DPL, na.rm=TRUE) == Inf) {
+  DataV$DP_DPL <- rep(0, nrow(DataV))
 }
 # DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
