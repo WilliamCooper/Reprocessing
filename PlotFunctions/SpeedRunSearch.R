@@ -3,8 +3,9 @@ SpeedRunSearch <- function (data) {
   del <- 75
   tol <- .3
   delz <- 20
-  DataT <- data[!is.na(data$Time) & !is.na(data$TASX), ]
+  DataT <- data[!is.na(data$Time) & !is.na(data$TASX) & !is.na(data$GGALT), ]
   L <- dim(DataT)[1]
+  if (L == 0) {return()}
   r <- 1:L
   for (i in (del+1):(L-del)) {
     if ((!is.na(DataT$TASX[i]) && abs (DataT$TASX[i+del]-DataT$TASX[i]) < tol*del) ||
