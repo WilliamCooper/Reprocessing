@@ -3,11 +3,23 @@
 require(Ranadu)
 
 Files <- list.files (DataDirectory (), pattern="*f...nc$", full.names=TRUE, recursive=TRUE)
+sink("SpeedRuns", append=TRUE)
 source ("./PlotFunctions/SpeedRunSearch.R")
+DontStart <- TRUE
 for (File in Files) {
+  #if (grepl ('HIPPO_oldish', File)) {DontStart <- FALSE}
+  #if (grepl ('IDEAS4_mf01', File)) {DontStart <- FALSE}
+  if (grepl ('nomadss_hyb', File)) {DontStart <- FALSE}
+  print (sprintf ("File %s DontStart %d", File, DontStart))
+  if (DontStart) {next}
+  if (grepl ('HIPPO_oldish', File)) {next}
+  if (grepl ('IDEAS4_mf01', File)) {next}
   print (sprintf ("searching %s", File))
   if (grepl ("zip", File)) {next}
+  if (grepl ("_hyb", File)) {next}
   Data <- getNetCDF (File, c("TASX", "GGALT"))
+  if (!is.data.frame(Data)) {next}
   Data[!is.na(Data$TASX) & (Data$TASX < 110), ] <- NA
   SpeedRunSearch (Data)
 }
+sink()
