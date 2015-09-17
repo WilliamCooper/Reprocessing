@@ -1,4 +1,4 @@
-SpeedRunSearch <- function (data) {
+SpeedRunSearch <- function (data, File=' ') {
   ## needs TASX, GGALT
   del <- 75
   tol <- .3
@@ -36,7 +36,8 @@ SpeedRunSearch <- function (data) {
         slow <- min (DataT$TASX[s[startSpeedRun]:s[j]], na.rm=TRUE)
         fast <- max (DataT$TASX[s[startSpeedRun]:s[j]], na.rm=TRUE)
         if (fast-slow > 40) {
-          print (sprintf( "possible speed run:      %s--%s, %f to %f m/s", 
+          print (sprintf( "%s possible speed run:      %s--%s, %f to %f m/s", 
+                          File, 
                           strftime(startTime, format="%H%M%S", tz='UTC'),
                           strftime (endTime, format="%H%M%S", tz='UTC'),
                           slow, fast))
