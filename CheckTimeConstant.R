@@ -1,5 +1,6 @@
 ## combine speed runs to be able to consider a single plot
 
+library(Ranadu)
 CP <- SpecificHeats ()
 Project <- 'DEEPWAVE'
 fileName <- sprintf ("%s%s/%srf15hPC.nc", DataDirectory (), Project, Project)
@@ -14,6 +15,7 @@ VarList <- c(VarList, TTvar)
 D <- getNetCDF (fileName, VarList, F=15)
 D$X <- D$TASX^2 / (2 * CP[1])
 D$MACH <- MachNumber (D$PSFC, D$QCFC)
+D$LMACH <- log10(D$MACH)
 ## difference in steady change expected to be tau*(dT/dt)
 ## lags in climb/descent suggest tau=2 s
 ## Try correcting: Tnew[t] <- T[t] + (T[t]-T[t-3])
@@ -54,6 +56,14 @@ mean(D1$RTHR1[rr2][t2])
 
 f <- lm (D1$RTHR2 ~ D1$X)
 summary(f)
-f <- lm (D1$RTHR2 ~ D1$X + I(D1$X*log10(D1$MACH)))
-     # + I(D1$X*log10(D1$MACH)^2) + I(D1$X*log10(D1$MACH)^3))
+f <- lm (D1$RTHR2 ~ D1$X + I(D1$X*D1$LMACH) ) #+ I(D1$X*D1$LMACH^2) 
+         # ) # + I(D1$X*D1$LMACH^3))
+abline(h=100*(coef(f)[2]-1), col='black')
 summary(f)
+cf <- coef(f)
+rf <- cf[2]+cf[3]*D1$LMACH
+A <- D1$RTHR1-rf*D1$X
+# hist(rf)
+# hist(A)
+lines(D1$X, D1$MACH*10-10, col='cyan', lwd=2)
+lines(D1$X, (1-rf)*(-100), col='black', lwd=2)
