@@ -1,0 +1,1016 @@
+%% LyX 2.1.4 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage{longtable}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\degree}{$^{\circ}$}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\begin{document}
+\EOLmemo 
+
+\global\addressee={Reprocessing File}  % >>change "File" to the "To:" name desired
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}} & Study of the Recovery Factor\tabularnewline
+\end{tabular}
+
+\bigskip
+
+
+\section{Some Relevant Equations}
+
+
+\subsection{Basic measurement of ambient temperature}
+
+The basic measurement relating the measured recovery temperature $T_{r}$
+to the ambient temperature $T_{a}$, with both in absolute units or
+kelvin, is\\
+\begin{equation}
+T_{a}=T_{r}-\alpha_{r}\frac{U_{a}^{2}}{2c_{p}^{\prime}}\label{eq:ATfromRT}
+\end{equation}
+where $\alpha_{r}$ is the recovery factor, $U_{a}$ the airspeed,
+and $c_{p}^{\prime}$ the specific heat of moist air at constant pressure.
+According to measurements from wind-tunnels, the recovery factor varies
+with Mach number. The following equation is now used to represent
+the recovery factor:\\
+\begin{equation}
+\alpha_{r}(M)=0.988+0.053\mathrm{log_{10}}M+0.090(\mathrm{log_{10}}M)^{2}+0.091\mathrm{(log_{10}}M)^{3}\label{eq:r(M)}
+\end{equation}
+where $M$ is the Mach number.
+
+<<preface, echo=FALSE>>=
+
+require(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+thisFileName <- "RecoveryFactorStudy"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+library(knitr)
+require(ggthemes)
+source ('~/RStudio/Ranadu/R/TellAbout.R')
+source ('~/RStudio/Ranadu/R/RecoveryFactor.R')
+
+CP <- SpecificHeats ()
+Project <- 'DEEPWAVE'
+fileName <- sprintf ("%s%s/%srf15hPC.nc", DataDirectory (), Project, Project)
+Directory <- DataDirectory ()
+fname = sprintf("%s%s/%srf15hPC.nc", Directory,Project,Project)
+VarList <- c('TASX', 'PSFC', 'QCFC', 'GGALT', 'THDG')   
+NCF <- nc_open (fname)   
+N <- names(NCF$var)
+nc_close(NCF)
+t <- c(which(grepl("RTH", N) & !grepl("C$", N)), which(grepl("RTF", N) & !grepl("C$", N)))   
+TTvar <- N[t]   
+VarList <- c(VarList, TTvar)
+Data <- getNetCDF (fname, VarList, Start=32300, 32800)
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+
+@
+
+<<DW15SR1, include=TRUE, fig.cap="Recovery temperature RTH1 as a function of $V^2/(2C_p)$ for the values as originally measured (blue line) and after shifting by 2.32 s to minimize the difference between accelerating and decelerating branches of the speed run. Data from DEEPWAVE flight 15, 3:23:00--3:28:00 UTC.">>=
+
+Data$X <- Data$TASX^2 / (2 * CP[1])
+plot (Data$X, Data$RTHR1, type='l', col='blue', xlab=expression(0.5~V^2 / C[p]), ylab='RTHR1')
+f1 <- lm (Data$RTHR1 ~ Data$X)
+#print (sprintf (" rms for unshifted values %.3f", summary(f1)$sigma))
+## difference in steady change expected to be tau*(dT/dt)
+## lags in climb/descent suggest tau=2.3 s for HARCO time constant
+## Try correcting: Tnew[t] <- T[t] + (T[t]-T[t-3])
+Nshift <- 58
+TTm3 <- c(rep(Data$RTHR1[1], Nshift), Data$RTHR1[1:(nrow(Data)-Nshift)])
+Data$RTHR1 <- 2*Data$RTHR1-TTm3
+f2 <- lm (Data$RTHR1 ~ Data$X)
+#print (sprintf (" rms for shifted values %.3f", summary(f2)$sigma))
+lines (Data$X, Data$RTHR1, col='red')
+legend('bottomright', legend=c('unshifted', 'advanced 2.32 s'), text.col=c('blue', 'red'))
+
+@
+
+
+\subsection{Effect of the time response of the sensor}
+
+The recovery factor is usually studied with speed runs, where the
+flight speed of the aircraft is varied from the lowest to highest
+part of the flight envelope while maintaining altitude. During acceleration,
+the recovery temperature increases, but the time response of the sensor
+will cause the measured temperature to lag behind the correct value.
+Consider the case where the time response is characterized by a simple
+exponential:\\
+\begin{equation}
+\frac{dT_{r}}{dt}=\frac{T_{r}^{*}-T_{r}}{\tau}\label{eq:timeResponse}
+\end{equation}
+where $T_{r}^{*}$ is the true value and $T_{r}$ the sensed value.
+Then for a steady rate-of-change of true temperature $dT_{r}^{*}/dt=a$,
+to maintain a steady rate-of-change of the sensed temperature requires
+that $(T_{r}^{*}-T_{r})=a\tau$ . Therefore $T_{r}$ lags behind $T_{r}^{*}$
+by $a\tau$ and, for steady acceleration, should be corrected by the
+addition of $a\tau$ to the measured time sequence. The result would
+be the same as shifting the time series forward by $\tau$. This remains
+a good approximation if the rate-of-change of temperature can be considered
+reasonably linear over the period $\tau$.
+
+For the analysis of speed runs, this suggests shifting the time series
+to minimize the difference at given airspeed between the accelerating
+and decelerating branches, and indeed it should be possible to find
+the time response of the sensor in this way. 
+
+For a good example, consider the speed run from the DEEPWAVE project
+flight 15 (3 July 2014), 3:23:00 -- 3:28:00 UTC, shown in Fig.~\ref{fig:DW15SR1}.
+The red line shows that the accelerating and decelerating portions
+of the speed run overlap almost completely, supporting that the time-lag
+correction applied (2.32~s or 58 25-Hz samples) is appropriate. The
+effect of shifting the measurements forward in time was to decrease
+the standard deviation of the striaight-line fit to the data in this
+figure from \Sexpr{round(summary(f1)$sigma, 2)} to \Sexpr{round(summary(f2)$sigma, 2)}$^{\circ}$C.
+
+
+\section{Speed runs}
+
+
+\subsection{The data used}
+
+There are three calibrations involved in the system that measures
+temperature. First, the resistance of the sensing element as a function
+of temperature is determined by calibration in a temperature-controlled
+bath. The result is normally a good match to the Callendar-van-Dusen
+equation. Second, the A-to-D channels on the aircraft are calibrated
+by applying known resistances in place of the sensing elements and
+measuring the corresponding voltages. Thus with a measured voltage,
+one can determine the resistance of the sensing element and hence
+the temperature. In processing, this is represented by a quadratic
+polynomial that relates voltage to the sensed or 'recovery' temperature.
+Finally, the third calibration involved is to find the recovery factor
+used to calculate ambient temperature from recovery temperature. As
+of this date, we are using a report from Goodrich, which has led to
+(\ref{eq:r(M)}) above. That report applies to the Rosemount 102 probe,
+but because the geometry of the HARCO probe is so similar was also
+use the same formula for the HARCO.
+
+The purpose of this new study is to determine if the recovery factor
+can be determined or checked using flight data. ``Speed runs'' in
+which the airspeed is varied through the flight envelope of the aircraft
+in level flight are normally used for this purpose. Using such maneuvers,
+it should be possible to check the applicability of (\ref{eq:r(M)})
+by determining if the resulting ambient temperature given by (\ref{eq:ATfromRT})
+stays constant through the speed run.
+
+Another possible approach is to consider the calibration coefficients
+for total temperature vs voltage and for a polynomial representation
+of the recovery factor all as variables to be fitted to minimize the
+differences between measured temperature differences and those expected
+from integration of the hydrostatic equation. This general approach
+was used in previous work to check that the coefficients were all
+reasonable, but here it will be explored if further fits can help
+constrain the recovery factor rather than just check if it is reasonable.
+
+Toward this end, a search was conducted for all speed runs that could
+be found in past GV projects. An R script was used to search for appropriate
+variations in airspeed while the altitude remained constant, and that
+script produced the following set of 84 speed runs, included here
+in case there might be further use for this information.
+
+\begin{longtable}{|c|c|c|c|c|}
+\hline 
+PROJECT & start time (UTC) & end time (UTC) & low speed (m/s & high speed (m/s)\tabularnewline
+\hline 
+\endhead
+\hline 
+ CONTRASTrf08.nc & 82842 & 83744 & 129.422882 & 217.075256\tabularnewline
+\hline 
+ CONTRASTrf08.nc & 91651 & 92702 & 162.610886 & 253.096359\tabularnewline
+\hline 
+ CONTRASTrf11.nc & 42258 & 42500 & 169.818695 & 211.224686\tabularnewline
+\hline 
+ DC3ff03.nc & 160443 & 161051 & 170.144104 & 251.482666\tabularnewline
+\hline 
+ DC3rf04.nc & 203025 & 203313 & 139.280212 & 196.661362\tabularnewline
+\hline 
+ DC3rf06.nc & 205416 & 205632 & 143.778076 & 183.88797\tabularnewline
+\hline 
+ DC3rf09.nc & 1042 & 2105 & 185.569855 & 257.072937\tabularnewline
+\hline 
+ DC3rf11.nc & 192811 & 193033 & 171.655777 & 212.770844\tabularnewline
+\hline 
+ DC3rf11.nc & 192811 & 193034 & 169.86084 & 211.360291\tabularnewline
+\hline 
+ DC3rf15.nc & 225820 & 230217 & 168.484116 & 208.525482\tabularnewline
+\hline 
+ DC3rf17.nc & 210522 & 210939 & 137.137161 & 186.421295\tabularnewline
+\hline 
+ DC3rf22.nc & 174858 & 175523 & 130.006897 & 215.78569\tabularnewline
+\hline 
+ DC3-TESTrf01.nc & 204038 & 204540 & 202.092758 & 259.001953\tabularnewline
+\hline 
+ DC3-TESTrf01.nc & 205506 & 205939 & 201.846298 & 257.073669\tabularnewline
+\hline 
+ DC3-TESTrf02.nc & 205351 & 205628 & 146.182526 & 196.892273\tabularnewline
+\hline 
+ DC3-TESTrf04.nc & 223023 & 223318 & 177.592514 & 239.396561\tabularnewline
+\hline 
+ DC3-TESTrf04.nc & 224447 & 224745 & 177.561554 & 238.508972\tabularnewline
+\hline 
+ DEEPWAVErf06.nc & 85253 & 85531 & 179.322189 & 229.620926\tabularnewline
+\hline 
+ DEEPWAVErf10.nc & 110226 & 110458 & 173.312851 & 236.500259\tabularnewline
+\hline 
+ DEEPWAVErf15.nc & 32048 & 32924 & 110.085167 & 201.115402\tabularnewline
+\hline 
+ DEEPWAVErf15.nc & 41449 & 42329 & 127.907669 & 220.444107\tabularnewline
+\hline 
+ DEEPWAVErf15.nc & 50045 & 51058 & 157.124557 & 244.054611\tabularnewline
+\hline 
+ DEEPWAVErf20.nc & 40250 & 40507 & 164.675598 & 204.97168\tabularnewline
+\hline 
+ HCRTESTrf03.nc & 203154 & 204142 & 126.6026 & 203.430801\tabularnewline
+\hline 
+ HEFT10\_ff01.nc & 40210 & 40443 & 133.950653 & 183.21167\tabularnewline
+\hline 
+ HEFT10\_tf05.nc & 192608 & 193158 & 110.08165 & 181.241989\tabularnewline
+\hline 
+ HEFT10\_tf05.nc & 194731 & 195722 & 139.736877 & 218.432129\tabularnewline
+\hline 
+ HIPPO-1rf02.nc & 20435 & 20636 & 183.094238 & 227.701263\tabularnewline
+\hline 
+ HIPPO-1rf11.nc & 180722 & 180951 & 192.032944 & 237.40596\tabularnewline
+\hline 
+ HIPPO-3rf08.nc & 2612 & 2834 & 202.151047 & 242.238861\tabularnewline
+\hline 
+ HIPPO-3rf10.nc & 224424 & 224720 & 162.311966 & 221.918747\tabularnewline
+\hline 
+ HIPPO-3tf01.nc & 184447 & 184748 & 110.580902 & 166.816666\tabularnewline
+\hline 
+ HIPPO-3tf02.nc & 190547 & 191138 & 151.308929 & 243.920578\tabularnewline
+\hline 
+ HIPPO-4rf02.nc & 184014 & 184218 & 220.547546 & 267.082062\tabularnewline
+\hline 
+ HIPPO-4rf02.nc & 185213 & 185357 & 110.177368 & 196.568939\tabularnewline
+\hline 
+ HIPPO-4rf02.nc & 210749 & 210944 & 222.694214 & 270.595032\tabularnewline
+\hline 
+ HIPPO-4rf02.nc & 231904 & 232228 & 144.795227 & 206.885941\tabularnewline
+\hline 
+ HIPPO-4rf02.nc & 25735 & 30154 & 140.330765 & 222.947357\tabularnewline
+\hline 
+ HIPPO-4rf12.nc & 201320 & 201546 & 171.849274 & 230.06723\tabularnewline
+\hline 
+ HIPPO-5rf01.nc & 190029 & 191425 & 202.326447 & 253.88385\tabularnewline
+\hline 
+ HIPPO-5rf02.nc & 163045 & 163307 & 147.367447 & 196.610107\tabularnewline
+\hline 
+ HIPPO-5rf03.nc & 191115 & 191326 & 132.636002 & 179.867935\tabularnewline
+\hline 
+ IDEAS-4rf01.nc & 203131 & 203346 & 176.74086 & 233.033081\tabularnewline
+\hline 
+ IDEAS-4rf04.nc & 175852 & 180157 & 138.343262 & 193.757233\tabularnewline
+\hline 
+ IDEAS-4rf04.nc & 194433 & 195241 & 130.364929 & 213.857697\tabularnewline
+\hline 
+ IDEAS-4rf04.nc & 200012 & 201109 & 180.71907 & 255.520874\tabularnewline
+\hline 
+ IDEAS-4rf04.nc & 201910 & 202833 & 145.308716 & 234.262146\tabularnewline
+\hline 
+ IDEAS-4rf05.nc & 172703 & 172944 & 170.836182 & 224.205368\tabularnewline
+\hline 
+ IDEAS-4rf05.nc & 211448 & 212030 & 110.051697 & 158.519424\tabularnewline
+\hline 
+ IDEAS-4rf06.nc & 181550 & 181830 & 168.659332 & 223.515488\tabularnewline
+\hline 
+ IDEAS-4rf06.nc & 183959 & 184220 & 164.784454 & 206.19104\tabularnewline
+\hline 
+ IDEAS-4rf07.nc & 192312 & 192932 & 207.630142 & 253.947754\tabularnewline
+\hline 
+ IDEAS-4rf08.nc & 1351 & 1925 & 110.016251 & 152.924255\tabularnewline
+\hline 
+ IDEAS-4rf08.nc & 193458 & 193729 & 129.243881 & 176.570114\tabularnewline
+\hline 
+ IDEAS-4rf08.nc & 203642 & 204341 & 133.652863 & 209.316956\tabularnewline
+\hline 
+ IDEAS-4rf08.nc & 211447 & 212030 & 110.044678 & 159.280121\tabularnewline
+\hline 
+ IDEAS-4rf10.nc & 210920 & 211149 & 137.971451 & 186.348709\tabularnewline
+\hline 
+ IDEAS-GV\_rf05.nc & 172703 & 172944 & 170.837067 & 224.20665\tabularnewline
+\hline 
+ PREDICTff01.nc & 192609 & 193328 & 142.619598 & 213.723999\tabularnewline
+\hline 
+ PREDICTff01.nc & 195540 & 200222 & 129.052399 & 195.964722\tabularnewline
+\hline 
+ PREDICTff01.nc & 202858 & 203702 & 116.423767 & 178.38913\tabularnewline
+\hline 
+ PREDICTff01.nc & 205058 & 205604 & 117.371231 & 178.609619\tabularnewline
+\hline 
+ PREDICTff01.nc & 205058 & 205604 & 117.414474 & 178.837814\tabularnewline
+\hline 
+ PREDICTff01.nc & 210401 & 211235 & 116.865746 & 179.074387\tabularnewline
+\hline 
+ PREDICTrf23.nc & 200356 & 200602 & 121.432022 & 165.286499\tabularnewline
+\hline 
+ PREDICTtf02.nc & 201213 & 201545 & 140.128494 & 186.457169\tabularnewline
+\hline 
+ PREDICTtf02.nc & 203532 & 203929 & 110.513382 & 155.347427\tabularnewline
+\hline 
+ PREDICTtf02.nc & 211649 & 211910 & 212.972504 & 253.014954\tabularnewline
+\hline 
+ PREDICTtf02.nc & 214942 & 215639 & 134.66835 & 243.455307\tabularnewline
+\hline 
+ PREDICTtf04.nc & 194302 & 194631 & 122.792404 & 211.899673\tabularnewline
+\hline 
+ PREDICTtf04.nc & 202952 & 203226 & 137.630081 & 188.510025\tabularnewline
+\hline 
+ SAANGRIA\_rf01.nc & 221318 & 221733 & 199.829071 & 241.277359\tabularnewline
+\hline 
+ SPRITE-IIrf07.nc & 90135 & 90737 & 135.038452 & 241.103867\tabularnewline
+\hline 
+ SPRITE-IIrf07.nc & 91059 & 91650 & 126.445938 & 230.574677\tabularnewline
+\hline 
+ TOREROrf07.nc & 180205 & 180428 & 200.23497 & 245.094971\tabularnewline
+\hline 
+ TOREROrf07.nc & 185330 & 185509 & 177.085007 & 219.028503\tabularnewline
+\hline 
+ TOREROrf08.nc & 220110 & 220316 & 127.408226 & 188.016235\tabularnewline
+\hline 
+ TOREROrf09.nc & 170519 & 170745 & 179.24205 & 225.697205\tabularnewline
+\hline 
+ TOREROrf09.nc & 211821 & 212051 & 140.474152 & 195.22551\tabularnewline
+\hline 
+ TOREROrf11.nc & 204447 & 204705 & 119.84536 & 174.486572\tabularnewline
+\hline 
+ TOREROrf11.nc & 211854 & 212051 & 141.645859 & 191.521744\tabularnewline
+\hline 
+ TORERO\_rf14.nc & 175426 & 175619 & 127.66349 & 174.010803\tabularnewline
+\hline 
+ TOREROrf16.nc & 142318 & 142506 & 163.494308 & 208.249069\tabularnewline
+\hline 
+ TOREROrf16.nc & 224902 & 225402 & 132.090012 & 190.37558\tabularnewline
+\hline 
+\end{longtable}
+
+
+\subsection{Analysis approach}
+
+From this set of speed runs, a subset was selected where conditions
+appeared to be constant and where the speed run included both acceleration
+and deceleration so that overlap between these portions of the maneuver
+could be used to check for uniformity. The latter, for example, excluded
+all the TORERO cases because they only increased or decreased in speed
+without including both. Also, measurements from the HARCO sensors
+were selected initially because that was the sensor most often used.
+Also, initially only the 'A' element was considered. The result was
+21 speed runs that appeared to provide the best information on the
+HARCO 'A' sensor. 
+
+For each of these 21 speed runs, the recovery-temperature measurements
+from the HARCO 'A' sensor were plotted against $X=V^{2}/(2C_{p})$
+so that the recovery factor could be determined from the slope of
+the plotted values. Regression was used to determine the slope for
+the entire speed run and also for subsets from each speed run that
+fell into bins of width 0.1 in Mach number $M$ centered at 0.4, 0.5,
+0.6, ..., 0.9 so that the possible Mach-number dependence of the recovery
+factor could be studied:\\
+\begin{equation}
+T_{r}=T_{a}+\alpha(M)\frac{V^{2}}{2C_{p}}\label{eq:alpha(M)}
+\end{equation}
+or\\
+\[
+\frac{dT_{r}}{dX}=\alpha(M)\,\,\,.
+\]
+However, $M$ and $X$ are not independent so a fit to a simple expansion
+of $\alpha$ in terms of powers of $\log_{10}(M)$, as was used to
+represent the wind-tunnel data, will not give the recovery factor
+directly. Instead, a polynomial of the form $T_{r}=\sum a_{n}X^{n}$
+was determined by fitting the speed-run data and the resulting polynomial
+was differentiated to find $\alpha(X)$. Because $M^{2}=V^{2}/(\gamma RT_{0})=2C_{v}X/(RT_{0})$
+and the fit also gives $T_{0}$, the resulting function $\alpha(X)$
+can be transformed to $\alpha^{\prime}(M)=\alpha(X=M^{2}RT_{0}/(2C_{v})$. 
+
+This suggests a way to combine the 21 good speed runs to obtain a
+composite recovery factor:
+\begin{enumerate}
+\item For each speed run, fit a 4th-order polynomial in $X$ to $T_{r}(X)$.
+\item From the derivative of that polynomial with respect to X, determine
+the recovery factor $\alpha(X)$.
+\item For each point in the time series for the speed run, find corresponding
+values of $X$, $\alpha$, and $M$. Add these to the data.frame containing
+the valid speed runs.
+\item For the composite data.frame, find average values of $\alpha$ in
+bins of $M$, with standard deviations.
+\item Fit the desired functional form for $\alpha(M)$ to these averages,
+in a weighted fit considering the standard deviations.
+\end{enumerate}
+<<SR-composite, include=FALSE>>=
+
+## now read data for all good speed runs:
+load('SpeedRunDF.Rdata')
+## for HARCO, use these speed runs and probe sequence numbers:
+nHARCO <- c(1,2,3,4,6,9,10,11,13,15,17,20,21,23,25,29,30,31,32,33,34)
+iHARCO <- c(1,1,1,2,2,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1)
+DC <- data.frame()
+for (id in nHARCO) {
+  print (sprintf ("Speed Run %d", id))
+  Data <- D[[id]]
+  SE <- getStartEnd(Data$Time)
+  r <- setRange (Data$Time, SE[1], SE[2])
+  if (id == 6) {
+    r <- setRange (Data$Time, 174930, 175500)
+    r <- setRange (Data$Time, 175100, 175500)
+  }
+  if (id == 9) {
+    r <- setRange (Data$Time, 32300, 32900)
+  }
+  if (id == 10) {
+    r <- setRange (Data$Time, 41450, 42230)
+  }
+  if (id == 25) {
+    r <- setRange (Data$Time, 215445, 215821)
+  }
+  if (id == 28) {
+    r <- setRange (Data$Time, 163600, 163925)
+  }
+  if (id == 34) {
+    r <- setRange (Data$Time, 90220, 90650)
+  }
+  N <- names (Data)
+  t <- c(which(grepl("RTH", N) & !grepl("C$", N)), which(grepl("RTF", N) & !grepl("C$", N)))
+  TTvar <- N[t]
+  t <- c(which(grepl("TTH", N) & !grepl("C$", N)), which(grepl("TTF", N) & !grepl("C$", N)))
+  TTvar <- c(TTvar, N[t])
+  Data$X <- Data$TASX^2 / (2*CP[1])
+  Data$MACH <- MachNumber (Data$PSFC, Data$QCFC)
+  Data$Bin <- as.integer (Data$MACH*10+0.5)
+  sink('/dev/null')
+  A <- getAttributes (Data)
+  sink()
+  Proj <- A[[which (grepl ("ProjectName", A[]))]]
+  for (TT in TTvar) {
+    if (grepl ("RTH", TT) || grepl ("TTH", TT)) {
+      Nshift <- 3
+    } else {
+      Nshift <- 2
+    }
+    if (grepl ("ADELE", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("DC3", Proj) && !grepl("TEST", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("HIPPO-3", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("PREDICT", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("SPRITE-II", Proj)) {Nshift <- 5}
+    if (grepl ("START08", Proj)) {Nshift <- Nshift - 2}
+    sink ('/dev/null')
+    AV <- getAttributes (Data[,TT])
+    sink()    
+    ia <- which (grepl ("TimeLag", AV[]) & !grepl ("Units", AV[]), arr.ind=TRUE)
+    if (length(ia) > 0) {Nshift <- Nshift + as.integer (AV[[ia]])/1000}
+    if (Nshift < 0) {Nshift <- 0}
+    TTm3 <- c(rep(Data[1, TT], Nshift), Data[1:(nrow(Data)-Nshift), TT])
+    Data[,TT] <- 2*Data[, TT]-TTm3
+    plot (Data$X[r], Data[r, TT], pch=20, ylab=TT)
+    title (sprintf ("PRJ %s seq %d time shift %d; Recovery factor %.4f", 
+                    Proj, id, Nshift, coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    print (sprintf ("for probe %s shift %d RF %.4f", TT, Nshift, 
+           coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    for (n in 2:9) {
+      DB <- Data[Data$Bin == n, ]
+      if (nrow(DB) > 10) {
+        fb <- lm (DB[, TT] ~ DB$X)
+        print (sprintf ("bin %d rf %.4f points=%d", n, coef(fb)[2], nrow(DB)))
+      }
+    }
+    f <- lm (Data[, TT] ~ Data$X+I(Data$X^2)+I(Data$X^3)+I(Data$X^4))
+    cf <- coef(f)
+    Data$ALPHA <- (cf[2]+Data$X*(2*cf[3]+Data$X*(3*cf[4]+Data$X*(4*cf[5]))))
+    plot(Data$MACH, Data$ALPHA)
+    Data$RF <- id
+    if (TT %in% TTvar[iHARCO[which (nHARCO == id)]]) {
+      DC <- rbind (DC, Data[, c("Time", "ALPHA", "MACH", "TASX", "RF")])
+    }
+  }
+}
+plot (DC$MACH, DC$ALPHA, pch=20, col='blue')
+
+@
+
+
+\section{Results}
+
+
+\subsection{The HARCO sensors}
+
+The result of doing this is shown in Fig.~\ref{fig:alpha-mean}.
+The plot shows that, contrary to the representation of the recovery
+factor in the Goodrich technical note (for the Rosemount probe), there
+is no evidence of any Mach-number dependence in these measurements.
+The mean value for the recovery factor for all of these speed runs
+in \Sexpr{round (mean (DC$ALPHA), 3)}. If the 21 speed runs are considered
+independent determinations of the recovery factor, the standard deviation
+in the mean would be about \Sexpr{round(sd(DC$ALPHA)/sqrt(21), 3)}.
+This value is plotted as the black dashed line in Fig.~\ref{fig:alpha-mean}.
+For comparison, the Mach-number dependence previously obtained from
+the Goodrich report is plotted also on Fig.~\ref{fig:alpha-mean},
+as the orange line. It is consistent with the measurements also, so
+with this check it should be justified to use this recovery-factor
+function for the HARCO sensors.
+
+<<alpha-mean, include=TRUE, fig.cap='Mean values and standard deviations of the recovery factor after binning in Mach Number.'>>=
+
+DSTAT <- binStats(data.frame(DC$ALPHA, DC$MACH), bins=20, xlow=0.35, xhigh=0.83)
+p <- ggplot(DSTAT, aes(x=xc))
+# p <- p + geom_errorbar(aes(ymin=ybar-sigma, ymax=ybar+sigma, colour=clr[1]))
+# p <- p + scale_x_continuous (breaks=c(0,90,180,270,360))
+p <- p + geom_point (aes(y = ybar), colour='blue', size=2.5)
+p <- p + geom_errorbar(data=DSTAT, aes(ymin=ybar-sigma, ymax=ybar+sigma), colour='blue')
+p <- p + geom_point (data=DSTAT, aes(y = ybar), colour='blue', size=4)
+p <- p + geom_line (aes(y=ybar), colour='blue')
+p <- p + geom_line (data=DSTAT, aes(x=xc, y=ybar), colour='red')
+# p <- p + geom_errorbar(data=EBc, aes(ymin=ybar-sigma, ymax=ybar+sigma), col='red')
+# p <- p + geom_point (aes(y = ybar), pch=19, col='red', size=2.5)
+# p <- p + geom_line  (data=Ec, aes(x=xi/Cradeg, y=WSfit), colour='darkorange', lty=2, lwd=2)
+# p <- p + xlab(expression(paste(xi," [", degree, "]"))) + ylab ("wind speed [m/s]")
+p <- p + xlab("Mach Number") + ylab("recovery factor")
+# p <- p + scale_colour_manual("v wind:", labels = clr, values = col)
+# p <- p + scale_shape_manual ("v wind:", labels = clr, values = c(19,19))
+MN <- seq (0.3, 0.85, length.out=100)
+RecF <- RecoveryFactor (MN)
+p <- p + geom_line (aes (x=MN, y=RecF), colour='darkorange', lwd=1.4)
+RecF2 <- mean (DC$ALPHA)
+p <- p + geom_line (aes (x=MN, y=RecF2), colour='black', lwd=1.4, lty=2)
+p <- p + theme_WAC() 
+# + theme (legend.background=element_rect(colour='black', size=0.3, fill="ivory"))
+suppressWarnings (print (p))
+
+@
+
+<<SR-composite-B, include=FALSE>>=
+
+## for HARCO, use these speed runs and probe sequence numbers:
+nHARCO <- c(1,2,3,4,6,9,10,11,13,15,17,20,21,23,25,29,30,31,32,33,34)
+iHARCO <- c(2,2,2,3,3,2,2,2,4,4,2,2,2,2,2,2,2,2,2,2,2)
+DCB <- data.frame()
+for (id in nHARCO) {
+  print (sprintf ("Speed Run %d", id))
+  Data <- D[[id]]
+  SE <- getStartEnd(Data$Time)
+  r <- setRange (Data$Time, SE[1], SE[2])
+  if (id == 6) {
+    r <- setRange (Data$Time, 174930, 175500)
+    r <- setRange (Data$Time, 175100, 175500)
+  }
+  if (id == 9) {
+    r <- setRange (Data$Time, 32300, 32900)
+  }
+  if (id == 10) {
+    r <- setRange (Data$Time, 41450, 42230)
+  }
+  if (id == 25) {
+    r <- setRange (Data$Time, 215445, 215821)
+  }
+  if (id == 28) {
+    r <- setRange (Data$Time, 163600, 163925)
+  }
+  if (id == 34) {
+    r <- setRange (Data$Time, 90220, 90650)
+  }
+  N <- names (Data)
+  t <- c(which(grepl("RTH", N) & !grepl("C$", N)), which(grepl("RTF", N) & !grepl("C$", N)))
+  TTvar <- N[t]
+  t <- c(which(grepl("TTH", N) & !grepl("C$", N)), which(grepl("TTF", N) & !grepl("C$", N)))
+  TTvar <- c(TTvar, N[t])
+  Data$X <- Data$TASX^2 / (2*CP[1])
+  Data$MACH <- MachNumber (Data$PSFC, Data$QCFC)
+  Data$Bin <- as.integer (Data$MACH*10+0.5)
+  sink('/dev/null')
+  A <- getAttributes (Data)
+  sink()
+  Proj <- A[[which (grepl ("ProjectName", A[]))]]
+  for (TT in TTvar) {
+    if (grepl ("RTH", TT) || grepl ("TTH", TT)) {
+      Nshift <- 3
+    } else {
+      Nshift <- 2
+    }
+    if (grepl ("ADELE", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("DC3", Proj) && !grepl("TEST", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("HIPPO-3", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("PREDICT", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("SPRITE-II", Proj)) {Nshift <- 5}
+    if (grepl ("START08", Proj)) {Nshift <- Nshift - 2}
+    sink ('/dev/null')
+    AV <- getAttributes (Data[,TT])
+    sink()    
+    ia <- which (grepl ("TimeLag", AV[]) & !grepl ("Units", AV[]), arr.ind=TRUE)
+    if (length(ia) > 0) {Nshift <- Nshift + as.integer (AV[[ia]])/1000}
+    if (Nshift < 0) {Nshift <- 0}
+    TTm3 <- c(rep(Data[1, TT], Nshift), Data[1:(nrow(Data)-Nshift), TT])
+    Data[,TT] <- 2*Data[, TT]-TTm3
+    plot (Data$X[r], Data[r, TT], pch=20, ylab=TT)
+    title (sprintf ("PRJ %s seq %d time shift %d; Recovery factor %.4f", 
+                    Proj, id, Nshift, coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    print (sprintf ("for probe %s shift %d RF %.4f", TT, Nshift, 
+           coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    for (n in 2:9) {
+      DB <- Data[Data$Bin == n, ]
+      if (nrow(DB) > 10) {
+        fb <- lm (DB[, TT] ~ DB$X)
+        print (sprintf ("bin %d rf %.4f points=%d", n, coef(fb)[2], nrow(DB)))
+      }
+    }
+    fB <- lm (Data[, TT] ~ Data$X+I(Data$X^2)+I(Data$X^3)+I(Data$X^4))
+    cfB <- coef(fB)
+    Data$ALPHA <- (cfB[2]+Data$X*(2*cfB[3]+Data$X*(3*cfB[4]+Data$X*(4*cfB[5]))))
+    plot(Data$MACH, Data$ALPHA)
+    Data$RF <- id
+    if (TT %in% TTvar[iHARCO[which (nHARCO == id)]]) {
+      DCB <- rbind (DCB, Data[, c("Time", "ALPHA", "MACH", "TASX", "RF")])
+    }
+  }
+}
+plot (DCB$MACH, DCB$ALPHA, pch=20, col='blue')
+
+@
+
+This analysis chain was also repeated for the 'B' HARCO elements,
+the second element in the housing, on the chance that this element
+might have a different recovery factor. The results are shown in Fig.~\ref{fig:alpha-mean-B}.
+The mean recovery factor for these elements is a little lower, \Sexpr{round(mean(DCB$ALPHA), 3)},
+and in comparison to the standard Mach-dependent formula (shown as
+the orange line) it is about 0.015 smaller over the primary flight
+envelope (about Mach 0.5--0.8). Because there is no evidence of any
+dependence on Mach number, it appears justified for this element to
+use a constant value, \Sexpr{round(mean(DCB$ALPHA), 3)}, for the
+recovery factor.
+
+<<alpha-mean-B, include=TRUE, fig.cap='Mean values and standard deviations of the recovery factor after binning in Mach Number, for the HARCO-B elements.'>>=
+
+DSTAT <- binStats(data.frame(DCB$ALPHA, DCB$MACH), bins=20, xlow=0.35, xhigh=0.83)
+p <- ggplot(DSTAT, aes(x=xc))
+# p <- p + geom_errorbar(aes(ymin=ybar-sigma, ymax=ybar+sigma, colour=clr[1]))
+# p <- p + scale_x_continuous (breaks=c(0,90,180,270,360))
+p <- p + geom_point (aes(y = ybar), colour='blue', size=2.5)
+p <- p + geom_errorbar(data=DSTAT, aes(ymin=ybar-sigma, ymax=ybar+sigma), colour='blue')
+p <- p + geom_point (data=DSTAT, aes(y = ybar), colour='blue', size=4)
+p <- p + geom_line (aes(y=ybar), colour='blue')
+p <- p + geom_line (data=DSTAT, aes(x=xc, y=ybar), colour='red')
+# p <- p + geom_errorbar(data=EBc, aes(ymin=ybar-sigma, ymax=ybar+sigma), col='red')
+# p <- p + geom_point (aes(y = ybar), pch=19, col='red', size=2.5)
+# p <- p + geom_line  (data=Ec, aes(x=xi/Cradeg, y=WSfit), colour='darkorange', lty=2, lwd=2)
+# p <- p + xlab(expression(paste(xi," [", degree, "]"))) + ylab ("wind speed [m/s]")
+p <- p + xlab("Mach Number") + ylab("recovery factor")
+# p <- p + scale_colour_manual("v wind:", labels = clr, values = col)
+# p <- p + scale_shape_manual ("v wind:", labels = clr, values = c(19,19))
+MN <- seq (0.3, 0.85, length.out=100)
+RecF <- RecoveryFactor (MN)
+p <- p + geom_line (aes (x=MN, y=RecF), colour='darkorange', lwd=1.4)
+RecF2 <- mean (DCB$ALPHA)
+p <- p + geom_line (aes (x=MN, y=RecF2), colour='black', lwd=1.4, lty=2)
+p <- p + theme_WAC() 
+# + theme (legend.background=element_rect(colour='black', size=0.3, fill="ivory"))
+suppressWarnings (print (p))
+
+@
+
+
+\subsection{The heated Rosemount sensors}
+
+There have been fewer high-quality speed runs with the Rosemount dual-element
+heated sensors. The seven that were identified will be used here.
+\footnote{There may be some more, especially from Progressive Science where
+there are an additional five good speed runs, but I haven't yet confirmed
+that the sensors were Rosemount probes.}
+
+<<SR-Rosemount-A, include=FALSE>>=
+
+## for Rosemount, use these speed runs and probe sequence numbers:
+nROSE <- c(2,3,14,21,23)  # 36 START08 is an unheated Rosemount
+iROSE <- c(3,3,1,3,3)
+DCC <- data.frame()
+for (id in nROSE) {
+  print (sprintf ("Speed Run %d", id))
+  Data <- D[[id]]
+  SE <- getStartEnd(Data$Time)
+  r <- setRange (Data$Time, SE[1], SE[2])
+  if (id == 6) {
+    r <- setRange (Data$Time, 174930, 175500)
+    r <- setRange (Data$Time, 175100, 175500)
+  }
+  if (id == 9) {
+    r <- setRange (Data$Time, 32300, 32900)
+  }
+  if (id == 10) {
+    r <- setRange (Data$Time, 41450, 42230)
+  }
+  if (id == 25) {
+    r <- setRange (Data$Time, 215445, 215821)
+  }
+  if (id == 28) {
+    r <- setRange (Data$Time, 163600, 163925)
+  }
+  if (id == 34) {
+    r <- setRange (Data$Time, 90220, 90650)
+  }
+  N <- names (Data)
+  t <- c(which(grepl("RTH", N) & !grepl("C$", N)), which(grepl("RTF", N) & !grepl("C$", N)))
+  TTvar <- N[t]
+  t <- c(which(grepl("TTH", N) & !grepl("C$", N)), which(grepl("TTF", N) & !grepl("C$", N)))
+  TTvar <- c(TTvar, N[t])
+  Data$X <- Data$TASX^2 / (2*CP[1])
+  Data$MACH <- MachNumber (Data$PSFC, Data$QCFC)
+  Data$Bin <- as.integer (Data$MACH*10+0.5)
+  sink('/dev/null')
+  A <- getAttributes (Data)
+  sink()
+  Proj <- A[[which (grepl ("ProjectName", A[]))]]
+  for (TT in TTvar) {
+    if (grepl ("RTH", TT) || grepl ("TTH", TT)) {
+      Nshift <- 3
+    } else {
+      Nshift <- 2
+    }
+    if (grepl ("ADELE", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("DC3", Proj) && !grepl("TEST", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("HIPPO-3", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("PREDICT", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("SPRITE-II", Proj)) {Nshift <- 5}
+    if (grepl ("START08", Proj)) {Nshift <- Nshift - 2}
+    sink ('/dev/null')
+    AV <- getAttributes (Data[,TT])
+    sink()    
+    ia <- which (grepl ("TimeLag", AV[]) & !grepl ("Units", AV[]), arr.ind=TRUE)
+    if (length(ia) > 0) {Nshift <- Nshift + as.integer (AV[[ia]])/1000}
+    if (Nshift < 0) {Nshift <- 0}
+    TTm3 <- c(rep(Data[1, TT], Nshift), Data[1:(nrow(Data)-Nshift), TT])
+    Data[,TT] <- 2*Data[, TT]-TTm3
+    plot (Data$X[r], Data[r, TT], pch=20, ylab=TT)
+    title (sprintf ("PRJ %s seq %d time shift %d; Recovery factor %.4f", 
+                    Proj, id, Nshift, coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    print (sprintf ("for probe %s shift %d RF %.4f", TT, Nshift, 
+           coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    for (n in 2:9) {
+      DB <- Data[Data$Bin == n, ]
+      if (nrow(DB) > 10) {
+        fb <- lm (DB[, TT] ~ DB$X)
+        print (sprintf ("bin %d rf %.4f points=%d", n, coef(fb)[2], nrow(DB)))
+      }
+    }
+    fB <- lm (Data[, TT] ~ Data$X+I(Data$X^2)+I(Data$X^3)+I(Data$X^4))
+    cfB <- coef(fB)
+    Data$ALPHA <- (cfB[2]+Data$X*(2*cfB[3]+Data$X*(3*cfB[4]+Data$X*(4*cfB[5]))))
+    plot(Data$MACH, Data$ALPHA)
+    Data$RF <- id
+    if (TT %in% TTvar[iROSE[which (nROSE == id)]]) {
+      DCC <- rbind (DCC, Data[, c("Time", "ALPHA", "MACH", "TASX", "RF")])
+    }
+  }
+}
+plot (DCC$MACH, DCC$ALPHA, pch=20, col='blue')
+
+@
+
+The results are shown in Fig.~\ref{fig:rose-alpha-mean-A}. The mean
+value for element-A of the heated Rosemount probes was \Sexpr{round(mean(DCC$ALPHA), 3)},
+significantly below the value for the HARCO probes or the standard
+recovery-factor formula. This seems to be enough of a discrepancy
+that a different recovery factor should be used for the Rosemount
+probes, and there doesn't seem to be any reason to use a dependence
+on Mach number, so the value \Sexpr{round(mean(DCC$ALPHA), 3)} appears
+to be appropriate. 
+
+<<rose-alpha-mean-A, include=TRUE, fig.cap='Mean values and standard deviations of the recovery factor after binning in Mach Number, for the Rosemount-A elements.'>>=
+
+DSTAT <- binStats(data.frame(DCC$ALPHA, DCC$MACH), bins=20, xlow=0.35, xhigh=0.83)
+p <- ggplot(DSTAT, aes(x=xc))
+# p <- p + geom_errorbar(aes(ymin=ybar-sigma, ymax=ybar+sigma, colour=clr[1]))
+# p <- p + scale_x_continuous (breaks=c(0,90,180,270,360))
+p <- p + geom_point (aes(y = ybar), colour='blue', size=2.5)
+p <- p + geom_errorbar(data=DSTAT, aes(ymin=ybar-sigma, ymax=ybar+sigma), colour='blue')
+p <- p + geom_point (data=DSTAT, aes(y = ybar), colour='blue', size=4)
+p <- p + geom_line (aes(y=ybar), colour='blue')
+p <- p + geom_line (data=DSTAT, aes(x=xc, y=ybar), colour='red')
+# p <- p + geom_errorbar(data=EBc, aes(ymin=ybar-sigma, ymax=ybar+sigma), col='red')
+# p <- p + geom_point (aes(y = ybar), pch=19, col='red', size=2.5)
+# p <- p + geom_line  (data=Ec, aes(x=xi/Cradeg, y=WSfit), colour='darkorange', lty=2, lwd=2)
+# p <- p + xlab(expression(paste(xi," [", degree, "]"))) + ylab ("wind speed [m/s]")
+p <- p + xlab("Mach Number") + ylab("recovery factor")
+# p <- p + scale_colour_manual("v wind:", labels = clr, values = col)
+# p <- p + scale_shape_manual ("v wind:", labels = clr, values = c(19,19))
+MN <- seq (0.3, 0.85, length.out=100)
+RecF <- RecoveryFactor (MN)
+p <- p + geom_line (aes (x=MN, y=RecF), colour='darkorange', lwd=1.4)
+RecF2 <- mean (DCC$ALPHA)
+p <- p + geom_line (aes (x=MN, y=RecF2), colour='black', lwd=1.4, lty=2)
+p <- p + theme_WAC() 
+# + theme (legend.background=element_rect(colour='black', size=0.3, fill="ivory"))
+suppressWarnings (print (p))
+
+@
+
+<<SR-Rosemount-B, include=FALSE>>=
+
+## for Rosemount, use these speed runs and probe sequence numbers:
+nROSE <- c(2,3,14,21,23)  # 36 START08 is an unheated Rosemount
+iROSE <- c(4,4,2,4,4)
+DCD <- data.frame()
+for (id in nROSE) {
+  print (sprintf ("Speed Run %d", id))
+  Data <- D[[id]]
+  SE <- getStartEnd(Data$Time)
+  r <- setRange (Data$Time, SE[1], SE[2])
+  if (id == 6) {
+    r <- setRange (Data$Time, 174930, 175500)
+    r <- setRange (Data$Time, 175100, 175500)
+  }
+  if (id == 9) {
+    r <- setRange (Data$Time, 32300, 32900)
+  }
+  if (id == 10) {
+    r <- setRange (Data$Time, 41450, 42230)
+  }
+  if (id == 25) {
+    r <- setRange (Data$Time, 215445, 215821)
+  }
+  if (id == 28) {
+    r <- setRange (Data$Time, 163600, 163925)
+  }
+  if (id == 34) {
+    r <- setRange (Data$Time, 90220, 90650)
+  }
+  N <- names (Data)
+  t <- c(which(grepl("RTH", N) & !grepl("C$", N)), which(grepl("RTF", N) & !grepl("C$", N)))
+  TTvar <- N[t]
+  t <- c(which(grepl("TTH", N) & !grepl("C$", N)), which(grepl("TTF", N) & !grepl("C$", N)))
+  TTvar <- c(TTvar, N[t])
+  Data$X <- Data$TASX^2 / (2*CP[1])
+  Data$MACH <- MachNumber (Data$PSFC, Data$QCFC)
+  Data$Bin <- as.integer (Data$MACH*10+0.5)
+  sink('/dev/null')
+  A <- getAttributes (Data)
+  sink()
+  Proj <- A[[which (grepl ("ProjectName", A[]))]]
+  for (TT in TTvar) {
+    if (grepl ("RTH", TT) || grepl ("TTH", TT)) {
+      Nshift <- 3
+    } else {
+      Nshift <- 2
+    }
+    if (grepl ("ADELE", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("DC3", Proj) && !grepl("TEST", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("HIPPO-3", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("PREDICT", Proj)) {Nshift <- Nshift - 2}
+    if (grepl ("SPRITE-II", Proj)) {Nshift <- 5}
+    if (grepl ("START08", Proj)) {Nshift <- Nshift - 2}
+    sink ('/dev/null')
+    AV <- getAttributes (Data[,TT])
+    sink()    
+    ia <- which (grepl ("TimeLag", AV[]) & !grepl ("Units", AV[]), arr.ind=TRUE)
+    if (length(ia) > 0) {Nshift <- Nshift + as.integer (AV[[ia]])/1000}
+    if (Nshift < 0) {Nshift <- 0}
+    TTm3 <- c(rep(Data[1, TT], Nshift), Data[1:(nrow(Data)-Nshift), TT])
+    Data[,TT] <- 2*Data[, TT]-TTm3
+    plot (Data$X[r], Data[r, TT], pch=20, ylab=TT)
+    title (sprintf ("PRJ %s seq %d time shift %d; Recovery factor %.4f", 
+                    Proj, id, Nshift, coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    print (sprintf ("for probe %s shift %d RF %.4f", TT, Nshift, 
+           coef(lm (Data[r, TT] ~ Data$X[r]))[2]))
+    for (n in 2:9) {
+      DB <- Data[Data$Bin == n, ]
+      if (nrow(DB) > 10) {
+        fb <- lm (DB[, TT] ~ DB$X)
+        print (sprintf ("bin %d rf %.4f points=%d", n, coef(fb)[2], nrow(DB)))
+      }
+    }
+    fB <- lm (Data[, TT] ~ Data$X+I(Data$X^2)+I(Data$X^3)+I(Data$X^4))
+    cfB <- coef(fB)
+    Data$ALPHA <- (cfB[2]+Data$X*(2*cfB[3]+Data$X*(3*cfB[4]+Data$X*(4*cfB[5]))))
+    plot(Data$MACH, Data$ALPHA)
+    Data$RF <- id
+    if (TT %in% TTvar[iROSE[which (nROSE == id)]]) {
+      DCD <- rbind (DCD, Data[, c("Time", "ALPHA", "MACH", "TASX", "RF")])
+    }
+  }
+}
+plot (DCD$MACH, DCD$ALPHA, pch=20, col='blue')
+
+@
+
+For element B of the heated Rosemount probes, the corresponding value
+is almost identical, \Sexpr{round(mean(DCD$ALPHA), 3)}, as shown
+in Fig.~\ref{fig:rose-alpha-mean-B}. The same recovery factor therefore
+seems appropriate for both elements of the heated Rosemount probe.
+
+<<rose-alpha-mean-B, include=TRUE, fig.cap='Mean values and standard deviations of the recovery factor after binning in Mach Number, for the Rosemount-B elements.'>>=
+
+DSTAT <- binStats(data.frame(DCD$ALPHA, DCD$MACH), bins=20, xlow=0.35, xhigh=0.83)
+p <- ggplot(DSTAT, aes(x=xc))
+# p <- p + geom_errorbar(aes(ymin=ybar-sigma, ymax=ybar+sigma, colour=clr[1]))
+# p <- p + scale_x_continuous (breaks=c(0,90,180,270,360))
+p <- p + geom_point (aes(y = ybar), colour='blue', size=2.5)
+p <- p + geom_errorbar(data=DSTAT, aes(ymin=ybar-sigma, ymax=ybar+sigma), colour='blue')
+p <- p + geom_point (data=DSTAT, aes(y = ybar), colour='blue', size=4)
+p <- p + geom_line (aes(y=ybar), colour='blue')
+p <- p + geom_line (data=DSTAT, aes(x=xc, y=ybar), colour='red')
+# p <- p + geom_errorbar(data=EBc, aes(ymin=ybar-sigma, ymax=ybar+sigma), col='red')
+# p <- p + geom_point (aes(y = ybar), pch=19, col='red', size=2.5)
+# p <- p + geom_line  (data=Ec, aes(x=xi/Cradeg, y=WSfit), colour='darkorange', lty=2, lwd=2)
+# p <- p + xlab(expression(paste(xi," [", degree, "]"))) + ylab ("wind speed [m/s]")
+p <- p + xlab("Mach Number") + ylab("recovery factor")
+# p <- p + scale_colour_manual("v wind:", labels = clr, values = col)
+# p <- p + scale_shape_manual ("v wind:", labels = clr, values = c(19,19))
+MN <- seq (0.3, 0.85, length.out=100)
+RecF <- RecoveryFactor (MN)
+p <- p + geom_line (aes (x=MN, y=RecF), colour='darkorange', lwd=1.4)
+RecF2 <- mean (DCD$ALPHA)
+p <- p + geom_line (aes (x=MN, y=RecF2), colour='black', lwd=1.4, lty=2)
+p <- p + theme_WAC() 
+# + theme (legend.background=element_rect(colour='black', size=0.3, fill="ivory"))
+suppressWarnings (print (p))
+
+@
+\clearpage
+
+\begin{center}
+\textsf{\textcolor{blue}{-- End of Memo --}}
+\par\end{center}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & various, mostly in /scr/raf/Prod\_Data \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}} & git@github.com:WilliamCooper/Reprocessing/\Sexpr{thisFileName}.git\tabularnewline
+\end{tabular}
+
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\\Sexpr{SaveRData}\\SessionInfo}
+%\cc{first attachment\\second\\3rd att}
+%\attach{attachment}
+%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+<<save-system-info, echo=FALSE>>= 
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, SaveRData))
+
+@ 
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}

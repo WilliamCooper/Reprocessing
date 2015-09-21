@@ -207,6 +207,9 @@ print(summary(f))
 
 ## now read data for all good speed runs:
 load('SpeedRunDF.Rdata')
+## for HARCO, use these speed runs and probe sequence numbers:
+nHARCO <- c(1,2,3,4,6,9,10,11,13,15,17,20,21,23,25,29,30,31,32,33,34)
+iHARCO <- c(1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1)
 for (id in 26:(length(D)-1)) {
   print (sprintf ("Speed Run %d", id))
   Data <- D[[id]]
