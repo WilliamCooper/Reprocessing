@@ -11,8 +11,14 @@ RPlot12 <- function (data) {
   PITCH <- VRPlot[[12]]
   PITCH <- PITCH[which("PITCH" == substr(PITCH, 1, 5))]
   DF <- data[, c("Time", PITCH)]
-  DF$PITCH_IRS2 <- DF$PITCH_IRS2 - pitch_offset
-  DF$DifferenceX50 <- (DF$PITCH - DF$PITCH_IRS2) * 50
+  if ("PITCH_IRS2" %in% names(data)) {
+    DF$PITCH_IRS2 <- DF$PITCH_IRS2 - pitch_offset
+    DF$DifferenceX50 <- (DF$PITCH - DF$PITCH_IRS2) * 50
+  }
+  if ("PITCH_IRS3" %in% names(data)) {
+    DF$PITCH_IRS3 <- DF$PITCH_IRS3 - pitch_offset
+    DF$DifferenceX50 <- (DF$PITCH - DF$PITCH_IRS3) * 50
+  }
   line.colors=c('blue', 'darkorange', 'red', 'skyblue')
   line.types <- c(1, 9, 1, 2)
   plotWAC (DF, ylim=c(-10.,10.), ylab="PITCH [deg.]",
@@ -22,13 +28,19 @@ RPlot12 <- function (data) {
   legend("bottomleft", legend="dashed lines: +/- 0.05 deg Difference",
          box.col='red', text.col='red', cex=0.5)
   title( sprintf ("mean difference: %.2f +/- %.2f after offset %.2f", 
-                  mean (data$PITCH-DF$PITCH_IRS2, na.rm=TRUE),
-                  sd   (data$PITCH-DF$PITCH_IRS2, na.rm=TRUE), pitch_offset))
+                  mean (DF$DifferenceX50/50, na.rm=TRUE),
+                  sd   (DF$DifferenceX50/50, na.rm=TRUE), pitch_offset))
   ROLL <- VRPlot[[12]]
   ROLL <- ROLL[which("ROLL" == substr(ROLL, 1, 4))]
   DF <- data[, c("Time", ROLL)]
-  DF$ROLL_IRS2 <- DF$ROLL_IRS2 - roll_offset
-  DF$DifferenceX50 <- (DF$ROLL - DF$ROLL_IRS2) * 50
+  if ("ROLL_IRS2" %in% names (data)) {
+    DF$ROLL_IRS2 <- DF$ROLL_IRS2 - roll_offset
+    DF$DifferenceX50 <- (DF$ROLL - DF$ROLL_IRS2) * 50
+  }
+  if ("ROLL_IRS3" %in% names (data)) {
+    DF$ROLL_IRS3 <- DF$ROLL_IRS3 - roll_offset
+    DF$DifferenceX50 <- (DF$ROLL - DF$ROLL_IRS3) * 50
+  }
   line.colors=c('blue', 'darkorange', 'red', 'skyblue')
   line.types <- c(1, 9, 1, 2)
   plotWAC (DF, ylab="ROLL [deg.]",
@@ -38,19 +50,28 @@ RPlot12 <- function (data) {
   legend("bottomleft", legend="dashed lines: +/- 0.05 deg Difference",
          box.col='red', text.col='red', cex=0.5)
   title( sprintf ("mean difference: %.2f sd %.2f after offset %.2f", 
-                  mean (data$ROLL-DF$ROLL_IRS2, na.rm=TRUE),
-                  sd   (data$ROLL-DF$ROLL_IRS2, na.rm=TRUE), roll_offset))
+                  mean (DF$DifferenceX50/50, na.rm=TRUE),
+                  sd   (DF$DifferenceX50/50, na.rm=TRUE), roll_offset))
   op <- par (mar=c(5,4,1,2)+0.1)
   THDG <- VRPlot[[12]]
   THDG <- THDG[which("THDG" == substr(THDG, 1, 4))]
   DF <- data[, c("Time", THDG)]
-  DF <- data[, c("Time", "THDG", "THDG_IRS2")]
-  DF$THDG_IRS2 <- DF$THDG_IRS2 - thdg_offset
-  t <- !is.na(DF$THDG_IRS2) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS2 > 180)
-  DF$THDG_IRS2[t] <- DF$THDG_IRS2[t] + 360
-  t <- !is.na(DF$THDG_IRS2) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS2 < -180)
-  DF$THDG_IRS2[t] <- DF$THDG_IRS2[t] - 360
-  DF$DifferenceX500 <- (DF$THDG - DF$THDG_IRS2) * 500 + 180
+  if ("THDG_IRS2" %in% names(data)) {
+    DF$THDG_IRS2 <- DF$THDG_IRS2 - thdg_offset
+    t <- !is.na(DF$THDG_IRS2) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS2 > 180)
+    DF$THDG_IRS2[t] <- DF$THDG_IRS2[t] + 360
+    t <- !is.na(DF$THDG_IRS2) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS2 < -180)
+    DF$THDG_IRS2[t] <- DF$THDG_IRS2[t] - 360
+    DF$DifferenceX500 <- (DF$THDG - DF$THDG_IRS2) * 500 + 180
+  }
+  if ("THDG_IRS3" %in% names(data)) {
+    DF$THDG_IRS3 <- DF$THDG_IRS3 - thdg_offset
+    t <- !is.na(DF$THDG_IRS3) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS3 > 180)
+    DF$THDG_IRS3[t] <- DF$THDG_IRS3[t] + 360
+    t <- !is.na(DF$THDG_IRS3) & !is.na(DF$THDG) & (DF$THDG - DF$THDG_IRS3 < -180)
+    DF$THDG_IRS3[t] <- DF$THDG_IRS3[t] - 360
+    DF$DifferenceX500 <- (DF$THDG - DF$THDG_IRS3) * 500 + 180
+  }
   line.colors=c('blue', 'darkorange', 'red', 'skyblue')
   line.types <- c(1, 9, 1, 2)
   plotWAC (DF, ylim=c(-60,390), ylab="THDG [deg.]",
@@ -63,8 +84,8 @@ RPlot12 <- function (data) {
   legend("bottomleft", legend="dashed lines: +/- 0.05 deg Difference, wrt 180 deg",
          box.col='red', text.col='red', cex=0.5)
   title( sprintf ("mean difference, THDG-THDG_IRS2: %.2f sd: %.2f after offset %.2f (but beware wrap-around)", 
-         mean (data$THDG-DF$THDG_IRS2, na.rm=TRUE),
-         sd    (data$THDG-DF$THDG_IRS2, na.rm=TRUE), thdg_offset))
+         mean (DF$DifferenceX500/500, na.rm=TRUE),
+         sd   (DF$DifferenceX500/500, na.rm=TRUE), thdg_offset))
   AddFooter ()
 }
 

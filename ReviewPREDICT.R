@@ -6,7 +6,7 @@ library(ncdf4)
 opts_chunk$set(echo=FALSE, include=TRUE, fig.lp="fig:")
 opts_chunk$set(fig.width=9.5, fig.height=7, fig.align="center", 
                digits=4, fig.show="asis", fig.path="Figures/WR-")
-thisFileName <- "ReviewH5"
+thisFileName <- "ReviewPREDICT"
 require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
 require(maps, quietly=TRUE)
 require(mapdata, quietly=TRUE)
@@ -16,7 +16,7 @@ require(grid)
 require(ggthemes)
 WorkDir <- sub (".*/", "", getwd())
 setwd (sprintf ("~/RStudio/%s", WorkDir))
-Project <- "HIPPO-5"
+Project <- "PREDICT"
 # source("getNetCDF.R")
 # source("PressureAltitude.R")
 # source("~cooperw/RStudio/Ranadu/R/PotentialTemperatures.R")
@@ -57,8 +57,12 @@ Fl <- sort (list.files (sprintf ("%s%s/", DataDirectory (), Project),
 ## use next plot file instead as default
 Fl <- sort (list.files (sprintf ("~/RStudio/Reprocessing"), 
                         sprintf ("%srf..Plots.pdf", Project)), decreasing = TRUE)[1]
-Flight <- sub (Project, '',  sub ("Plots.pdf", '', Fl))
-Flight <- sprintf("rf%02d", as.numeric(substr(Flight, 3, 4))+1)
+if (is.na(Fl)) {
+  Flight <- "rf01"
+} else {
+  Flight <- sub (Project, '',  sub ("Plots.pdf", '', Fl))
+  Flight <- sprintf("rf%02d", as.numeric(substr(Flight, 3, 4))+1)
+}
 
 if (length (run.args) > 0) {
   Flight <- run.args[1]
@@ -97,7 +101,7 @@ if (grepl ("HIPPO", Project)) {
   ProjectA <- Project
 }
 # fname = sprintf("%s%s/%s_%s.nc", DataDirectory (), ProjectA, Project, Flight)
-fname = sprintf("%s%s/%s%s.nc", DataDirectory (), ProjectA, Project, Flight)
+fname <- sprintf("%s%s/%s%s.nc", DataDirectory (), ProjectA, Project, Flight)
 
 print (sprintf ("processing %s", fname))
 # VarList must include all variable names that are used in this routine
@@ -111,56 +115,56 @@ for (i in 1:length(VRPlot)) {
   }
 }
 ## these are needed for translation to new cal coefficients
-VarList <- c(VarList, "RTH1", "RTH2", "RTH3", "RTH4")
+# VarList <- c(VarList, "RTH1", "RTH2", "RTH3", "RTH4")
 # source("./VarList")
 Data <- getNetCDF (fname, VarList)
 
 ## correct temperature calibrations
-UseNewCal <- TRUE
-c <- vector("numeric", 3)
-cx <- vector("numeric", 3)
-## RTH1 (Rosemount)
-c[1] = -87.788
-c[2] = 26.510
-c[3] = -0.31981
-cx[1] = -84.942
-cx[2] = 23.673
-cx[3] = 0.20332
-rad <- (c[2]**2-4.*(c[1]-Data$RTH1)*c[3])**0.5
-Volts <- (-c[2] + rad) / (2.*c[3])
-Data$RTH1 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
-if (UseNewCal) {Data$ATH1 <- AirTemperature (Data$RTH1, Data$PSFC, Data$QCFC)}
-c[1] = -84.308
-c[2] = 23.102
-c[3] = 0.30528
-cx[1] = -83.718
-cx[2] = 23.250
-cx[3] = 0.18589
-rad <- (c[2]**2-4.*(c[1]-Data$RTH2)*c[3])**0.5
-Volts <- (-c[2] + rad) / (2.*c[3])
-Data$RTH2 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
-if (UseNewCal) {Data$ATH2 <- AirTemperature (Data$RTH2, Data$PSFC, Data$QCFC)}
-c[1] = -82.990
-c[2] = 22.512
-c[3] = 0.39721
-cx[1] = -82.697
-cx[2] = 22.856
-cx[3] = 0.23639
-rad <- (c[2]**2-4.*(c[1]-Data$RTH3)*c[3])**0.5
-Volts <- (-c[2] + rad) / (2.*c[3])
-Data$RTH3 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
-if (UseNewCal) {Data$ATH3 <- AirTemperature (Data$RTH3, Data$PSFC, Data$QCFC)}
-c[1] = -83.566
-c[2] = 22.704
-c[3] = 0.39350
-cx[1] = -82.739
-cx[2] = 22.795
-cx[3] = 0.26341
-rad <- (c[2]**2-4.*(c[1]-Data$RTH4)*c[3])**0.5
-Volts <- (-c[2] + rad) / (2.*c[3])
-Data$RTH4 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
-if (UseNewCal) {Data$ATH4 <- AirTemperature (Data$RTH4, Data$PSFC, Data$QCFC, probe='HARCOB')}
-Data$ATX <- Data$ATH3
+# UseNewCal <- FALSE
+# c <- vector("numeric", 3)
+# cx <- vector("numeric", 3)
+# ## RTH1 (Rosemount)
+# c[1] = -87.788
+# c[2] = 26.510
+# c[3] = -0.31981
+# cx[1] = -84.942
+# cx[2] = 23.673
+# cx[3] = 0.20332
+# rad <- (c[2]**2-4.*(c[1]-Data$RTH1)*c[3])**0.5
+# Volts <- (-c[2] + rad) / (2.*c[3])
+# Data$RTH1 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+# if (UseNewCal) {Data$ATH1 <- AirTemperature (Data$RTH1, Data$PSFC, Data$QCFC)}
+# c[1] = -84.308
+# c[2] = 23.102
+# c[3] = 0.30528
+# cx[1] = -83.718
+# cx[2] = 23.250
+# cx[3] = 0.18589
+# rad <- (c[2]**2-4.*(c[1]-Data$RTH2)*c[3])**0.5
+# Volts <- (-c[2] + rad) / (2.*c[3])
+# Data$RTH2 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+# if (UseNewCal) {Data$ATH2 <- AirTemperature (Data$RTH2, Data$PSFC, Data$QCFC)}
+# c[1] = -82.990
+# c[2] = 22.512
+# c[3] = 0.39721
+# cx[1] = -82.697
+# cx[2] = 22.856
+# cx[3] = 0.23639
+# rad <- (c[2]**2-4.*(c[1]-Data$RTH3)*c[3])**0.5
+# Volts <- (-c[2] + rad) / (2.*c[3])
+# Data$RTH3 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+# if (UseNewCal) {Data$ATH3 <- AirTemperature (Data$RTH3, Data$PSFC, Data$QCFC)}
+# c[1] = -83.566
+# c[2] = 22.704
+# c[3] = 0.39350
+# cx[1] = -82.739
+# cx[2] = 22.795
+# cx[3] = 0.26341
+# rad <- (c[2]**2-4.*(c[1]-Data$RTH4)*c[3])**0.5
+# Volts <- (-c[2] + rad) / (2.*c[3])
+# Data$RTH4 <- cx[1]+cx[2]*Volts+cx[3]*Volts**2
+# if (UseNewCal) {Data$ATH4 <- AirTemperature (Data$RTH4, Data$PSFC, Data$QCFC, probe='HARCOB')}
+# Data$ATX <- Data$ATH3
 
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
@@ -290,7 +294,7 @@ RPlot21Cap <- "Radiometric temperatures, RSTB (top panel, surface temperature) a
 
 
 ## temporary, as test:
-VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
+# VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
 ### This section loops through plot functions, first loading them from 'PlotFunctions'
 ### and then running them with the appropriate data.
 for (np in 1:2) {
@@ -333,10 +337,10 @@ if (SavePlotsToFiles) {
     if (length (nplots) > 1) {
       for (i in 2:length(nplots)) {npsl <- sprintf("%s,%d", npsl, nplots[i])}
     }
-    syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"ReviewH5.R\",",
+    syscmd <- paste ("Rscript -e 'commandArgs(TRUE);knitr::spin (\"ReviewPREDICT.R\",",
                      "format=\"Rmd\")'", sprintf ("%s %s 3 ", Flight, npsl), sep=' ')
     system (syscmd, wait=TRUE)
-    system (sprintf ("mv ReviewH5.html %s", plothtml))
+    system (sprintf ("mv ReviewPREDICT.html %s", plothtml))
   }
 } else {
   ## message ("press Enter (with focus here) to dismiss the plot and end routine")

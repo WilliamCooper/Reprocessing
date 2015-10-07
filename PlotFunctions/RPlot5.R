@@ -13,7 +13,7 @@ RPlot5 <- function (data) {
                      - 1.2498*MachNumber (data$PSFC, data$QCFC)^2)
   }
   if (!("CAVP_DPR" %in% names (data))) {
-    data$CAVPF_DPR <- data$PSFC*(1.0162 +0.003024*data$QCFC
+    data$CAVP_DPR <- data$PSFC*(1.0162 +0.003024*data$QCFC
                      - 1.34521*MachNumber (data$PSFC, data$QCFC)^2)
   } else {
     data$CAVPF_DPR <- data$PSFC*(1.0162 +0.003024*data$QCFC
@@ -60,8 +60,11 @@ RPlot5 <- function (data) {
   if (("CAVPE_DPL" %in% names(data))) {
     plotWAC (data[, c("Time", "CAVP_DPR", "CAVP_DPL", "CAVPE_DPR", "CAVPE_DPL", "PSFC")], 
              lwd=c(1,1,2,2,1), lty=c(1,1,2,2,1), ylab='CAVP [hPa]',legend.position='topleft')
-  } else {
+  } else if ("CAVPF_DPL" %in% names (data)) {
     plotWAC (data[, c("Time", "CAVP_DPR", "CAVP_DPL", "CAVPF_DPR", "CAVPF_DPL", "PSFC")], 
+             lwd=c(1,1,2,2,1), lty=c(1,1,2,2,1), ylab='CAVP [hPa]',legend.position='topleft') 
+  } else {
+    plotWAC (data[, c("Time", "CAVP_DPR", "CAVP_DPL", "PSFC")], 
              lwd=c(1,1,2,2,1), lty=c(1,1,2,2,1), ylab='CAVP [hPa]',legend.position='topleft')    
   }
   # pulling legend out of plotWAC to increase font size
