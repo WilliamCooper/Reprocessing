@@ -17,7 +17,7 @@ require(ggthemes)
 WorkDir <- sub (".*/", "", getwd())
 setwd (sprintf ("~/RStudio/%s", WorkDir))
 Project <- "PREDICT"
-# source("getNetCDF.R")
+source("~/RStudio/Ranadu/R/getNetCDF.R")
 # source("PressureAltitude.R")
 # source("~cooperw/RStudio/Ranadu/R/PotentialTemperatures.R")
 
@@ -115,7 +115,7 @@ for (i in 1:length(VRPlot)) {
   }
 }
 ## these are needed for translation to new cal coefficients
-# VarList <- c(VarList, "RTH1", "RTH2", "RTH3", "RTH4")
+VarList <- c(VarList, "RTH1", "RTH2", "RTH3", "RTH4")
 # source("./VarList")
 Data <- getNetCDF (fname, VarList)
 
@@ -295,6 +295,9 @@ RPlot21Cap <- "Radiometric temperatures, RSTB (top panel, surface temperature) a
 
 ## temporary, as test:
 # VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
+## temporary, as test:
+VRPlot$PV4 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
+VRPlot$PV3 <- c("ATH3", "ATH1", "ATH2", "ATH4", "AT_A")
 ### This section loops through plot functions, first loading them from 'PlotFunctions'
 ### and then running them with the appropriate data.
 for (np in 1:2) {

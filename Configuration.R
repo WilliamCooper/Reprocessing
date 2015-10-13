@@ -245,6 +245,9 @@ if (Project == "PREDICT") {
   pitch_offset = 0.178
   roll_offset = -0.192
   thdg_offset = -0.536
+  pitch_offset = 0.41
+  roll_offset = -0.27
+  thdg_offset = -0.32
   ## track plot: don't change any exc. GGALT
   ## (PALT and PSXC are included to check the pressure altitude calculation)
   VRPlot <- list(PV1=c("LATC", "LONC", "WDC", "WSC", "GGALT", "PALT", "PSXC"))
@@ -292,11 +295,11 @@ if (Project == "PREDICT") {
   ## at present there is no RPlot14; UHSAS is handled later
   VRPlot$PV14 <- c(NA)
   ## plot concentrations:
-  VRPlot$PV15 <- c("CONCU_", "CONCU100_", "CONCU500_", "CONCP_", "CONCN_WCN")  # top panel
+  VRPlot$PV15 <- c("CONCU_LMO", "CONCU100_LMO", "CONCU500_LMO", "CONCP_", "CONCN_WCN")  # top panel
   VRPlot$PV15 <- c(VRPlot$PV15, "CONCD_", "CONC1DC_")   # 2nd panel
-  VRPlot$PV15 <- c(VRPlot$PV15, "USHFLW_", "USMPFLW_", "UREF_", "USCAT_")  # 3rd panel
+  VRPlot$PV15 <- c(VRPlot$PV15, "USHFLW_", "USMPFLW_", "UREF_LMO", "USCAT_LMO")  # 3rd panel
   ## list mean diameters, liquid water, RICE
-  VRPlot$PV16 <- c("DBARD_", "DBARU_", "DBAR1DC_", "PLWCD_", "PLWCC", "PLWC", "PLWC1DC_", "RICE")
+  VRPlot$PV16 <- c("DBARD_", "DBARU_LMO", "DBARP_OPC", "DBAR1DC_", "PLWCD_", "PLWCC", "PLWC", "PLWC1DC_", "RICE")
   ## if CDP present, include TCNTD_ and REJDOF_ to get acceptance ratio
   VRPlot$PV16 <- c(VRPlot$PV16, "TCNTD_", "REJDOF_", "AVGTRNS_", "CDPLSRP_")
   ## plot variable for skew-T sounding (don't normally change)
@@ -312,7 +315,7 @@ if (Project == "PREDICT") {
   VRPlot$PV21 <- c(NA)
   # VRPlot$PV21 <- c("RSTB", "IRBC", "IRTC"))
   ## plot sample of UHSAS size distributions; include PCASP if present (not HIPPO-2)
-  VRPlot$PV22 <- c("CUHSAS_LMO", "CS200_OPC", "TASX")
+  VRPlot$PV22 <- c("CUHSAS_LMO", "CS200_", "TASX")
   ## plot sample of 2DC size distributions 
   VRPlot$PV23 <- c("C1DC_", "TASX")
   # VRPlot$PV30 <- c("CORAW_AL", "FO3_ACD", "COFLOW_AL", "INLETP_AL")

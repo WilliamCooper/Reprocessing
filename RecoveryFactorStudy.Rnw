@@ -440,9 +440,9 @@ of $\alpha$ in terms of powers of $\log_{10}(M)$, as was used to
 represent the wind-tunnel data, will not give the recovery factor
 directly. Instead, a polynomial of the form $T_{r}=\sum a_{n}X^{n}$
 was determined by fitting the speed-run data and the resulting polynomial
-was differentiated to find $\alpha(X)$. Because $M^{2}=V^{2}/(\gamma RT_{0})=2C_{v}X/(RT_{0})$
-and the fit also gives $T_{0}$, the resulting function $\alpha(X)$
-can be transformed to $\alpha^{\prime}(M)=\alpha(X=M^{2}RT_{0}/(2C_{v})$. 
+was differentiated to find $\alpha(X)$. Because $M^{2}=V^{2}/(\gamma RT_{a})=2C_{v}X/(RT_{a})$
+and the fit also gives $T_{a}$, the resulting function $\alpha(X)$
+can be transformed to $\alpha^{\prime}(M)=\alpha(X=M^{2}RT_{a}/(2C_{v})$. 
 
 This suggests a way to combine the 21 good speed runs to obtain a
 composite recovery factor:

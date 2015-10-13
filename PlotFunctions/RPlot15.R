@@ -7,6 +7,7 @@ RPlot15 <- function(data) {
   va <- vector()
   for (c in CU) {
     nm <- names(data)[grepl(c, names(data))]
+    if (length (nm) > 1) {nm <- nm[1]}  ## handle multiple probes
     v <- sub("_", "", c)
     data[, v] <- SmoothInterp (data[, nm])
     va <- c(va, v)

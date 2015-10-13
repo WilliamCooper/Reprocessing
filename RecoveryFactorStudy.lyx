@@ -10017,11 +10017,11 @@ However,
 
 .
  Because 
-\begin_inset Formula $M^{2}=V^{2}/(\gamma RT_{0})=2C_{v}X/(RT_{0})$
+\begin_inset Formula $M^{2}=V^{2}/(\gamma RT_{a})=2C_{v}X/(RT_{a})$
 \end_inset
 
  and the fit also gives 
-\begin_inset Formula $T_{0}$
+\begin_inset Formula $T_{a}$
 \end_inset
 
 , the resulting function 
@@ -10029,7 +10029,7 @@ However,
 \end_inset
 
  can be transformed to 
-\begin_inset Formula $\alpha^{\prime}(M)=\alpha(X=M^{2}RT_{0}/(2C_{v})$
+\begin_inset Formula $\alpha^{\prime}(M)=\alpha(X=M^{2}RT_{a}/(2C_{v})$
 \end_inset
 
 .

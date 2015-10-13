@@ -84,8 +84,8 @@ RPlot12 <- function (data) {
   legend("bottomleft", legend="dashed lines: +/- 0.05 deg Difference, wrt 180 deg",
          box.col='red', text.col='red', cex=0.5)
   title( sprintf ("mean difference, THDG-THDG_IRS2: %.2f sd: %.2f after offset %.2f (but beware wrap-around)", 
-         mean (DF$DifferenceX500/500, na.rm=TRUE),
-         sd   (DF$DifferenceX500/500, na.rm=TRUE), thdg_offset))
+         mean ((DF$DifferenceX500-180)/500, na.rm=TRUE),
+         sd   ((DF$DifferenceX500-180)/500, na.rm=TRUE), thdg_offset))
   AddFooter ()
 }
 
