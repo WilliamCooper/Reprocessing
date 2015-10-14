@@ -1,0 +1,1189 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+\end_preamble
+\use_default_options false
+\begin_modules
+knitr
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding default
+\fontencoding global
+\font_roman times
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize letterpaper
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 0
+\use_package mathtools 1
+\use_package mhchem 0
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.54cm
+\topmargin 3.54cm
+\rightmargin 2.54cm
+\bottommargin 2.54cm
+\headheight 1cm
+\headsep 2cm
+\footskip 0.5cm
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+EOLmemo 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+global
+\backslash
+addressee={HIPPO reprocessing file}  % >>change "File" to the "To:" name
+ desired
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0pt">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+To:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+the
+\backslash
+addressee
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+From:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+William Cooper
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Subject:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Workflow to find sensitivity coefficients
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+bigskip
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<initialization,echo=FALSE,include=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+library(knitr)
+\end_layout
+
+\begin_layout Plain Layout
+
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+\end_layout
+
+\begin_layout Plain Layout
+
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+\end_layout
+
+\begin_layout Plain Layout
+
+thisFileName <- "WorkflowFindAKRDcal"
+\end_layout
+
+\begin_layout Plain Layout
+
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(ggplot2)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(grid)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(ggthemes)
+\end_layout
+
+\begin_layout Plain Layout
+
+Directory <- DataDirectory ()
+\end_layout
+
+\begin_layout Plain Layout
+
+Flight <- "rf05" 				
+\end_layout
+
+\begin_layout Plain Layout
+
+Project = "HIPPO-1"			 
+\end_layout
+
+\begin_layout Plain Layout
+
+# fname = sprintf("%s%s/%s%s.nc", Directory,Project,Project,Flight)
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data <- getNetCDF (fname, standardVariables(c("GGVSPDB")))	
+\end_layout
+
+\begin_layout Plain Layout
+
+SaveRData <- sprintf("%s.Rdata.gz", thisFileName)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Purpose
+\end_layout
+
+\begin_layout Standard
+This memo describes the workflow for finding new sensitivity coefficients
+ characterizing measurements of angle of attack using the radome gust system.
+ The example used is 
+\begin_inset Quotes eld
+\end_inset
+
+AKRDforHIPPO1.Rnw
+\begin_inset Quotes erd
+\end_inset
+
+, a file containing both text and R code.
+ That file generates the memo 
+\begin_inset Quotes eld
+\end_inset
+
+AKRDforHIPPO1.pdf
+\begin_inset Quotes erd
+\end_inset
+
+ and the archive file 
+\begin_inset Quotes eld
+\end_inset
+
+WI-HIPPO1.zip
+\begin_inset Quotes erd
+\end_inset
+
+ that contains the generating file, the document in PDF format, and this
+ workflow memo.
+\end_layout
+
+\begin_layout Standard
+The final authority regarding workflow is the ".Rnw" document itself, but
+ this overview and diagram is intended to help explain the workflow at a
+ general level and so should substitute for reading the R and LaTeX code.
+ The intent is to describe the workflow in sufficient detail to support
+ replication of the analysis and figures presented in 
+\begin_inset Quotes eld
+\end_inset
+
+AKRDforHIPPO1.pdf
+\begin_inset Quotes erd
+\end_inset
+
+ and also to enable changes based on new data or new analysis approaches.
+\end_layout
+
+\begin_layout Standard
+There are references and citations for the tools used (R, RStudio, knitr)
+ in this technical note: 
+\begin_inset CommandInset href
+LatexCommand href
+name "Characterization of Uncertainty in Measurements of Wind from the NSF/NCAR GV Research Aircraft"
+target "https://drive.google.com/open?id=0B1kIUH45ca5AVlV5amF3a2RVYkk"
+
+\end_inset
+
+.
+ The workflow document for that technical note also contains some additional
+ explanations of the procedures that are used again in generating the present
+ memo and the steps taken to ensure reproducibility of the results.
+\end_layout
+
+\begin_layout Section
+Acquisition of the primary data
+\end_layout
+
+\begin_layout Standard
+The best measurements for the purpose of this analysis are those obtained
+ during 
+\begin_inset Quotes eld
+\end_inset
+
+speed runs,
+\begin_inset Quotes erd
+\end_inset
+
+ constant-altitude flight maneuvers where the flight speed is varied through
+ the flight envelope of the aircraft,, preferably with modest rates of accelerat
+ion and deceleration.
+ Those maneuvers cause the angle of attack to chance with airspeed through
+ the normal range of measurements.
+ Two aspects of the maneuver are crucial, that the vertical wind be near-zero
+ and that the 
+\emph on
+geometric 
+\emph default
+altitude be constant.
+ 
+\end_layout
+
+\begin_layout Standard
+The measurements used in this case were collected using the NSF/NCAR GV
+ research aircraft during the first set of flights in the HIPPO project.
+ A description of the data-acquisition process and on-board data system,
+ as well as post-processing software, is contained in this technical note:
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Characterization of Uncertainty in Measurements of Wind from the NSF/NCAR GV Research Aircraft"
+target "https://drive.google.com/open?id=0B1kIUH45ca5AVlV5amF3a2RVYkk"
+
+\end_inset
+
+ (called the 
+\begin_inset Quotes eld
+\end_inset
+
+Wind Uncertainty Technical Note
+\begin_inset Quotes erd
+\end_inset
+
+ in the remainder of this document) and in the workflow memo for that technical
+ note.
+ The resulting data files have netCDF format and contain measurements in
+ scientific units along with variable attributes that give brief descriptions
+ of each measurement.
+ These are the data archives used for the processing described by this workflow
+ document.
+\end_layout
+
+\begin_layout Section
+Overview of the workflow
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename DG.png
+	lyxscale 50
+	width 95text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Top-level-flow-chart"
+
+\end_inset
+
+Flow chart describing the workflow.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+A flow chart describing the workflow is provided by Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Top-level-flow-chart"
+
+\end_inset
+
+.
+ The workflow is organized into five tasks, each of which is discussed below.
+ Everything in this flow chart, both generating the text document and performing
+ the calculations, is embedded in AKRDforHIPPO1.Rnw.
+ Where particular tasks require calculations using R, the R code is isolated
+ in 
+\begin_inset Quotes eld
+\end_inset
+
+chunks
+\begin_inset Quotes erd
+\end_inset
+
+ that have header titles, so those titles are referenced below where appropriate.
+ The first chunk is 
+\begin_inset Quotes eld
+\end_inset
+
+initialization,
+\begin_inset Quotes erd
+\end_inset
+
+ which loads some required R packages.
+ An important one is 
+\begin_inset Quotes eld
+\end_inset
+
+Ranadu
+\begin_inset Quotes erd
+\end_inset
+
+, a set of routines used for accessing, manipulating, and plotting variables
+ in the archived data files.
+ This package is available at 
+\begin_inset CommandInset href
+LatexCommand href
+name "this github link"
+target "https://github.com/WilliamCooper/Ranadu.git"
+
+\end_inset
+
+ and must be installed.
+ Also required is 
+\begin_inset Quotes eld
+\end_inset
+
+knitr
+\begin_inset Quotes erd
+\end_inset
+
+ so that the text document can be constructed.
+ A list of required variable names is also contained in this chunk; later,
+ when data.frames are constructed for analysis, this list is used to determine
+ the variables to load from the netCDF files.
+\end_layout
+
+\begin_layout Standard
+In the case of HIPPO-1, the rate-of-climb variable is VSPD_A, provided by
+ the GPS measurements from the GV avionics system.
+ After the SPRITES-II project in July 2013, the variable GGVSPD became available
+, and this is preferable to use when it is present because it does not have
+ filters and associated delays imposed as does the avionics value.
+ For projects after this date, the routine should be modified by replacing
+ VSPD_A by GGVSPD.
+\end_layout
+
+\begin_layout Subsection
+Task 1: Background
+\end_layout
+
+\begin_layout Enumerate
+This task starts by constructing two plots to show the problem that is being
+ addressed.
+ The plots are constructed in the R chunk 
+\begin_inset Quotes eld
+\end_inset
+
+vw-rf05
+\begin_inset Quotes erd
+\end_inset
+
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+The first is generated via a call to 
+\begin_inset Quotes eld
+\end_inset
+
+Ranadu::plotWAC()
+\begin_inset Quotes erd
+\end_inset
+
+, after constructing a new smoothed variable using the function 
+\begin_inset Quotes eld
+\end_inset
+
+SmoothInterp()
+\begin_inset Quotes erd
+\end_inset
+
+ defined in the 
+\begin_inset Quotes eld
+\end_inset
+
+initialization
+\begin_inset Quotes erd
+\end_inset
+
+ chunk.
+ The plot is placed automatically in the generated LaTeX file by 
+\begin_inset Quotes eld
+\end_inset
+
+knitr
+\begin_inset Quotes erd
+\end_inset
+
+ and is referenced by the figure number 
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+ref{fig:vw-rf051}
+\begin_inset Quotes erd
+\end_inset
+
+ where the last digit refers to the first plot generated by the chunk 
+\begin_inset Quotes eld
+\end_inset
+
+vw-rf05
+\begin_inset Quotes erd
+\end_inset
+
+.
+ A mean-value line is also added to this plot to show the degree to which
+ the vertical wind appears to be biased.
+ Note that parts of Task 2 must precede the generation of this plot because
+ assembling the data for plotting relies in the data-access steps described
+ in Task 2.
+\end_layout
+
+\begin_layout Enumerate
+The second compares the variable AKRD to the reference value provided by
+ (2), to show the unacceptable offset and also to show that there is a dependenc
+e on Mach number not addressed correctly by the standard fit.
+ This plot is generated by standard R graphics call 
+\begin_inset Quotes eld
+\end_inset
+
+plot()
+\begin_inset Quotes erd
+\end_inset
+
+ and referenced in the text via 
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+ref{fig:vw-rf052
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Note that the figure captions for these two figures are provided by 
+\begin_inset Quotes eld
+\end_inset
+
+FCap1
+\begin_inset Quotes erd
+\end_inset
+
+ defined in the 
+\begin_inset Quotes eld
+\end_inset
+
+get-data
+\begin_inset Quotes erd
+\end_inset
+
+ chunk.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Next the equations that provide the basis for the fit are presented.
+ These are discussed in more detail in the Wind Uncertainty technical note
+ referenced above and in the 
+\begin_inset CommandInset href
+LatexCommand href
+name "Processing Algorithms"
+target "https://drive.google.com/open?id=0B1kIUH45ca5Ab2Z6cld1M1cydjA"
+
+\end_inset
+
+ technical note, section 4.7.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Some discussion of the variable used for rate-of-climb is added to the text.
+ This should be modified if GGVSPD is used in future cases, in which case
+ the discussion of differentiating GGALT to obtain an alternate variable
+ should be omitted.
+ The Wind Uncertainty technical note discusses the properties of the different
+ measurements of rate-of-climb.
+\end_layout
+
+\begin_layout Subsection
+Selecting data
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Data restrictions:
+\emph default
+ Some study of the measurements will be needed to select data to which an
+ equation like (1) will be fitted.
+ In the case of HIPPO-1 I selected a subset of flights that excluded flights
+ (1, 2, 8) where plots of the angle-of-attack indicated problems, either
+ because of slow flight (when flaps might be deployed), flight in turns
+ (where generally the quality of wind measurements decreased), or where
+ the measurement ADIFR showed indications of blockage.
+ Many of the latter cases were already flagged as missing in the data files,
+ so those regions did not need to be excluded in any special way.
+ This is described and justified in the text.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Tabulated flight periods.
+ 
+\emph default
+For reference, the data periods used are shown in a LaTeX table.
+ This was constructed by using 
+\begin_inset Quotes eld
+\end_inset
+
+Ranadu::getStartEnd()
+\begin_inset Quotes erd
+\end_inset
+
+ to find the start and end of flights after data restrictions were imposed.
+ This step was carried out outside the normal processing of this file, so
+ if a table like this is desired it must be generated by finding the data
+ periods to use and manually editing the LaTeX table.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Construct the data.frame.
+
+\emph default
+ The R chunk 
+\begin_inset Quotes eld
+\end_inset
+
+get-data
+\begin_inset Quotes erd
+\end_inset
+
+ was then used to read the selected flights and construct two data.frames,
+ one containing all the flights and all measurements and a second containing
+ only periods meeting the restrictions imposed for airspeed, roll, and flight
+ number.
+ To construct the data.frame, the script 
+\begin_inset Quotes eld
+\end_inset
+
+Ranadu::getNetCDF()
+\begin_inset Quotes erd
+\end_inset
+
+ was used to read the desired variables for each individual flight, and
+ the results were concatenated using 
+\begin_inset Quotes eld
+\end_inset
+
+rbind()
+\begin_inset Quotes erd
+\end_inset
+
+ to get a single data.frame.
+ Within that data.frame, each flight was tagged with a variable 
+\begin_inset Quotes eld
+\end_inset
+
+RF
+\begin_inset Quotes erd
+\end_inset
+
+ set to, e.g., 1 for flight rf01, so that subsets of the data.frame could be
+ selected to examine individual flights.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+The first time the data.frame was constructed it was saved in a local file
+ named 
+\begin_inset Quotes eld
+\end_inset
+
+WI-HIPPO1.Rdata
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+For subsequent processing, this file was recovered via a 'load()' command
+ to save time.
+ The .Rdata file is also saved as documentation of the status of the data
+ archives at the time of this processing, to protect against changes that
+ may occur when files are reprocessed.
+ Within the saved data.frame (named 
+\begin_inset Quotes eld
+\end_inset
+
+Data
+\begin_inset Quotes erd
+\end_inset
+
+), the attributes associated with the netCDF file and with the individual
+ variables are also saved so this file provides a reference for the status
+ of processing that produced the archive.
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Fitting and selecting the formula to use
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Fit to the standard formula.
+ 
+\emph default
+This task begins by finding the best fit coefficients using the standard
+ formula (1).
+ The R chunk 
+\begin_inset Quotes eld
+\end_inset
+
+fits
+\begin_inset Quotes erd
+\end_inset
+
+ performs this fit, after the subset data.frame 
+\begin_inset Quotes eld
+\end_inset
+
+DF
+\begin_inset Quotes erd
+\end_inset
+
+ is defined to apply the data restrictions to the data.frame 
+\begin_inset Quotes eld
+\end_inset
+
+Data
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The linear-model R function 
+\begin_inset Quotes eld
+\end_inset
+
+lm()
+\begin_inset Quotes erd
+\end_inset
+
+ is used to find the coefficients, and the resulting coefficients are incorporat
+ed into the text via 
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+Sexpr{}
+\begin_inset Quotes erd
+\end_inset
+
+ expressions included in the LaTeX text so that, if there is any change,
+ the coefficients quoted will be updated automatically.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Explore alternatives.
+
+\emph default
+ If the fit does not appear to be adequate, alternative approaches should
+ be explored here.
+ They might involve using different parameters in a formula like (1) or
+ even applying filtering to the resulting vertical wind in cases where no
+ good fit procedure is available.
+ (This was the case, for example, in HIPPO-5.) In the present case, the standard
+ deviation (0.1
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+) was quite good in comparison to most cases and the fit provided coefficients
+ with low uncertainty, so this fit seems fully acceptable.
+ If it had been unacceptable, some other alternatives like those explored
+ in the Wind Uncertainty Technical Note.
+ Some of the possibilities explored in connection with the present study
+ are listed in the text, but none led to sufficient improvement to justify
+ the added complexity of the formula.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Print fit summary.
+ 
+\emph default
+A special function 
+\begin_inset Quotes eld
+\end_inset
+
+SummarizeFit()
+\begin_inset Quotes erd
+\end_inset
+
+, defined in the chunk 
+\begin_inset Quotes eld
+\end_inset
+
+summarize-fit,
+\begin_inset Quotes erd
+\end_inset
+
+ is used to write a summary of the results into the text file.
+\end_layout
+
+\begin_layout Subsection
+Checking and illustrating results
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Plot AKRD vs AOAREF.
+ 
+\emph default
+To illustrate the nature of the fit, a scatterplot of measurements of AKRD
+ from (1) with new coefficients vs.
+\begin_inset space ~
+\end_inset
+
+AOAREF determined from (2) is shown as Fig.
+\begin_inset space ~
+\end_inset
+
+3.
+ This plot was generated in the R chunk 
+\begin_inset Quotes eld
+\end_inset
+
+summarize-fit
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Calculate new vertical wind.
+
+\emph default
+ The revised coefficients are used to calculate new values of the vertical
+ wind, here called 
+\begin_inset Quotes eld
+\end_inset
+
+WIX
+\begin_inset Quotes erd
+\end_inset
+
+, in the R chunk 
+\begin_inset Quotes eld
+\end_inset
+
+new-vw
+\begin_inset Quotes erd
+\end_inset
+
+.
+ There is code included in this chunk to calculate the vertical wind in
+ two ways, one by correcting WIC as expected for the correction to AKRD
+ and the second, as a check, repeating the full transformation-matrix calculatio
+n as in the standard processing.
+ These did not differ, so the variable WIX is used to illustrate the new
+ vertical wind.
+ This value of WIX was calculated for all flights and all data periods,
+ not just those used for the fit.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Plot vs.
+\begin_inset space ~
+\end_inset
+
+original.
+ 
+\emph default
+To show the improvement resulting from this new fit, the new vertical wind
+ was plotted along with the old vertical wind for one flight (rf05) in Fig.
+\begin_inset space ~
+\end_inset
+
+4.
+ That plot is generated by a 
+\begin_inset Quotes eld
+\end_inset
+
+Ranadu::plotWAC()
+\begin_inset Quotes erd
+\end_inset
+
+ call in R chunk 
+\begin_inset Quotes eld
+\end_inset
+
+new-vw
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Recommendation
+\end_layout
+
+\begin_layout Standard
+The final task is to provide the recommended coefficients to use for processing
+ HIPPO-1 flights.
+ These again reference the results of the fit using 
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+Sexpr{}
+\begin_inset Quotes erd
+\end_inset
+
+ statements to ensure consistency.
+\end_layout
+
+\begin_layout Section*
+Appended information
+\end_layout
+
+\begin_layout Standard
+The end of the memo includes a 
+\begin_inset Quotes eld
+\end_inset
+
+Reproducibility
+\begin_inset Quotes erd
+\end_inset
+
+ table that documents what is archived, where it is located, and how anyone
+ could retrieve the program, text, and data and repeat the analysis.
+ This would need to be changed if this file is applied to a new project,
+ and care should be taken to avoid overwriting the github archive by failing
+ to change the names of the archived files.
+ The program itself generates the file 
+\begin_inset Quotes eld
+\end_inset
+
+WI-HIPPO1.zip
+\begin_inset Quotes erd
+\end_inset
+
+ but this and the other archived files must be uploaded to github manually.
+\end_layout
+
+\begin_layout Standard
+To provide additional information for those reviewing these flights and
+ this reprocessing, plots showing the new vertical wind for each flight
+ are appended to this memo.
+ These are generated in the chunk 
+\begin_inset Quotes eld
+\end_inset
+
+all-flights
+\begin_inset Quotes erd
+\end_inset
+
+, which appears after the closing statement for the memo so that they will
+ be appended after that and after the 
+\begin_inset Quotes eld
+\end_inset
+
+reproducibility
+\begin_inset Quotes erd
+\end_inset
+
+ information.
+ As for other plots in this memo, the function 
+\begin_inset Quotes eld
+\end_inset
+
+Ranadu::plotWAC()
+\begin_inset Quotes erd
+\end_inset
+
+ is used to generate these plots.
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+\color blue
+-- End of Memo --
+\end_layout
+
+\end_body
+\end_document

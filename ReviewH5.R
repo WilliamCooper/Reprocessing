@@ -116,7 +116,7 @@ VarList <- c(VarList, "RTH1", "RTH2", "RTH3", "RTH4")
 Data <- getNetCDF (fname, VarList)
 
 ## correct temperature calibrations
-UseNewCal <- TRUE
+UseNewCal <- FALSE
 c <- vector("numeric", 3)
 cx <- vector("numeric", 3)
 ## RTH1 (Rosemount)
