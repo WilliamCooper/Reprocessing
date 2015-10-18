@@ -24,10 +24,10 @@ if (Project == "HIPPO-1") {
   ## RPlot2: uses same variables as RPlot1
   VRPlot[[2]] <- VRPlot[[1]]
   ## RPlot3: T vs time, specify any number of temperatures 
-  VRPlot$PV3 <- c("ATH1", "ATH2", "AT_A")
+  VRPlot$PV3 <- c("ATH1", "ATH2", "ATF1", "AT_A")
   ## RPlot4: compare temperatures in pairs; specify up to five.
   ## first is reference for comparisons
-  VRPlot$PV4 <- c("ATH1", "ATH2", "AT_A")
+  VRPlot$PV4 <- c("ATH1", "ATH2", "ATF1", "AT_A")
   ## the next line should end with ATX and list dewpoints
   VRPlot$PV5 <- c("DPV_VXL", "DP_DPL", "DP_DPR", "ATX")
   VRPlot$PV5 <- c(VRPlot$PV5, "CAVPE_DPL", "CAVPE_DPR")

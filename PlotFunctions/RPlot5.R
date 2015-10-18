@@ -1,7 +1,10 @@
 ### plot 5: humidity
 RPlot5 <- function (data) { 
   ## if EW_VXL or CAVP missing, fill in:
-  if (!("EW_VXL" %in% names(data))) {data$EW_VXL <- MurphyKoop (data$DP_VXL)}
+  if (!("EW_VXL" %in% names(data))) {
+    if ("DP_VXL" %in% names(data)) {data$EW_VXL <- MurphyKoop (data$DP_VXL)}
+    if ("DPV_VXL" %in% names(data)) {data$EW_VXL <- MurphyKoop (data$DPV_VXL)}
+  }
   ## special in HIPPO-2 to avoid VCSEL spikes
   # data$EW_VXL[data$EW_VXL > 20] <- NA
     

@@ -73,6 +73,7 @@ if (length (run.args) > 0) {
 }
 print(sprintf("Flight is %s", Flight))
 nplots=c(1, 3:11, 13:17, 19:20, 22)    # project default
+# nplots=c(1, 3:11, 13:17, 20, 22)    # temporary for rf9--11
 if (length (run.args) > 1) {
   if (run.args[2] != "-1") {
     nplots <- eval (parse (text=paste('c(', run.args[2],')', sep='')))
@@ -116,6 +117,15 @@ for (i in 1:length(VRPlot)) {
 }
 # source("./VarList")
 Data <- getNetCDF (fname, VarList)
+## correct the vertical wind for new coefficients
+CorrectWIC <- FALSE
+if (CorrectWIC) {
+  cf <- c(4.864, 12.429, 9.451)
+  Data$QR <- Data$ADIFR / Data$QCF
+  Data$M <- MachNumber (Data$PSF, Data$QCF)
+  Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+  Data$WIC <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+}
 
 # data: select only points where TASX > 110, and optionally limit time range
 DataV <- Data[setRange(Data$Time, StartTime, EndTime), ]
@@ -127,6 +137,10 @@ DataV[t, namesV] <- NA
 if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
   DataV$DP_VXL <- rep(0, nrow(DataV))
 }
+if (min(DataV$DPV_VXL, na.rm=TRUE) == Inf) {
+  DataV$DPV_VXL <- rep(0, nrow(DataV))
+}
+
 # DataV$DP_VXL[DataV$DP_VXL > 30] <- NA ## this was needed to remove spikes from the VCSEL measurements
 ## omit points where the Time is NA
 # DataV <- DataV[!is.na(DataV$Time), ]

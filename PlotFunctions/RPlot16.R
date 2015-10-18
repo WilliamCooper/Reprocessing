@@ -1,7 +1,11 @@
 ### plot 16: DBAR (mean diameters) and PLWC (liquid water content)
 # do 1-min smoothing; otherwise, too noisy
 RPlot16 <- function (data) {
-  layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,6))
+  if ("DBAR1DC_" %in% VRPlot[[16]]) {
+    layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,6))
+  } else {
+    layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+  }
   op <- par (mar=c(2,4,1,1)+0.1,oma=c(1.1,0,0,0))
   DB <- VRPlot[[16]]
   DB <- DB[which(("DBARU" == substr(DB, 1, 5)) | ("DBARP" == substr(DB, 1, 5)))]
@@ -11,6 +15,9 @@ RPlot16 <- function (data) {
     v <- sub("_", "", c)
     data[, v] <- SmoothInterp(data[, nm])
     va <- c(va, v)
+  }
+  if (!"DBAR1DC_" %in% VRPlot[[16]]) {
+    op <- par (mar=c(5,4,1,1)+0.1)
   }
   plotWAC (data[, c("Time", va)], ylim=c(0,0.5), ylab="DBARU/P", legend.position="topright")
   title ("1-min filter", cex.main=0.75)
@@ -56,6 +63,7 @@ RPlot16 <- function (data) {
     plotWAC(data[, c("Time", nm)])
   }
   AddFooter()
+  layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,6))
   op <- par (mar=c(2,4,1,1)+0.1)
   if ("TCNTD_" %in% VRPlot[[16]] && "REJDOF_" %in% VRPlot[[16]]) {
     TCNTD <- data[, names(data)[grepl("TCNTD_", names(data))]]
