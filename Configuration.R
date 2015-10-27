@@ -104,7 +104,7 @@ if (Project == "HIPPO-2") {
       ## first is reference for comparisons
   VRPlot$PV4 <- c("ATH1", "ATH2", "ATH3", "ATH4", "AT_A")
       ## the next line should end with ATX and list dewpoints
-  VRPlot$PV5 <- c("DP_VXL", "DP_DPL", "DP_DPR", "ATX")
+  VRPlot$PV5 <- c("DPV_VXL", "DP_DPL", "DP_DPR", "ATX")
   VRPlot$PV5 <- c(VRPlot$PV5, "CAVPE_DPL", "CAVPE_DPR")
 ## don't use if CAVP not available:
   # VRPlot$PV5 <- c(VRPlot$PV5, "CAVP_DPL", "CAVP_DPR". "PSFC", "LSRINT_VXL") 

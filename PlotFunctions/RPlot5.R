@@ -101,7 +101,7 @@ RPlot5 <- function (data) {
     }
     if ("H2OMR_GMD" %in% names(data)) {
       MRVAR <- c(MRVAR, "H2OMR_GMD")
-      data$H2OMR_GMD <- data$H2OMR_GMD / 1000.
+      data$H2OMR_GMD <- data$H2OMR_GMD / 1000. * 0.622
     }
     plotWAC (data[, c("Time", MRVAR)], ylab="mixing ratio [g/kg]",
              logxy='y', ylim=c(0.01, 100),cex.lab=1.5,cex.axis=1.5)
