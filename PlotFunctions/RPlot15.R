@@ -8,7 +8,7 @@ RPlot15 <- function(data) {
   for (c in CU) {
     nm <- names(data)[grepl(c, names(data))]
     if (length (nm) > 1) {nm <- nm[1]}  ## handle multiple probes
-    v <- sub("_", "", c)
+    v <- sub("_.*", "", c)
     data[, v] <- SmoothInterp (data[, nm])
     va <- c(va, v)
   }
@@ -27,7 +27,7 @@ RPlot15 <- function(data) {
   va2 <- vector()
   for (c in C) {
     nm <- names(data)[grepl(c, names(data))]
-    v <- sub("_", "", c)
+    v <- sub("_.*", "", c)
     data[, v] <- SmoothInterp (data[, nm])
     va2 <- c(va2, v)
   }

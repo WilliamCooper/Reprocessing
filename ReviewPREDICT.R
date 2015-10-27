@@ -73,6 +73,7 @@ if (length (run.args) > 0) {
 }
 print(sprintf("Flight is %s", Flight))
 nplots=c(1, 3:17, 19:20, 22:23)    # project default
+nplots=c(1, 3:17, 20, 22:23)    # project default
 if (length (run.args) > 1) {
   if (run.args[2] != "-1") {
     nplots <- eval (parse (text=paste('c(', run.args[2],')', sep='')))
