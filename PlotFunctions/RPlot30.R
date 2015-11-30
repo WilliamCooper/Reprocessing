@@ -13,7 +13,9 @@ RPlot30 <- function (data) {
          lty=c(1,1), lwd=c(2), legend.position='bottomright',
          col='red')
   title("CORAW", cex.main=0.8)
-  plotWAC (data[, c("Time", "FO3_ACD")], ylab="FO3 [ppbv]")
+  if ("FO3_ACD" %in% names (data)) {
+    plotWAC (data[, c("Time", "FO3_ACD")], ylab="FO3 [ppbv]")
+  }
   AddFooter ()
   # plot COFLOW and INLETP
   if (any(!is.na(data$COFLOW_AL))) {

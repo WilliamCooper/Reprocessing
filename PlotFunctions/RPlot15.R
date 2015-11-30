@@ -40,6 +40,7 @@ RPlot15 <- function(data) {
   AddFooter ()
   op <- par (mar=c(2,4,1,1)+0.1)
   nm6 <- names(data)[grepl("USHFLW_", names(data))]
+  if (length(nm6) == 0) {return()}
   USHFLW <- data[, nm6]
   nm7 <- names(data)[grepl("USMPFLW_", names(data))]
   USMPFLW <- data[, nm7]

@@ -19,7 +19,10 @@ RPlot16 <- function (data) {
   if (!"DBAR1DC_" %in% VRPlot[[16]]) {
     op <- par (mar=c(5,4,1,1)+0.1)
   }
-  plotWAC (data[, c("Time", va)], ylim=c(0,0.5), ylab="DBARU/P", legend.position="topright")
+  if (length (va) > 0) {
+    plotWAC (data[, c("Time", va)], ylim=c(0,0.5), ylab="DBARU/P", 
+             legend.position="topright")
+  }
   title ("1-min filter", cex.main=0.75)
   DB <- VRPlot[[16]]
   DB <- DB[which (("DBAR" == substr(DB, 1, 4)) & ("DBARU" != substr(DB, 1, 5))
