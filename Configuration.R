@@ -21,7 +21,7 @@ if (Project == "START08") {
   pitch_offset = 0.178
   roll_offset = -0.192
   thdg_offset = -0.536
-  # pitch_offset = 0.41
+  pitch_offset = 0.41
   roll_offset = -0.27
   thdg_offset = -0.12  ## -0.32
   ## track plot: don't change any exc. GGALT
