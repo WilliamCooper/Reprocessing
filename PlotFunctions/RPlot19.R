@@ -10,12 +10,24 @@ RPlot19 <- function (data) {
   ## (beware of missing EWX:)
   data <- data[!is.na(data$EWX), ]
   data$TP2 <- EquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX)
-  data$TQ2 <- WetEquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX, data$PLWCC)
-  plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2")], 
-           ylab="ad. pot. temperatures", legend.position = "top")
-  title (sprintf("mean difference THETAE-TP2=%.2f THETAQ-TQ2=%.2f", 
-                 mean(data$THETAE-data$TP2, na.rm=TRUE),
-                 mean(data$THETAQ-data$TQ2, na.rm=TRUE)), cex.main=0.7)
+  if ("THETAQ" %in% names(data)) {
+    if (!("PLWCC" %in% names(data))) {data$PLWCC <- rep (0, nrow(data))}
+    data$TQ2 <- WetEquivalentPotentialTemperature (data$PSXC, data$ATX, data$EWX, data$PLWCC)
+    if (max (data$THETAE, na.rm=TRUE) < Inf) {
+      plotWAC (data[, c("Time", "THETAE", "THETAP", "THETAQ", "TP2")], 
+               ylab="ad. pot. temperatures", legend.position = "top")
+      title (sprintf("mean difference THETAE-TP2=%.2f THETAQ-TQ2=%.2f", 
+                     mean(data$THETAP-data$TP2, na.rm=TRUE),
+                     mean(data$THETAQ-data$TQ2, na.rm=TRUE)), cex.main=0.7)
+    }
+  } else {
+    if (max (data$THETAE, na.rm=TRUE) < Inf) {
+      plotWAC (data[, c("Time", "THETAE", "THETAP")], 
+                 ylab="ad. pot. temperatures", legend.position = "top")
+        title (sprintf("mean difference THETAE-TP2=%.2f", 
+                       mean(data$THETAP-data$TP2, na.rm=TRUE)), cex.main=0.7)
+    }
+  }
   AddFooter ()
   # plots vs pressure:
   layout(matrix(2:1, ncol = 2), widths = c(5,5), heights = 1)

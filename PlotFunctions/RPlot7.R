@@ -33,8 +33,8 @@ RPlot7 <- function (data) {
   titl <- "Mean diff: "
   for (i in 2:length(labl)) {
     titl <- sprintf("%s%s-%s: %.2f; ", titl, labl[i],labl[1],
-                    mean(data[, VRPlot[[7]][i]] -
-                           data[, VRPlot[[7]][1]], na.rm=TRUE))
+                    mean(data[, VRPlot[[7]][i+n2-1]] -
+                           data[, VRPlot[[7]][n2]], na.rm=TRUE))
   }
   title(titl, cex.main=0.8)
   AddFooter ()

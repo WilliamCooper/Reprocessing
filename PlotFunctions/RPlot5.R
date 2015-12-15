@@ -87,7 +87,7 @@ RPlot5 <- function (data) {
   ## get EW variables
   VEW <- VRPlot[[5]]
   VEW <- VEW[which ("EW" == substr(VEW, 1, 2))]
-  if (!("EW_VXL" %in% VEW)) {VEW <- c(VEW, "EW_VXL")}
+  if (!("EW_VXL" %in% VEW) && ("EW_VXL" %in% names(data))) {VEW <- c(VEW, "EW_VXL")}
   plotWAC (data[, c("Time", c(VEW))], ylab="EWy [hPa]", 
            logxy='y', ylim=c(1e-2, 100),legend.position='bottom',cex.lab=1.5,cex.axis=1.5)
   lineWAC (data$Time, MurphyKoop (data$ATX, data$PSFC), col='cyan', lty=2)

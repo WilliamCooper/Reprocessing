@@ -174,8 +174,11 @@ namesV <- namesV[namesV != "Time"]
 t <- !is.na (DataV$TASX) & (DataV$TASX < 110)
 DataV[t, namesV] <- NA
 ## guard against inf. VCSEL limits, as for rf08
-if (min(DataV$DP_VXL, na.rm=TRUE) == Inf) {
+if (("DP_VXL" %in% names (DataV)) && (min(DataV$DP_VXL, na.rm=TRUE) == Inf)) {
   DataV$DP_VXL <- rep(0, nrow(DataV))
+}
+if (("DPV_VXL" %in% names(DataV)) && (min(DataV$DPV_VXL, na.rm=TRUE) == Inf)) {
+  DataV$DPV_VXL <- rep(0, nrow(DataV))
 }
 if (min(DataV$DP_DPR, na.rm=TRUE) == Inf) {
   DataV$DP_DPR <- rep(0, nrow(DataV))
