@@ -1,5 +1,5 @@
 ### plot 5: humidity
-RPlot5 <- function (data) { 
+RPlot5 <- function (data, Seq=NA) { 
   ## if EW_VXL or CAVP missing, fill in:
   if (!("EW_VXL" %in% names(data))) {
     if ("DP_VXL" %in% names(data)) {data$EW_VXL <- MurphyKoop (data$DP_VXL)}
@@ -40,6 +40,7 @@ RPlot5 <- function (data) {
   }
   title(titl, cex.main=0.8)
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return()}
 # BBS 2/2/15 edited to match sensor colors and make VXL the dependent variable
 # also, high transparency was making DPR look better than it actually was
   colr <- c("blue", "darkgreen", "darkorange", "cyan")
@@ -57,6 +58,7 @@ RPlot5 <- function (data) {
           text.col=colr, pt.cex=c(1., 0.5, 0.5, 0.5))
   title("dashed orange lines: +/-1C error bands", cex.main=0.8)
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 2)) {return()}
   # DP cavity pressures and VCSEL laser intensity:
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,5))
   op <- par (mar=c(2,4,1,2.5)+0.1)
@@ -81,6 +83,7 @@ RPlot5 <- function (data) {
     abline (h=1000, col='red', lty=2); abline (h=2700, col='red', lty=2)
   }
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 3)) {return()}
   # vapor pressure and mixing ratio
   op <- par (mar=c(2,5,1,1)+0.1)
   layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,6))

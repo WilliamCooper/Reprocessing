@@ -1,5 +1,5 @@
 ### plot 3: plot all temperatures, one plot
-RPlot3 <- function (data) { 
+RPlot3 <- function (data, ...) { 
   par(oma=c(1.1,0,0,0))
   ylb <- expression (paste ("temperature  ATy  [", degree, "C]"))
   plotWAC (data[, c("Time", VRPlot[[3]])],

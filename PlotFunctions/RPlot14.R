@@ -1,5 +1,5 @@
 ### plot 14: UHSAS
-RPlot14 <- function (data) {}
+RPlot14 <- function (data, ...) {}
 ### add footer if reimplemented
 # if (testPlot (14)) {
 # op <- par (mfrow=c(1,1), mar=c(4,5,2,2)+0.1)

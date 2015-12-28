@@ -1,5 +1,5 @@
 ### plot 10: Schuler oscillation
-RPlot10 <- function (data) {
+RPlot10 <- function (data, Flight=NA, Seq=NA) {
   ## needs GGVEW, GGVNS, VEW, VNS, GGQUAL
   layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,3))
   op <- par (mar=c(2,4,1,2)+0.1,oma=c(1.1,0,0,0))
@@ -26,6 +26,7 @@ RPlot10 <- function (data) {
   DF <- data[, c("Time", "GGQUAL")]
   plotWAC(DF, ylim=c(0,10))
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return()}
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
   op <- par (mar=c(2,4,1,2)+0.1,oma=c(1.1,0,0,0))
   DF <- data.frame(Time=data$Time)

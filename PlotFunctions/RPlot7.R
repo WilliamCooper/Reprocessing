@@ -1,6 +1,6 @@
 
 ### plot 7: dynamic pressure; also TAS and MACH
-RPlot7 <- function (data) { 
+RPlot7 <- function (data, Seq=NA) { 
   op <- par (mar=c(2,4,1,2)+0.1, oma=c(1.1,0,0,0))
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
   QC <- VRPlot[[7]]
@@ -38,6 +38,7 @@ RPlot7 <- function (data) {
   }
   title(titl, cex.main=0.8)
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return()}
   # add TAS and MACH plots:
   op <- par (mar=c(2,4,1,1)+0.1)
   TAS <- VRPlot[[7]]

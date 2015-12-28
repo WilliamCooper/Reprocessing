@@ -1,5 +1,5 @@
 ### plot 19: potential-temperature plots
-RPlot19 <- function (data) {
+RPlot19 <- function (data, Seq=NA) {
   ## needs THETA, THETAV, THETAE, THETAP, THETAQ, PSFC
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
   op <- par (mar=c(2,4,1,1)+0.1,oma=c(1.1,0,0,0))
@@ -29,6 +29,7 @@ RPlot19 <- function (data) {
     }
   }
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return()}
   # plots vs pressure:
   layout(matrix(2:1, ncol = 2), widths = c(5,5), heights = 1)
   op <- par (mar=c(5,2,1,1)+0.1)

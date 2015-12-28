@@ -1,9 +1,10 @@
 ### plot 1: construct flight track with map
-RPlot1 <- function (data, Flight=NA) { 
+RPlot1 <- function (data, Flight=NA, Seq=NA) { 
   ## needs LATC, LONC, WDC, WSC, GGALT
   op <- par (mfrow=c(1,1), mar=c(5,5,2,2)+0.1,oma=c(1.1,0,0,0))
   plotTrack(data, .Spacing=60, .WindFlags=10)
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return ()}
   SE <- getStartEnd (data$Time)
   i <- getIndex (data$Time, SE[1])
   title (sprintf("%s %s %d-%d", Flight,

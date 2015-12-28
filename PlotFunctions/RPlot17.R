@@ -1,5 +1,5 @@
 ### Plot 17: all-flight Skew-T
-RPlot17 <- function (data) {
+RPlot17 <- function (data, Flight=NA, ...) {
   ## needs PSFC, ATX, DPXC
   op <- par (mfrow=c(1,1), mar=c(5,5,2,2)+0.1,oma=c(1.1,0,0,0))
   DF <- data[, c("PSFC", "ATX", "DPXC")]

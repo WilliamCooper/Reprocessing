@@ -1,5 +1,5 @@
 ### Plot 12: IRU comparisons
-RPlot12 <- function (data) {
+RPlot12 <- function (data, ...) {
   ## variables can include PITCH, ROLL, THDG from IRUs
   ## apply project-dependent offsets:
 #   pitch_offset <- 0.37

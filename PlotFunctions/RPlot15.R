@@ -1,5 +1,5 @@
 ### plot 15: CN, FSSP, CDP, F300, CONCP, CONC1DC_LWOO
-RPlot15 <- function(data) {
+RPlot15 <- function(data, Seq=NA) {
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
   op <- par (mar=c(2,4,1,1)+0.1,oma=c(1.1,0,0,0))
   CU <- VRPlot[[15]]
@@ -38,6 +38,7 @@ RPlot15 <- function(data) {
            logxy='y', ylim=c(0.001,1e4), ylab=expression(paste("CONCy [cm"^"-3"*"]")))
   title ("1-min filter", cex.main=0.75)
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return ()}
   op <- par (mar=c(2,4,1,1)+0.1)
   nm6 <- names(data)[grepl("USHFLW_", names(data))]
   if (length(nm6) == 0) {return()}

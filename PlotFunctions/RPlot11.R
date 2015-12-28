@@ -1,5 +1,5 @@
 ### plot 11: attack, sideslip
-RPlot11 <- function (data) {
+RPlot11 <- function (data, ...) {
   ## needs AKRD, PITCH, SSRD, WSC, WDC, GGVEW, GGVNS, VSPD, TASX, THDG, 
   layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
   op <- par (mar=c(2,4,1,1)+0.1,oma=c(1.1,0,0,0))

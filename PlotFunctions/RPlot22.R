@@ -1,5 +1,5 @@
 ### plot 22: UHSAS size distributions
-RPlot22 <- function (data) {
+RPlot22 <- function (data, ...) {
   ## needs CUHSAS_RWOOU, CPCASP_RWOOP; references fname from calling environment
   kount = 0
   plotTest <- 50

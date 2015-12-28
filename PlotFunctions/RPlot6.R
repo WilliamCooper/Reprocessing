@@ -1,5 +1,5 @@
 ### plot 6: ambient pressures
-RPlot6 <- function (data) { 
+RPlot6 <- function (data, ...) { 
   op <- par (mar=c(5,4,1,2)+0.1, oma=c(1.1,0,0,0))
   layout(matrix(1:1, ncol = 1), widths = 1, heights = 5)
   plotWAC (DF <- data[, c("Time", VRPlot[[6]])], 

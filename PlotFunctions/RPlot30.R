@@ -1,7 +1,7 @@
 ### plot 30: chemistry (CO, O3)
 
 
-RPlot30 <- function (data) { 
+RPlot30 <- function (data, Seq=NA) { 
   ## needs COFLOW_AL, CORAW_AL, INLETP_AL, FO3_ACD, CO2_PIC
   op <- par (mfrow=c(2,1), mar=c(5,5,2,2)+0.1,oma=c(1.1,0,0,0))
   ## beware of all-missing case:
@@ -18,6 +18,7 @@ RPlot30 <- function (data) {
     plotWAC (data[, c("Time", "FO3_ACD")], ylab="FO3 [ppbv]")
   }
   AddFooter ()
+  if (!is.na(Seq) && (Seq == 1)) {return()}
   # plot COFLOW and INLETP
   if (("COFLOW_AL" %in% names (data)) && any(!is.na(data$COFLOW_AL))) {
     plotWAC(data[, c("Time", "COFLOW_AL")])

@@ -1,4 +1,4 @@
-RPlot21 <- function(data) {
+RPlot21 <- function(data, ...) {
   ## be sure that the variables are in 'VarList'. If not, where VarList
   ## is defined, add the new variable to the variable names or follow the
   ## present definition with VarList <- c(VarList, "NewVariable1", "NewVariable2")

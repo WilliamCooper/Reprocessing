@@ -1,5 +1,5 @@
 ### plot 8: total pressure (static + dynamic)
-RPlot8 <- function (data) { 
+RPlot8 <- function (data, ...) { 
   op <- par (mar=c(5,4,1,1)+0.1, oma=c(1.1,0,0,0))
   layout(matrix(1:1, ncol = 1), widths = 1, heights = 5)
   DF <- data[, c("Time", "PSF", "PS_A")]

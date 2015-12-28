@@ -1,5 +1,5 @@
 ### plot 23: 2DC size distributions
-RPlot23 <- function (data) {
+RPlot23 <- function (data, ...) {
   ## needs C1DC_LWOI; references fname from calling environment
   kount = 0
   netCDFfile = nc_open(fname)

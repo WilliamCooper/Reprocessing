@@ -1,5 +1,5 @@
 ### plot 2: construct one-per-hour track plots
-RPlot2 <- function (data, Flight=NA) { 
+RPlot2 <- function (data, ...) { 
   ## add outer margin footer as for other plots?
   op <- par (oma=c(1.1,0,0,0))
   SE <- getStartEnd(data$Time)

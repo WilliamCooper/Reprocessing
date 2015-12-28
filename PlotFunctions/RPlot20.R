@@ -1,5 +1,5 @@
 ### plot 20: CDP/SP100 size distributions
-RPlot20 <- function (data) {
+RPlot20 <- function (data, ...) {
   ## needs CCDP_LWOI; references fname from calling environment
   kount = 0
   netCDFfile = nc_open(fname)
@@ -24,7 +24,7 @@ RPlot20 <- function (data) {
 
   layout(matrix(1:6, ncol = 2), widths = c(5,5), heights = c(5,5,6))
   ## yes, I know, bad-practice-reference to calling environment for StartTime
-  ifelse (StartTime > 0, jstart <- getIndex(Time, StartTime), jstart <- 1)
+  jstart <- ifelse (StartTime > 0, getIndex(Time, StartTime), 1)
   # print (sprintf ("start time in RPlot20 is %d and jstart is %d\n",
   #                 StartTime, jstart))
   op <- par (mar=c(2,2,1,1)+0.1,oma=c(1.1,0,0,0))
