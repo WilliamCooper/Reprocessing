@@ -1,0 +1,746 @@
+%% LyX 2.2.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+
+\makeatother
+
+\begin{document}
+\EOLmemo
+\global\addressee={ORCAS data-processing file}
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}}  & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}}  & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}}  & vertical wind for ORCAS\tabularnewline
+\end{tabular}
+
+<<initialization,echo=FALSE,include=FALSE>>=
+
+require(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+options(digits=3)
+thisFileName <- "AKRDforORCAS"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+require(ggthemes)
+Directory <- DataDirectory ()
+Flight <- "rf01" 			
+Project = "ORCAS"			 
+ProjectDir <- Project
+fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
+VarList <- c("ADIFR", "GGVSPD", "VSPD_A", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX", "QCXC")
+## add variables needed to recalculate wind
+VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW", "VNS", "THDG")
+# Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+@
+
+<<construct-dataframe>>=
+
+## compile a composite data.frame 
+Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08", "rf09", "rf10", "rf11", 'rf12', 'rf13', 'rf14', 'rf15', 'rf16', 'rf17', 'rf18', 'rf19')
+ReloadData <- FALSE
+# ReloadData <- TRUE
+Data <- data.frame()
+if (ReloadData) {
+  for (flt in 1:19) {
+    if (flt == 12) {next}  ## file is bad
+    fname = sprintf("%s%s/%srf%02d.nc", DataDirectory(),ProjectDir,Project,flt)
+    fno <- flt
+    D <- getNetCDF (fname, VarList, F=fno)
+    D$DENS <- (D$PSXC * 100) / (StandardConstant('Rd') * (D$ATX+273.15))
+    # D$K <- 100000/(D$DENS * D$TASX^2)
+    # D$K <- 500 / D$QCF
+    D$TF <- as.vector(D$Time-D$Time[1])
+    RFB <- 0.85
+    ## some flights are bad, often for short flights: 5, 10, 13, 15, 16
+    if (flt == 3 || flt == 7 || flt == 11 || flt == 14 || flt == 17) {RFB <- 0.75}
+    if (nflt == 18) {RFB <- 0.40}
+    D <- D[!is.na(D$Time),]
+    LW <- 65000
+    if (flt == 9) {LW <- 45000}
+    if (flt == 5 || flt == 16) {LW <- 40000}  # doesn't work well and unrealistic
+    if (flt == 18) {LW <- 35000}
+    TOW <- LW + as.numeric(D$Time[nrow(D)] - D$Time[1])*RFB
+    D$W <- (TOW-D$TF*RFB)
+    D$K <- (500 / TOW) * (TOW - D$TF * RFB) / D$QCF
+    D$QR <- D$ADIFR / D$QCF
+    D$QR[is.infinite(D$QR)] <- NA
+    D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
+    D$M <- MachNumber (D$PSF, D$QCF)
+    D$WICS <- SmoothInterp (D$WIC)
+    CutoffFreq <- 600
+    Rate <- 1
+    D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
+    D$AOAREFS[is.na(D$AOAREFS)] <- 0
+    D$AOAREFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+    D$AOAREFF <-  D$AOAREF - D$AOAREFS
+    D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
+    D$QRS[is.na(D$QRS)] <- 0
+    D$QRS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
+    D$QRF <-  D$QR - D$QRS
+    D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
+    D$QCFS[is.na(D$QCFS)] <- 0
+    D$QCFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
+    D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
+    D$MS[is.na(D$MS)] <- 0
+    D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+    D$MF <-  D$M - D$MS
+    rf <- c(1:900, (nrow(D)-1200):nrow(D))
+    # D$MF[rf] <- NA
+    # D$MS[rf] <- NA
+    # D$QRS[rf] <- NA
+    # D$QRF[rf] <- NA
+    D$AOAREFF[rf] <- NA
+    D$AOAREFS[rf] <- NA
+    Data <- rbind (Data, D)
+  }
+  save(Data, file=SaveRData)
+} else {
+  load(file=SaveRData)
+}
+
+@
+
+
+\section{The problem in ORCAS}
+
+The standard processing for vertical wind did not work well for ORCAS.
+The flights featured frequent climbs and descents, with some low-level
+flight, and the vertical-wind measurements seemed to correlate with
+climbs and descents in ways that were hard to understand. The study
+of the radome was complicated by the absence of any speed runs except
+for a single one on test floight 1, 2242\textendash 2256, which only
+covered a limited speed range.
+
+Apparent systematic effects during low-level flight and especially
+during climbs seemed to point to some difference in performance of
+the radome during some periods of flight. It appeared plausible that
+these periods were linked to the use of flaps, which could conceivably
+affect the airflow in ways that change the sensitivity coefficients
+of the radome. This will be explored further after an initial application
+of the standard approach to indicate why there appears to be a problem
+with that approach.
+
+\section{The standard fit}
+
+The first step here will be to re-fit the measurements to the standard
+formula used to represent angle of attack $\alpha$, from the Processing
+Algorithms technical note:
+
+\begin{equation}
+\alpha=c_{0}+\frac{\Delta p_{\alpha}}{q}(c_{1}+c_{2}M)\label{eq:stdAOA}
+\end{equation}
+where $\Delta p_{\alpha}$ is the pressure difference between upward
+and downward ports on the radome (ADIFR), $q$ is dynamic pressure
+(QCF), and $M$ is the Mach number calculated using the uncorrected
+static and dynamic pressure (PSF and QCF). The three coefficients
+specified in that document are $\{c\}=\{4.605,18.44,6.75\}$.The approach
+used here is described in detail in the Wind Uncertainty technical
+note. It is to use a reference value for angle of attack, $\alpha^{*}$,
+defined by
+
+\begin{equation}
+\alpha^{*}=\theta-\frac{w_{p}}{V}\label{eq:alpha-star}
+\end{equation}
+which would equal the angle of attack if the vertical wind were zero,
+and then determine the coefficients in (\ref{eq:stdAOA}) that minimize
+the difference between $\alpha^{*}$ and $\alpha$.
+
+\section{Data used\label{sec:Data-used}}
+
+This memo will use measurements from rf01\textendash rf19, excluding
+rf12 for which the netCDF file was not usable in the version I downloaded
+from /scr/raf\_data/ORCAS (downloaded about 12 Oct 2016). Some data
+restrictions are needed, for two reasons: 
+\begin{enumerate}
+\item Near the start and end of flights, there are periods where flaps and/or
+landing gear are deployed, leading to large potential errors in angle
+of attack. For ORCAS, there are frequent descents to low level followed
+by climbs, so it is best to exclude periods of low-speed flight unless
+at levels well above the surface where they may have arisen in the
+course of speed runs. (There were none during regular research flights
+in ORCAS.) It appears that if TASX is required to exceed 110~m/s,
+this provides some separation between these two cases, so that will
+be used to qualify data for this study,. For most other projects,
+130~m/s was used, but in ORCAS there are many near-ocean legs flown
+slower than this so 110~m/s appears more appropriate. 
+\item Because there are additional potential uncertainties for measurements
+in turns, the data used to determine sensitivity coefficients in the
+following were restricted to cases where the roll was between $-2$
+and $2^{\circ}$. This is also needed for the reference value developed
+below for angle-of-attack to be valid.
+\item There seemed to be more scatter present for flights 5, 10, 13, 15
+and 16, so those flights were omitted from some composite compilations
+of data to avoid possible distortion of results by regions where measurements
+appear questionable.
+\end{enumerate}
+<<fits, include=TRUE>>=
+
+SummarizeFit <- function(ft) {
+  print (summary(ft)$call)
+  print ("Coefficients:")
+  print (summary(ft)$coefficients)
+  print (sprintf ("Residual standard deviation: %.3f, dof=%d", summary(ft)$sigma, summary(ft)$df[2]))
+  print (sprintf ("R-squared %.3f", summary(ft)$r.squared))
+}
+
+## temporary: restrict to one flight
+Test <- (Data$RF == 6) & (Data$TASF > 110) & (abs(Data$ROLL) < 2)
+Test[is.na(Test)] <- FALSE
+DF <- Data[Test, ]
+f <- lm (AOAREF~QR+I(QR*M), data=DF)
+cf <- as.vector(coef(f))
+
+@
+
+\section{New coefficients }
+
+\subsection{The standard formula with new coefficients}
+
+A fit of (\ref{eq:stdAOA}) to the data from flight 6 only, qualified
+as in Sect.~\ref{sec:Data-used}, led to best-fit coefficients \{$c_{1--3}$\}
+= \{\Sexpr{cf[1]}, \Sexpr{cf[2]}, \Sexpr{cf[3]}\}. A comparison
+of the angle of attack produced by (1) with these coefficients to
+the reference values given by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:S08summarize-fit1}.
+While the representation of the variation in reference angle is reasonable,
+there are some regions with significant scatter from the fit and a
+pattern with calculated values larger than the reference values and
+high angle of attack that is not represented well by the fit. A histogram
+of the difference (Fig.~\ref{fig:S08summarize-fit2}) shows a reasonable
+distribution but a second peak where the fitted angle-of-attack is
+about 0.1~$^{\circ}$ higher than the reference value. The residual
+standard deviation for this fit, \Sexpr{round(summary(f)$sigma,3)}$^{\circ}$,
+was reasonable but affected by that second peak. The standard deviation
+was reduced only slightly (about 10\%) from the fit that used only
+the first term, but it still appears worthwhile to use this three-coefficient
+fit instead. Several other options were considered, including direct
+dependence on Mach number, air density, pressure, altitude, and powers
+and products of these, but none of these provided significant (>0.01)
+further reduction in the standard deviation of the residuals. Two
+added terms that did give significant reduction were $q$ (QCF) and
+$z$ (GGALT) or $\log(z)$. These are discussed in the next section
+and do provide some improvement in the residual standard deviation
+and in plots like Figs.~\ref{fig:A08summarize-fit1} and \ref{fig:A08summarize-fit2}. 
+
+<<S08summarize-fit, include=TRUE, fig.cap=c("Calculated value of angle of attack vs the reference value used in the fit.", "Histogram of the difference between the calculated angle of attack and the reference value.")>>=
+
+SummarizeFit(f)
+
+## new angle-of-attack
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+Data$AKSTD <- 4.605 + Data$QR * (18.44 + 6.75 * Data$M)
+DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M)
+plot (DF$AOAREF, DF$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
+lines (c(1,5), c(1,5), lwd=3, lty=2, col='darkorange')
+hist(DF$AK-DF$AOAREF, breaks=100, xlab='fit result for angle of attack minus reference value [deg.]')
+
+@
+
+The revised vertical wind based on the new three-coefficient fit can
+be estmated from the previous value (WIC) modified to be WIX=WIC+($\alpha$-AKRD)$\pi$V/180
+where $\alpha$ is given by (1), $V$ is the airspeed and $\pi/180$
+is needed to convert from degrees to radians. Figure~\ref{fig:S08new-vw}
+shows the result for flight 6 with the addition of this new measurement
+of the vertical wind. The red trace (WIXS, WIX with 60-s smoothing)
+represents the new variable. Both WIC and WIX have clear problems
+during the period from about 20:00:00 to 21:00:00 UTC, a period when
+the flight descended from high level to near the surface and then
+climbed back to the original height. These problems were not eliminated
+by the inclusion of the additional terms QCF and GGALT in the fit,
+although there some some reduction in the apparent errors. These apparent
+errors, which appear associated with flight below about 30,000 ft,
+point to some remaining problem with the results. The added complexity
+of the extra terms does not resolve the problem, so a different approach
+seems needed..
+
+<<S08new-vw, include=TRUE, fig.height=4.5, fig.cap="Vertical wind measurements for ORCAS flight 6. WICS is the original vertical wind in the EOL directory for ORCAS, WISS is the vertical wind calculated using the standard sensitivity coefficients in the document on processing algorithms, and WIXC is the vertical wind based on the new three-coefficient fit. All have been smoothed (about 20-s time constant) to reduce scatter over this plot, which spans the full flight.">>=
+
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WISTD <- Data$WIC + (Data$AKSTD - Data$AKRD) * pi * Data$TASF / 180
+Data$WIXS <- SmoothInterp (Data$WIX)
+Data$WISS <- SmoothInterp (Data$WISTD)
+# DataW <- Data
+# DataW <- WindProcessor(DataW) ## WIN is now based on ATTACK as in the netCDF file
+# Data$WICN <- DataW$WIN
+# DataW <- Data
+# DataW$ATTACK <- DataW$AKRD <- DataW$AK       ## replace by new-cal-coef value
+# DataW <- WindProcessor(DataW)  ## will then have both WICN (old value) and WIN (new value)
+# Data$WIN <- DataW$WIN
+# Data$WICNS <- SmoothInterp (Data$WICN)
+# Data$WINS  <- SmoothInterp (Data$WIN)
+V <- c("Time", "WICS", "WISS", "WIXS")  ## WICS is original-WIC-smoothed, WIX is new, WIXS is new smoothed
+# could also include WICN (original through processor) and WIN (new through processor)
+D6 <- Data[Data$RF == 6, ]
+plotWAC(D6[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position='top')
+
+@
+
+\subsection{Consideration of aerodynamic effects\label{subsec:Consideration-of-aerodynamic}}
+
+It seems unlikely that there were real vertical wind values of the
+magnitude of these measurements, so it is worthwhile to look for sources
+of these errors. Perhaps the radome sensitivity to angle of attack
+is different in climbs and descents, the measured rate-of-climb of
+the aircraft might be in error, or there might be timing errors among
+the measurements. However, preliminary checks make these appear unlikely,.
+It seems more likely that the error arises from some sensitivity to
+performance characteristics of the aircraft, like deployment of flaps
+or spoilers and/or changes in thrust. There is no record of when flaps
+are deployed and to what degree, and there is similarly no record
+of engine thrust, but some of the apparently erroneous measurements
+occur at times when it is reasonable that partial flaps might be used
+and/or when there are significant changes in engine power. 
+
+To investigate the latter possibility, a new term was introduced that
+should characterize the performance and might correlate with the observed
+errors, as follows: The lift $L$ generated by an airfoil is expected
+to depend on a coefficient of lift $c_{L}$, the air density $\rho_{a}$,
+the airspeed $V$, and a representative surface area $A$, according
+to:
+
+\begin{equation}
+L=\frac{1}{2}\rho_{a}V^{2}c_{L}A\label{eq:CL}
+\end{equation}
+and in turn the coefficient of lift depends approximately linearly
+on the angle of attack $\alpha$, although this angle of attack may
+be offset from the standard value relative to the aircraft longitudinal
+axis. The relationship and reference angle for angle-of-attack may
+change when flaps are deployed so it might be expected that $c_{L}=c_{0}(\alpha-\alpha_{0})$
+where $c_{0}$ and $\alpha_{0}$ both change with flap deployment.
+The factor $c_{L}A$ therefore changes with changes in aircraft configuration.
+The lift will normally be matched approximately to the weight of the
+aircraft except during short periods of vertical acceleration at the
+start and end of climbs and descents.\footnote{A first-order correction would be $L(1+\gamma^{2})=W$ where $\gamma=\arctan(w_{p}/V$)
+with $w_{p}$ the rate of climb and $V$ the airspeed.} If the weight of the aircraft is $W$ then it would be expected that\\
+ 
+\begin{equation}
+c_{L}A=\frac{2W(t)}{\rho_{a}V^{2}}=\frac{W(t)}{q}\label{eq:CLA}
+\end{equation}
+where $q=\rho_{a}V^{2}/2$ is the dynamic pressure, so if $K$ is
+defined to be \\
+\begin{equation}
+K=\frac{aW(t)}{q}\label{eq:K}
+\end{equation}
+(where the factor $a=500/W_{0}$ is introduced for plotting convenience
+and the weight $W(t)$ is taken to be $W_{0}-R_{f}(t-t_{0})$ with
+$W_{0}$ the takeoff weight at time $t_{0}$ and $R_{f}$ the rate
+of fuel burn, taken here to be about 0.85~lb/s)\footnote{A better estimate would consider variations in this fuel burn rate
+during climbs and descents and with aircraft weight, but this is a
+reasonable first estimate. The python program \textquotedbl{}PlanFlight.py\textquotedbl{}
+incorporates better estimates of the rate of fuel burn.} it would be expected that $K$ is proportional to $c_{L}A$ and so
+will change when the aircraft configuration changes. Some of the ORCAS
+flights are quite short and likely started with less than full fuel,
+so it may be a better approximation to assume a landing weight instead.
+Representative numbers (needing refinement by consultation with pilot's
+records) might be $W_{0}=80,000$ or, alternately, $65,000+R_{t}(t_{f}-t_{0})$
+with $t_{f}$ the time of landing.
+
+<<plot-K, include=TRUE, fig.cap=c('Ratio of $K$ to $\\alpha^*$ for ORCAS flight 6. The dashed-red line is a reference line at the value 1.5 for the ratio.', 'histogram of $K/\\alpha^*$ for ORCAS flight 6.', 'Values of $K$ as a function of $\\alpha^*$ for ORCAS flight 6. Points with $K/\\alpha^*<1.45$ are shown as green symbols and other points (representing "normal" flight) as blue symbols. The dashed orange line corresponds to $K=1.5\\alpha^*$.')>>=
+
+D6 <- Data[Data$TASX > 85 & Data$RF == 6,]
+with (D6, plotWAC (data.frame (Time, K/AOAREF), ylim=c(0,3), ylab='K/AOAREF', legend.position='topright'))
+abline (h=1.5, col='red', lty=2)
+with (D6, hist (K/AOAREF, breaks=100, xlim=c(0.5,2)))
+rg <- setRange(D6, 164500, 223500)
+with (D6[rg,], plot (AOAREF, K, pch=20, col='blue'))
+K <- D6$K
+K[D6$K/D6$AOAREF > 1.45] <- NA
+points (D6$AOAREF[rg], K[rg], pch=20, col='darkgreen')
+xp <- c(1,6)
+yp <- xp*1.5
+lines(xp,yp, col='darkorange', lty=2, lwd=2)
+
+@
+
+For normal flight (without flaps or speed brakes) $A$ would be constant
+and the coefficient of lift would vary linearly with $\alpha^{*}$,
+leading to a region in a plot of $K$ vs.~$\alpha^{*}$ with a linear
+relationship. For normal flight, a scatterplot of these variables
+shows that they can be regarded as linearly related without offset,
+approximately according to the relationship $K=1.5\alpha^{*}$. Figure~\ref{fig:plot-K1} 
+shows that the ratio departs significantly from 1.5 during parts of
+the flight, including the initial climb and final descent and the
+period from about 19:45:00 to 21:00:00 UTC when there was a descent
+to near the surface, a brief period of level flight, and then a climb
+back to the original altitude. The value of $K/\alpha^{*}$ is lower
+than 1.5 for that intermediate period, while it might be expected
+to be higher because both the coefficient of lift and the effective
+lifting surface area increase if flaps are deployed. The result can
+still be lower if the flaps or spoilers cause an offset in the effective
+angle of attack affecting the lifting surface, which is different
+from $\alpha^{*}$ because $\alpha^{*}$ is measured relative to the
+longitudinal axis of the aircraft rather than the chord of the wings.
+At the start end end of the flight, there are periods where $K/\alpha^{*}$
+has high values, presumably because full flaps are deployed here.
+(Airspeeds less than 85 m/s are excluded from these plots to avoid
+inclusion of points while the aircraft is still on the runway.)
+
+<<flight-mode, include=TRUE, fig.cap='(top) Flight altitude during ORCAS flight 6, with blue lines indicating "normal" flight and red lines showing times when the aircraft configuration may not be normal. The bottom panel shows the corresponding new vertical wind calculated using the coeefficients determined from this flight for the standard three-coefficient fit and repeats the values shown in Fig.3.'>>=
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+op <- par (mar=c(2,4,1,1)+0.1)
+# D6 <- D6[rg, ]
+with (D6, plotWAC(Time, GGALT, ylab='Altitude [m]'))
+GG <- D6$GGALT
+GG[D6$K/D6$AOAREF > 1.45] <- NA
+lines (D6$Time, GG, col='red', lwd=2)
+op <- par (mar=c(5,4,1,1)+0.1)
+with (D6, plotWAC(data.frame(Time, WICS, WIXS), ylab='W [m/s]', col=c('blue', 'darkorange'), legend.position=NA))
+legend('top', legend=c('old', 'new'), lty=c(1,1), lwd=c(2,2), col=c('blue', 'darkorange'))
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+
+@
+
+Figure~\ref{fig:plot-K2} shows the distribution of values of $K/\alpha^{*}$
+for this flight, and Fig.~\ref{fig:plot-K3} shows the values of
+$K$ plotted vs.~values of $\alpha^{*}$ (with short periods at the
+start and end excluded to avoid regions with full flaps), with colors
+separating the ``normal'' from ``possible flaps'' regions of flight.
+If values of $K/\alpha^{*}$ larger than 1.45 are assumed to be ``normal''
+flight, this provides a way of including only these points when determining
+the sensitivity coefficients. Figure~\ref{fig:flight-mode} shows
+the height of the aircraft during ORCAS flight 6, with blue indicating
+normal flight and red indicating times when the aircraft configuration
+may affect the coefficient of lift and the airflow around the aircraft.
+The red portions are in reasonable correspondence with times when
+the aircraft configuration might change and also correlate reasonably
+to those times when the vertical wind appears to be erroneous. 
+
+<<revised-fit, include=TRUE, fig.cap=c('Revised fit using data from ORCAS flights 1, 2, 3, 6, 8, 9, 11, 14, 18, qualified as described in the text. This fit includes dependence on QCF, and log(GGALT).', 'Histogram of the difference between the two estimates of angle of attack, as represented by the fit and as represented by the reference value.', 'Vertical wind for ORCAS flight 6, calculated using the angle-of-attack calculated as in the preceding two figures where QCF and log(GGALT) were added terms in the fit.')>>=
+
+## exclude these flights: 4,5,7,10, 12,13,15,16,17,19
+Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF == 8 | Data$RF == 9
+Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
+Test[is.na(Test)] <- FALSE
+DF <- Data[Test & Data$TASX > 110 & abs(Data$ROLL) < 2, ]
+# Test <- Test & Data$K/Data$AOAREF > 1.45
+f <- lm (AOAREF~QR+I(QR*M)+QCF+I(log(GGALT)), data=DF)
+cf <- as.vector(coef(f))
+cfk <- cf  ## save for use in text
+SummarizeFit(f)
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M) + cf[4] * Data$QCF + cf[5]*log(Data$GGALT)
+Data$WIK <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WIKS <- SmoothInterp (Data$WIK)
+DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M) + cf[4] * DF$QCF + cf[5]*log(DF$GGALT)
+plot (DF$AOAREF, DF$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
+lines (c(1,5), c(1,5), lwd=3, lty=2, col='darkorange')
+hist(DF$AK-DF$AOAREF, breaks=200, xlim=c(-1,1))
+with (Data[Data$RF == 6,], plotWAC(data.frame(Time, WICS, WIKS), col=c('blue', 'red'), ylab='W [m/s]', ylim=c(-2,2), legend.position='top'))
+title('ORCAS Flight 6')
+## now do it again for the composite data-set, with 2 coefficients, for later filtering
+f <- lm (AOAREF~QR, data=DF)
+cf <- as.vector(coef(f))
+SummarizeFit(f)
+Data$AKF <- cf[1] + Data$QR * cf[2]
+Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
+Data$WIXS <- SmoothInterp (Data$WIX)
+
+@
+
+Because $K$ depends on $1/q$, this suggests that an improved fit
+might be obtained by including the variable QCF in the empirical representation
+of angle of attack. When this was tested, there was a significant
+improvement in the fit, with a linear rather than inverse dependence
+providing lower residual standard deviation. The added term log(GGALT)
+also provided some small additional improvement. To illustrate the
+result from this revised fit, measurements from flights 1, 2, 3, 6,
+8, 9, 11, 14, and 18 were used to calculate the appropriate coefficients.
+These were chosen because these flights all individually provided
+reasonably consistent fit results, while excluded flights often did
+not. Some of the excluded flights were very short flights or were
+flights for diversion to other airports rather than for research.
+Figures~\ref{fig:revised-fit1} and \ref{fig:revised-fit2} show
+that a significantly improved fit is obtained when dependence on QCF
+and log(GGALT) is included, with the residual standard deviation reduced
+from 0.12 to 0.08$^{\circ}$ by inclusion of that dependence. The
+resulting vertical wind (Fig.~\ref{fig:revised-fit3}) also shows
+important improvement over the vertical wind shown in Fig.~\ref{fig:flight-mode},
+calculated without inclusion of the additional factors. Inclusion
+of the variable $K$ directly also provided significant improvement
+when tested alone, but not after inclusion of QCF, so $K$ was not
+used, partly because uncertainty in weight of the aircraft, which
+enters $K$, appeared to lead to more variation from flight to flight.
+The single fit to the set of flights listed above provided a reasonably
+consistent representation of all ORCAS flights, as will be shown later.
+The following representation of angle of attack is a good candidate
+for representing vertical wind in ORCAS:\\
+\begin{equation}
+\alpha=a_{0}+\frac{\mathrm{ADIFR}}{\mathrm{QCF}}\left(a_{1}+a_{2}M\right)+a_{3}\mathrm{QCF}+a_{4}\ln(\mathrm{GGALT)}\label{eq:QCFfit}
+\end{equation}
+where the coefficients \{$a_{0}--a_{4}$\} are \{\Sexpr{round(cfk[1],4)},
+\Sexpr{round(cfk[2],4)}, \Sexpr{round(cfk[3],4)}, \Sexpr{round(cfk[4],4)},
+\Sexpr{round(cfk[5],4)}\}.\\
+
+
+\subsection{Fitting high-frequency and low-frequency components separately\label{subsec:Fitting-high-frequency-and}}
+
+Still another approach is tried next. It is based on representing
+the high-frequency and low-frequency contributions to angle of attack
+separately. The reason for this approach is that the fluctuations
+and the offset in angle of attack seem to require different representations,
+so a single representation like that in (\ref{eq:stdAOA}) or (\ref{eq:QCFfit})
+has difficulty matching both the amplitude of fluctuations and the
+variation of the mean during the flight. Separating the contributions
+into two components and fitting them separately might provide a better
+representation of the angle of attack.
+
+The steps are these:
+\begin{enumerate}
+\item Separate $\alpha^{*}$ into two components using a low-pass filter
+for the slowly varying component and the complementary high-pass filter
+for the fast-varying component, so that $\alpha^{*}=\alpha_{f}^{*}+\alpha_{s}^{*}$.
+Here a cutoff frequency corresponding to a period of 600~s will be
+used.. Also calculated similar low-pass-filtered and high-pass-filtered
+values for the variables $A=\Delta p_{\alpha}/q$ (ADIFR/QCF) and
+$M$ (Mach number), and also $q$ (QCF) for possible use in fitting.. 
+\item For the high-frequency component, find a representation having the
+simple form\\
+\begin{equation}
+\alpha_{f}^{*}=c_{0}+c_{1}A_{f}\label{eq:AKfast}
+\end{equation}
+For this fit, restrict the measurements to be fit to TASX>110 and
+|ROLL|<2, and to avoid end effects of the filter exclude about 1.5
+times the filter time constant from the start and end of the time
+series. (This functional form was found to be adequate and additional
+terms are not needed.)
+\item For the low-frequency component, use a more complicated 5-coefficient
+fit, which leads to a significant improvement over the two-coefficient
+fit:\\
+\begin{equation}
+\alpha_{s}^{*}=d_{0}+d_{1}A_{s}+d_{2}(A_{s}M_{s})+d_{3}M_{s}+d_{4}q_{s}\label{eq:AKslow}
+\end{equation}
+\end{enumerate}
+Then find the resulting parameterized representation of the angle
+of attack from the sum of these equations:\\
+\begin{equation}
+\alpha=c_{0}+c_{1}A_{f}+d_{0}+d_{1}A_{s}+d_{2}A_{s}M_{s}+d_{3}M_{s}+d_{4}q_{s}=\alpha_{f}+\alpha_{s}\label{eq:AKsum}
+\end{equation}
+
+<<filterfit, include=TRUE, fig.cap=c('The high-pass value of the reference angle $\\alpha^*_f$ plotted vs. the high-pass version of the ratio of ADIFR to QCF, for ORCAS flight 6.', 'The low-pass component of the reference AOAREFS and the result from the fit to this component for the five-coefficient fit, for ORCAS flight 6.', 'The vertical wind obtained by calculating the two filtered components separately and adding them to obtain the angle of attack (red line). Also shown is the fit result obtained using the five-coefficient fit from the previous section (green line) and the result of filtering WIK (cyan line).')>>=
+
+## exclude these flights: 4,5,7,10, 12,13,15,16,17,19
+Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF == 8 | Data$RF == 9
+Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
+DF <- Data[Test & Data$TASX > 110 & abs(Data$ROLL) < 2, ]
+# DF <- DF[901:(nrow(DF)-1200),]
+#DF <- DF[DF$Test > 1.45,]
+ff <- lm(AOAREFF ~ QRF, data=DF)
+cff <- coef(ff)
+SummarizeFit(ff)
+with(DF, plot (QRF, AOAREFF, pch=20, xlim=c(-0.06,0.06), ylim=c(-1.1, 1.6)))
+xf <- c(-0.1, 0.1)
+yf <- cff[1] + cff[2]*xf
+lines (xf, yf, col='darkorange', lwd=2, lty=2)
+fs <- lm(AOAREFS~QRS+I(QRS*MS)+MS+QCFS, data=DF)
+cfs <- coef (fs)
+SummarizeFit (fs)
+Data$AKF <- cff[1] + cff[2] * Data$QRF
+Data$AKS <- cfs[1] + cfs[2] * Data$QRS  + cfs[3] * Data$QRS * Data$MS + cfs[4] * Data$MS+ cfs[5] * Data$QCFS
+with (Data[Data$RF == 6, ], plotWAC (data.frame (Time, AOAREFS, AKS), ylab='slow component [deg.]'))
+Data$AK <- Data$AKS + Data$AKF
+Data$WIY <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WIYS <- SmoothInterp (Data$WIY)
+Data$WIF <- Data$WIC + (Data$AKF+Data$AOAREFS-Data$AKRD)*pi*Data$TASF/180.
+Data$WIFS <- SmoothInterp (Data$WIF)
+nf <- 6
+with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WICS, WIKS, WIFS, WIYS), ylim=c(-2,2), 
+                                       lwd=c(2,2,2,1), col=c('blue', 'darkgreen', 'cyan', 'red'),
+                                       legend.position='top'))
+abline (h=0, col='darkorange')
+with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], 
+        title (sprintf ('ORCAS flight %d, mean WIK %.2f WIY %.2f WIF %.2f', nf, 
+        mean (WIK, na.rm=TRUE), mean (WIY, na.rm=TRUE), mean (WIF, na.rm=TRUE))))
+
+@
+
+The same set of flights as used in the preceding subsection were used
+for this fit. The result for the high-frequency fit is \{$c_{o},\,c_{1}$\}
+= \{\Sexpr{round(cff[1], 4)}, \Sexpr{round(cff[2], 4)}\}, and the
+result for the low-pass-filtered component is \{$d_{0},\,d_{1},\,d_{2},\,d_{3}$\}
+= \{\Sexpr{round(cfs[1],4)}, \Sexpr{round(cfs[2],4)}, \Sexpr{round(cfs[3],4)},
+\Sexpr{round(cfs[4],4)}\}. The coefficient $c_{0}$ is near zero
+as expected and should be omitted. For the composite data set, both
+gave good fits, with residual standard deviations of \Sexpr{round(summary(ff)$sigma, 4)}
+and \Sexpr{round(summary(fs)$sigma, 4)} respectively for the high-frequency
+and low-frequency components. The latter is a very good representation
+of the slowly varying component, while the former will be affected
+by real fluctuations in the vertical wind and so is expected to be
+larger. Figure~\ref{fig:filterfit1} shows that the resulting high-frequency
+component matches the reference value very well, while Fig.~\ref{fig:filterfit2}
+shows similar good agreement for the slowly varying component. The
+vertical wind, shown in Fig.~\ref{fig:filterfit3} for ORCAS flight
+6, also appears very good. The deviation in vertical wind near 21:05:00
+UTC appears consistent with a real fluctuation, although it is also
+near where the aircraft passes through 25,000 ft and this often seems
+to correlate with a perturbation in vertical wind. (It is also, perhaps
+coincidentally, the altitude limit for the use of any flaps.) Other
+small perturbations near 20:00:00 are more suspicious and may be remnant
+effects of the aerodynamic effects discussed in the previous section. 
+
+ The four vertical wind candidates, shown for each flight in plots
+appended to this report, are:
+\begin{enumerate}
+\item (blue) WICS: The original vertical wind in the EOL files.
+\item (green) WIKS: The vertical wind determined by fits that include two
+additional terms, using data for flights 1, 2, 3, 6, 8, 9, 11, 14,
+and 18 to determine one 5-coefficient all-project fit and then applying
+that result to all flights. The added terms in the fit are QCF and
+log(GGALT).
+\item (red) WIYS: The vertical wind determined by separating angle-of-attack
+into two components by complementary filtering and then fitting the
+two components separately, before adding the result. This differs
+from the next component, WIFS, in representing the low-frequency component
+by a fit to the calibration data (that assumes vertical wind of zero)
+rather than eliminating it as in WIFS. 
+\item (cyan) WIFS: The filtered vertical wind determined from the high-frequency
+component in WIYS, with the low-frequency component represented by
+the low-pass filtered version of the reference angle-of-attack. In
+this case, real fluctuations with duration longer than the cut-off
+period (here, 600~s) are removed, while they are retained in WIYS.
+\end{enumerate}
+
+
+\section{Recommendation}
+
+The variable WIY appears to be the best representation of vertical
+wind, but there is little difference between WIY and WIK so WIY might
+support the use of WIK. The disadvantage of WIY is that it requires
+post-processing because it involves filtering to determine the two
+components that enter the result, application of empirical coefficients
+separately to the two components, and summing the results. The result,
+however, is not a filtered result, and it will not distort from real
+offsets in the vertical wind except as they affect the estimation
+of the empirical coefficients. This variable then appears better than
+straight high-pass filtering of the vertical wind. A post-processing
+step similar to that used in HIPPO-5 could be developed to implement
+this scheme, and appropriate coefficients are listed in Sect.~\ref{subsec:Fitting-high-frequency-and}.
+The variable WIK, however, is almost as good and has the significant
+advantage that it would be incorporated into the first-pass processing.
+The appropriate formula and coefficients are listed at the end of
+Sect.~\ref{subsec:Consideration-of-aerodynamic}.
+
+\clearpage{}
+\begin{center}
+\textsf{\textcolor{blue}{\textendash{} End of Memo \textendash{}}} 
+\par\end{center}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}}  & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}}  & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}}  & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{This document:}}}  & \Sexpr{thisFileName}.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow:}}}  & Workflow\Sexpr{thisFileName}.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}}  & /scr/raf\_data/ORCAS/ORCASrf01.nc, etc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Data Archive:}}}  & NCAR HPSS (not github) \Sexpr{thisFileName}.Rdata\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}}  & https://github.com/WilliamCooper/Reprocessing.git \textendash{} see
+above files\tabularnewline
+\end{tabular}
+
+\attachm{AKRDforORCAS.Rnw\\AKRDforORCAS.pdf\\WorkflowAKRDforORCAS.pdf\\SessionInfo} 
+
+<<plot-all, include=TRUE, fig.cap='Plots for each ORCAS flight showing the four candidates for vertical wind.'>>=
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+for (nf in 1:19) {
+  op <- par (mar=c(2,4,1,1)+0.1)
+  if (nf == 12) {next}
+  # with (Data[Data$RF == nf,], plotWAC(data.frame(Time, AKS, AOAREFS), legend.position='topright'))
+  with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WIKS, WIYS), ylim=c(-2,2), 
+                                       lwd=c(2,1), col=c('darkgreen', 'red'),
+                                       legend.position='top'))
+  abline (h=0, col='darkorange')
+  with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], 
+        title (sprintf ('ORCAS flight %d, mean WIK %.2f WIY %.2f WIF %.2f', nf, 
+        mean (WIK, na.rm=TRUE), mean (WIY, na.rm=TRUE), mean (WIF, na.rm=TRUE))))
+
+  op <- par (mar=c(5,4,1,1)+0.1)
+  with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WICS, WIFS), ylim=c(-2,2), 
+                                       lwd=c(2,1), col=c('blue', 'cyan'),
+                                       legend.position='top'))
+  abline (h=0, col='darkorange')
+}
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+
+@
+
+<<save-system-info, echo=FALSE>>= 
+
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+
+system (sprintf("zip %s.zip %s.Rnw %s.pdf Workflow%s.pdf SessionInfo", thisFileName, thisFileName, thisFileName, thisFileName))
+
+@ 
+
+<<make-workflow-diagram, echo=FALSE, eval=FALSE>>=
+
+library(DiagrammeR)
+grViz ("DG-ORCAS.dot", engine='dot')
+
+@
+\end{document}

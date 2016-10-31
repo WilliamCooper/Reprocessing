@@ -1,0 +1,4333 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+\end_preamble
+\use_default_options false
+\begin_modules
+knitr
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package none
+\inputencoding iso8859-15
+\fontencoding T1
+\font_roman "times" "default"
+\font_sans "default" "default"
+\font_typewriter "mathptmx" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize letterpaper
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\boxbgcolor #f7f7f7
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.54cm
+\topmargin 3.54cm
+\rightmargin 2.54cm
+\bottommargin 2.54cm
+\headheight 1cm
+\headsep 2cm
+\footskip 0.5cm
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+EOLmemo
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+global
+\backslash
+addressee={ORCAS data-processing file}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="2">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+To:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+the
+\backslash
+addressee
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+From:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Al Cooper
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Subject:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+vertical wind for ORCAS
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<initialization,echo=FALSE,include=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+require(knitr)
+\end_layout
+
+\begin_layout Plain Layout
+
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+\end_layout
+
+\begin_layout Plain Layout
+
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(digits=3)
+\end_layout
+
+\begin_layout Plain Layout
+
+thisFileName <- "AKRDforORCAS"
+\end_layout
+
+\begin_layout Plain Layout
+
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(ggplot2)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(grid)
+\end_layout
+
+\begin_layout Plain Layout
+
+require(ggthemes)
+\end_layout
+
+\begin_layout Plain Layout
+
+Directory <- DataDirectory ()
+\end_layout
+
+\begin_layout Plain Layout
+
+Flight <- "rf01" 			
+\end_layout
+
+\begin_layout Plain Layout
+
+Project = "ORCAS"			 
+\end_layout
+
+\begin_layout Plain Layout
+
+ProjectDir <- Project
+\end_layout
+
+\begin_layout Plain Layout
+
+fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
+\end_layout
+
+\begin_layout Plain Layout
+
+VarList <- c("ADIFR", "GGVSPD", "VSPD_A", "PITCH", "QCF", "PSF", "AKRD",
+ "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX", "QCXC")
+\end_layout
+
+\begin_layout Plain Layout
+
+## add variables needed to recalculate wind
+\end_layout
+
+\begin_layout Plain Layout
+
+VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW",
+ "VNS", "THDG")
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
+\end_layout
+
+\begin_layout Plain Layout
+
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<construct-dataframe>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## compile a composite data.frame 
+\end_layout
+
+\begin_layout Plain Layout
+
+Flights <- c("rf01", "rf02", "rf03", "rf04", "rf05", "rf06", "rf07", "rf08",
+ "rf09", "rf10", "rf11", 'rf12', 'rf13', 'rf14', 'rf15', 'rf16', 'rf17',
+ 'rf18', 'rf19')
+\end_layout
+
+\begin_layout Plain Layout
+
+ReloadData <- FALSE
+\end_layout
+
+\begin_layout Plain Layout
+
+# ReloadData <- TRUE
+\end_layout
+
+\begin_layout Plain Layout
+
+Data <- data.frame()
+\end_layout
+
+\begin_layout Plain Layout
+
+if (ReloadData) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  for (flt in 1:19) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (flt == 12) {next}  ## file is bad
+\end_layout
+
+\begin_layout Plain Layout
+
+    fname = sprintf("%s%s/%srf%02d.nc", DataDirectory(),ProjectDir,Project,flt)
+\end_layout
+
+\begin_layout Plain Layout
+
+    fno <- flt
+\end_layout
+
+\begin_layout Plain Layout
+
+    D <- getNetCDF (fname, VarList, F=fno)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$DENS <- (D$PSXC * 100) / (StandardConstant('Rd') * (D$ATX+273.15))
+\end_layout
+
+\begin_layout Plain Layout
+
+    # D$K <- 100000/(D$DENS * D$TASX^2)
+\end_layout
+
+\begin_layout Plain Layout
+
+    # D$K <- 500 / D$QCF
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$TF <- as.vector(D$Time-D$Time[1])
+\end_layout
+
+\begin_layout Plain Layout
+
+    RFB <- 0.85
+\end_layout
+
+\begin_layout Plain Layout
+
+    ## some flights are bad, often for short flights: 5, 10, 13, 15, 16
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (flt == 3 || flt == 7 || flt == 11 || flt == 14 || flt == 17) {RFB
+ <- 0.75}
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (nflt == 18) {RFB <- 0.40}
+\end_layout
+
+\begin_layout Plain Layout
+
+    D <- D[!is.na(D$Time),]
+\end_layout
+
+\begin_layout Plain Layout
+
+    LW <- 65000
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (flt == 9) {LW <- 45000}
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (flt == 5 || flt == 16) {LW <- 40000}  # doesn't work well and unrealisti
+c
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (flt == 18) {LW <- 35000}
+\end_layout
+
+\begin_layout Plain Layout
+
+    TOW <- LW + as.numeric(D$Time[nrow(D)] - D$Time[1])*RFB
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$W <- (TOW-D$TF*RFB)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$K <- (500 / TOW) * (TOW - D$TF * RFB) / D$QCF
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QR <- D$ADIFR / D$QCF
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QR[is.infinite(D$QR)] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$M <- MachNumber (D$PSF, D$QCF)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$WICS <- SmoothInterp (D$WIC)
+\end_layout
+
+\begin_layout Plain Layout
+
+    CutoffFreq <- 600
+\end_layout
+
+\begin_layout Plain Layout
+
+    Rate <- 1
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm
+ = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREFS[is.na(D$AOAREFS)] <- 0
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREFF <-  D$AOAREF - D$AOAREFS
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QRS[is.na(D$QRS)] <- 0
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QRS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QRF <-  D$QR - D$QRS
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QCFS[is.na(D$QCFS)] <- 0
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$QCFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$MS[is.na(D$MS)] <- 0
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$MF <-  D$M - D$MS
+\end_layout
+
+\begin_layout Plain Layout
+
+    rf <- c(1:900, (nrow(D)-1200):nrow(D))
+\end_layout
+
+\begin_layout Plain Layout
+
+    # D$MF[rf] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    # D$MS[rf] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    # D$QRS[rf] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    # D$QRF[rf] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREFF[rf] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    D$AOAREFS[rf] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+    Data <- rbind (Data, D)
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+  save(Data, file=SaveRData)
+\end_layout
+
+\begin_layout Plain Layout
+
+} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+  load(file=SaveRData)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+The problem in ORCAS
+\end_layout
+
+\begin_layout Standard
+The standard processing for vertical wind did not work well for ORCAS.
+ The flights featured frequent climbs and descents, with some low-level
+ flight, and the vertical-wind measurements seemed to correlate with climbs
+ and descents in ways that were hard to understand.
+ The study of the radome was complicated by the absence of any speed runs
+ except for a single one on test floight 1, 2242–2256, which only covered
+ a limited speed range.
+\end_layout
+
+\begin_layout Standard
+Apparent systematic effects during low-level flight and especially during
+ climbs seemed to point to some difference in performance of the radome
+ during some periods of flight.
+ It appeared plausible that these periods were linked to the use of flaps,
+ which could conceivably affect the airflow in ways that change the sensitivity
+ coefficients of the radome.
+ This will be explored further after an initial application of the standard
+ approach to indicate why there appears to be a problem with that approach.
+\end_layout
+
+\begin_layout Section
+The standard fit
+\end_layout
+
+\begin_layout Standard
+The first step here will be to re-fit the measurements to the standard formula
+ used to represent angle of attack 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, from the Processing Algorithms technical note:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\alpha=c_{0}+\frac{\Delta p_{\alpha}}{q}(c_{1}+c_{2}M)\label{eq:stdAOA}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\Delta p_{\alpha}$
+\end_inset
+
+ is the pressure difference between upward and downward ports on the radome
+ (ADIFR), 
+\begin_inset Formula $q$
+\end_inset
+
+ is dynamic pressure (QCF), and 
+\begin_inset Formula $M$
+\end_inset
+
+ is the Mach number calculated using the uncorrected static and dynamic
+ pressure (PSF and QCF).
+ The three coefficients specified in that document are 
+\begin_inset Formula $\{c\}=\{4.605,18.44,6.75\}$
+\end_inset
+
+.The approach used here is described in detail in the Wind Uncertainty technical
+ note.
+ It is to use a reference value for angle of attack, 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+, defined by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\alpha^{*}=\theta-\frac{w_{p}}{V}\label{eq:alpha-star}
+\end{equation}
+
+\end_inset
+
+which would equal the angle of attack if the vertical wind were zero, and
+ then determine the coefficients in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:stdAOA"
+
+\end_inset
+
+) that minimize the difference between 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Data used
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Data-used"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This memo will use measurements from rf01–rf19, excluding rf12 for which
+ the netCDF file was not usable in the version I downloaded from /scr/raf_data/O
+RCAS (downloaded about 12 Oct 2016).
+ Some data restrictions are needed, for two reasons: 
+\end_layout
+
+\begin_layout Enumerate
+Near the start and end of flights, there are periods where flaps and/or
+ landing gear are deployed, leading to large potential errors in angle of
+ attack.
+ For ORCAS, there are frequent descents to low level followed by climbs,
+ so it is best to exclude periods of low-speed flight unless at levels well
+ above the surface where they may have arisen in the course of speed runs.
+ (There were none during regular research flights in ORCAS.) It appears that
+ if TASX is required to exceed 110
+\begin_inset space ~
+\end_inset
+
+m/s, this provides some separation between these two cases, so that will
+ be used to qualify data for this study,.
+ For most other projects, 130
+\begin_inset space ~
+\end_inset
+
+m/s was used, but in ORCAS there are many near-ocean legs flown slower than
+ this so 110
+\begin_inset space ~
+\end_inset
+
+m/s appears more appropriate.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Because there are additional potential uncertainties for measurements in
+ turns, the data used to determine sensitivity coefficients in the following
+ were restricted to cases where the roll was between 
+\begin_inset Formula $-2$
+\end_inset
+
+ and 
+\begin_inset Formula $2^{\circ}$
+\end_inset
+
+.
+ This is also needed for the reference value developed below for angle-of-attack
+ to be valid.
+\end_layout
+
+\begin_layout Enumerate
+There seemed to be more scatter present for flights 5, 10, 13, 15 and 16,
+ so those flights were omitted from some composite compilations of data
+ to avoid possible distortion of results by regions where measurements appear
+ questionable.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fits, include=TRUE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit <- function(ft) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (summary(ft)$call)
+\end_layout
+
+\begin_layout Plain Layout
+
+  print ("Coefficients:")
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (summary(ft)$coefficients)
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (sprintf ("Residual standard deviation: %.3f, dof=%d", summary(ft)$sigma,
+ summary(ft)$df[2]))
+\end_layout
+
+\begin_layout Plain Layout
+
+  print (sprintf ("R-squared %.3f", summary(ft)$r.squared))
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## temporary: restrict to one flight
+\end_layout
+
+\begin_layout Plain Layout
+
+Test <- (Data$RF == 6) & (Data$TASF > 110) & (abs(Data$ROLL) < 2)
+\end_layout
+
+\begin_layout Plain Layout
+
+Test[is.na(Test)] <- FALSE
+\end_layout
+
+\begin_layout Plain Layout
+
+DF <- Data[Test, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+f <- lm (AOAREF~QR+I(QR*M), data=DF)
+\end_layout
+
+\begin_layout Plain Layout
+
+cf <- as.vector(coef(f))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+New coefficients 
+\end_layout
+
+\begin_layout Subsection
+The standard formula with new coefficients
+\end_layout
+
+\begin_layout Standard
+A fit of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:stdAOA"
+
+\end_inset
+
+) to the data from flight 6 only, qualified as in Sect.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Data-used"
+
+\end_inset
+
+, led to best-fit coefficients {
+\begin_inset Formula $c_{1--3}$
+\end_inset
+
+} = {
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{cf[1]}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{cf[2]}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{cf[3]}
+\end_layout
+
+\end_inset
+
+}.
+ A comparison of the angle of attack produced by (1) with these coefficients
+ to the reference values given by (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:alpha-star"
+
+\end_inset
+
+) is shown in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:S08summarize-fit1}
+\end_layout
+
+\end_inset
+
+.
+ While the representation of the variation in reference angle is reasonable,
+ there are some regions with significant scatter from the fit and a pattern
+ with calculated values larger than the reference values and high angle
+ of attack that is not represented well by the fit.
+ A histogram of the difference (Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:S08summarize-fit2}
+\end_layout
+
+\end_inset
+
+) shows a reasonable distribution but a second peak where the fitted angle-of-at
+tack is about 0.1
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+ higher than the reference value.
+ The residual standard deviation for this fit, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(summary(f)$sigma,3)}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+, was reasonable but affected by that second peak.
+ The standard deviation was reduced only slightly (about 10%) from the fit
+ that used only the first term, but it still appears worthwhile to use this
+ three-coefficient fit instead.
+ Several other options were considered, including direct dependence on Mach
+ number, air density, pressure, altitude, and powers and products of these,
+ but none of these provided significant (>0.01) further reduction in the
+ standard deviation of the residuals.
+ Two added terms that did give significant reduction were 
+\begin_inset Formula $q$
+\end_inset
+
+ (QCF) and 
+\begin_inset Formula $z$
+\end_inset
+
+ (GGALT) or 
+\begin_inset Formula $\log(z)$
+\end_inset
+
+.
+ These are discussed in the next section and do provide some improvement
+ in the residual standard deviation and in plots like Figs.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:A08summarize-fit1}
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:A08summarize-fit2}
+\end_layout
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<S08summarize-fit, include=TRUE, fig.cap=c("Calculated value of angle of
+ attack vs the reference value used in the fit.", "Histogram of the difference
+ between the calculated angle of attack and the reference value.")>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## new angle-of-attack
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AKSTD <- 4.605 + Data$QR * (18.44 + 6.75 * Data$M)
+\end_layout
+
+\begin_layout Plain Layout
+
+DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M)
+\end_layout
+
+\begin_layout Plain Layout
+
+plot (DF$AOAREF, DF$AK, pch=20, col='blue', xlab='Reference Value [deg.]',
+ ylab='Calculated Value from (1)')
+\end_layout
+
+\begin_layout Plain Layout
+
+lines (c(1,5), c(1,5), lwd=3, lty=2, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(DF$AK-DF$AOAREF, breaks=100, xlab='fit result for angle of attack minus
+ reference value [deg.]')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The revised vertical wind based on the new three-coefficient fit can be
+ estmated from the previous value (WIC) modified to be WIX=WIC+(
+\begin_inset Formula $\alpha$
+\end_inset
+
+-AKRD)
+\begin_inset Formula $\pi$
+\end_inset
+
+V/180 where 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is given by (1), 
+\begin_inset Formula $V$
+\end_inset
+
+ is the airspeed and 
+\begin_inset Formula $\pi/180$
+\end_inset
+
+ is needed to convert from degrees to radians.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:S08new-vw}
+\end_layout
+
+\end_inset
+
+ shows the result for flight 6 with the addition of this new measurement
+ of the vertical wind.
+ The red trace (WIXS, WIX with 60-s smoothing) represents the new variable.
+ Both WIC and WIX have clear problems during the period from about 20:00:00
+ to 21:00:00 UTC, a period when the flight descended from high level to
+ near the surface and then climbed back to the original height.
+ These problems were not eliminated by the inclusion of the additional terms
+ QCF and GGALT in the fit, although there some some reduction in the apparent
+ errors.
+ These apparent errors, which appear associated with flight below about
+ 30,000 ft, point to some remaining problem with the results.
+ The added complexity of the extra terms does not resolve the problem, so
+ a different approach seems needed..
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<S08new-vw, include=TRUE, fig.height=4.5, fig.cap="Vertical wind measurements
+ for ORCAS flight 6.
+ WICS is the original vertical wind in the EOL directory for ORCAS, WISS
+ is the vertical wind calculated using the standard sensitivity coefficients
+ in the document on processing algorithms, and WIXC is the vertical wind
+ based on the new three-coefficient fit.
+ All have been smoothed (about 20-s time constant) to reduce scatter over
+ this plot, which spans the full flight.">>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WISTD <- Data$WIC + (Data$AKSTD - Data$AKRD) * pi * Data$TASF / 180
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIXS <- SmoothInterp (Data$WIX)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WISS <- SmoothInterp (Data$WISTD)
+\end_layout
+
+\begin_layout Plain Layout
+
+# DataW <- Data
+\end_layout
+
+\begin_layout Plain Layout
+
+# DataW <- WindProcessor(DataW) ## WIN is now based on ATTACK as in the
+ netCDF file
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data$WICN <- DataW$WIN
+\end_layout
+
+\begin_layout Plain Layout
+
+# DataW <- Data
+\end_layout
+
+\begin_layout Plain Layout
+
+# DataW$ATTACK <- DataW$AKRD <- DataW$AK       ## replace by new-cal-coef
+ value
+\end_layout
+
+\begin_layout Plain Layout
+
+# DataW <- WindProcessor(DataW)  ## will then have both WICN (old value)
+ and WIN (new value)
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data$WIN <- DataW$WIN
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data$WICNS <- SmoothInterp (Data$WICN)
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data$WINS  <- SmoothInterp (Data$WIN)
+\end_layout
+
+\begin_layout Plain Layout
+
+V <- c("Time", "WICS", "WISS", "WIXS")  ## WICS is original-WIC-smoothed,
+ WIX is new, WIXS is new smoothed
+\end_layout
+
+\begin_layout Plain Layout
+
+# could also include WICN (original through processor) and WIN (new through
+ processor)
+\end_layout
+
+\begin_layout Plain Layout
+
+D6 <- Data[Data$RF == 6, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+plotWAC(D6[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(1,2,3),legend.position=
+'top')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Consideration of aerodynamic effects
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Consideration-of-aerodynamic"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It seems unlikely that there were real vertical wind values of the magnitude
+ of these measurements, so it is worthwhile to look for sources of these
+ errors.
+ Perhaps the radome sensitivity to angle of attack is different in climbs
+ and descents, the measured rate-of-climb of the aircraft might be in error,
+ or there might be timing errors among the measurements.
+ However, preliminary checks make these appear unlikely,.
+ It seems more likely that the error arises from some sensitivity to performance
+ characteristics of the aircraft, like deployment of flaps or spoilers and/or
+ changes in thrust.
+ There is no record of when flaps are deployed and to what degree, and there
+ is similarly no record of engine thrust, but some of the apparently erroneous
+ measurements occur at times when it is reasonable that partial flaps might
+ be used and/or when there are significant changes in engine power.
+ 
+\end_layout
+
+\begin_layout Standard
+To investigate the latter possibility, a new term was introduced that should
+ characterize the performance and might correlate with the observed errors,
+ as follows: The lift 
+\begin_inset Formula $L$
+\end_inset
+
+ generated by an airfoil is expected to depend on a coefficient of lift
+ 
+\begin_inset Formula $c_{L}$
+\end_inset
+
+, the air density 
+\begin_inset Formula $\rho_{a}$
+\end_inset
+
+, the airspeed 
+\begin_inset Formula $V$
+\end_inset
+
+, and a representative surface area 
+\begin_inset Formula $A$
+\end_inset
+
+, according to:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+L=\frac{1}{2}\rho_{a}V^{2}c_{L}A\label{eq:CL}
+\end{equation}
+
+\end_inset
+
+and in turn the coefficient of lift depends approximately linearly on the
+ angle of attack 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, although this angle of attack may be offset from the standard value relative
+ to the aircraft longitudinal axis.
+ The relationship and reference angle for angle-of-attack may change when
+ flaps are deployed so it might be expected that 
+\begin_inset Formula $c_{L}=c_{0}(\alpha-\alpha_{0})$
+\end_inset
+
+ where 
+\begin_inset Formula $c_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha_{0}$
+\end_inset
+
+ both change with flap deployment.
+ The factor 
+\begin_inset Formula $c_{L}A$
+\end_inset
+
+ therefore changes with changes in aircraft configuration.
+ The lift will normally be matched approximately to the weight of the aircraft
+ except during short periods of vertical acceleration at the start and end
+ of climbs and descents.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A first-order correction would be 
+\begin_inset Formula $L(1+\gamma^{2})=W$
+\end_inset
+
+ where 
+\begin_inset Formula $\gamma=\arctan(w_{p}/V$
+\end_inset
+
+) with 
+\begin_inset Formula $w_{p}$
+\end_inset
+
+ the rate of climb and 
+\begin_inset Formula $V$
+\end_inset
+
+ the airspeed.
+\end_layout
+
+\end_inset
+
+ If the weight of the aircraft is 
+\begin_inset Formula $W$
+\end_inset
+
+ then it would be expected that
+\begin_inset Newline newline
+\end_inset
+
+ 
+\begin_inset Formula 
+\begin{equation}
+c_{L}A=\frac{2W(t)}{\rho_{a}V^{2}}=\frac{W(t)}{q}\label{eq:CLA}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $q=\rho_{a}V^{2}/2$
+\end_inset
+
+ is the dynamic pressure, so if 
+\begin_inset Formula $K$
+\end_inset
+
+ is defined to be 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+K=\frac{aW(t)}{q}\label{eq:K}
+\end{equation}
+
+\end_inset
+
+(where the factor 
+\begin_inset Formula $a=500/W_{0}$
+\end_inset
+
+ is introduced for plotting convenience and the weight 
+\begin_inset Formula $W(t)$
+\end_inset
+
+ is taken to be 
+\begin_inset Formula $W_{0}-R_{f}(t-t_{0})$
+\end_inset
+
+ with 
+\begin_inset Formula $W_{0}$
+\end_inset
+
+ the takeoff weight at time 
+\begin_inset Formula $t_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $R_{f}$
+\end_inset
+
+ the rate of fuel burn, taken here to be about 0.85
+\begin_inset space ~
+\end_inset
+
+lb/s)
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A better estimate would consider variations in this fuel burn rate during
+ climbs and descents and with aircraft weight, but this is a reasonable
+ first estimate.
+ The python program "PlanFlight.py" incorporates better estimates of the
+ rate of fuel burn.
+\end_layout
+
+\end_inset
+
+ it would be expected that 
+\begin_inset Formula $K$
+\end_inset
+
+ is proportional to 
+\begin_inset Formula $c_{L}A$
+\end_inset
+
+ and so will change when the aircraft configuration changes.
+ Some of the ORCAS flights are quite short and likely started with less
+ than full fuel, so it may be a better approximation to assume a landing
+ weight instead.
+ Representative numbers (needing refinement by consultation with pilot's
+ records) might be 
+\begin_inset Formula $W_{0}=80,000$
+\end_inset
+
+ or, alternately, 
+\begin_inset Formula $65,000+R_{t}(t_{f}-t_{0})$
+\end_inset
+
+ with 
+\begin_inset Formula $t_{f}$
+\end_inset
+
+ the time of landing.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<plot-K, include=TRUE, fig.cap=c('Ratio of $K$ to $
+\backslash
+
+\backslash
+alpha^*$ for ORCAS flight 6.
+ The dashed-red line is a reference line at the value 1.5 for the ratio.',
+ 'histogram of $K/
+\backslash
+
+\backslash
+alpha^*$ for ORCAS flight 6.', 'Values of $K$ as a function of $
+\backslash
+
+\backslash
+alpha^*$ for ORCAS flight 6.
+ Points with $K/
+\backslash
+
+\backslash
+alpha^*<1.45$ are shown as green symbols and other points (representing "normal"
+ flight) as blue symbols.
+ The dashed orange line corresponds to $K=1.5
+\backslash
+
+\backslash
+alpha^*$.')>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+D6 <- Data[Data$TASX > 85 & Data$RF == 6,]
+\end_layout
+
+\begin_layout Plain Layout
+
+with (D6, plotWAC (data.frame (Time, K/AOAREF), ylim=c(0,3), ylab='K/AOAREF',
+ legend.position='topright'))
+\end_layout
+
+\begin_layout Plain Layout
+
+abline (h=1.5, col='red', lty=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+with (D6, hist (K/AOAREF, breaks=100, xlim=c(0.5,2)))
+\end_layout
+
+\begin_layout Plain Layout
+
+rg <- setRange(D6, 164500, 223500)
+\end_layout
+
+\begin_layout Plain Layout
+
+with (D6[rg,], plot (AOAREF, K, pch=20, col='blue'))
+\end_layout
+
+\begin_layout Plain Layout
+
+K <- D6$K
+\end_layout
+
+\begin_layout Plain Layout
+
+K[D6$K/D6$AOAREF > 1.45] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+points (D6$AOAREF[rg], K[rg], pch=20, col='darkgreen')
+\end_layout
+
+\begin_layout Plain Layout
+
+xp <- c(1,6)
+\end_layout
+
+\begin_layout Plain Layout
+
+yp <- xp*1.5
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(xp,yp, col='darkorange', lty=2, lwd=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For normal flight (without flaps or speed brakes) 
+\begin_inset Formula $A$
+\end_inset
+
+ would be constant and the coefficient of lift would vary linearly with
+ 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+, leading to a region in a plot of 
+\begin_inset Formula $K$
+\end_inset
+
+ vs.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ with a linear relationship.
+ For normal flight, a scatterplot of these variables shows that they can
+ be regarded as linearly related without offset, approximately according
+ to the relationship 
+\begin_inset Formula $K=1.5\alpha^{*}$
+\end_inset
+
+.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:plot-K1} 
+\end_layout
+
+\end_inset
+
+ shows that the ratio departs significantly from 1.5 during parts of the
+ flight, including the initial climb and final descent and the period from
+ about 19:45:00 to 21:00:00 UTC when there was a descent to near the surface,
+ a brief period of level flight, and then a climb back to the original altitude.
+ The value of 
+\begin_inset Formula $K/\alpha^{*}$
+\end_inset
+
+ is lower than 1.5 for that intermediate period, while it might be expected
+ to be higher because both the coefficient of lift and the effective lifting
+ surface area increase if flaps are deployed.
+ The result can still be lower if the flaps or spoilers cause an offset
+ in the effective angle of attack affecting the lifting surface, which is
+ different from 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ because 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ is measured relative to the longitudinal axis of the aircraft rather than
+ the chord of the wings.
+ At the start end end of the flight, there are periods where 
+\begin_inset Formula $K/\alpha^{*}$
+\end_inset
+
+ has high values, presumably because full flaps are deployed here.
+ (Airspeeds less than 85 m/s are excluded from these plots to avoid inclusion
+ of points while the aircraft is still on the runway.)
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<flight-mode, include=TRUE, fig.cap='(top) Flight altitude during ORCAS
+ flight 6, with blue lines indicating "normal" flight and red lines showing
+ times when the aircraft configuration may not be normal.
+ The bottom panel shows the corresponding new vertical wind calculated using
+ the coeefficients determined from this flight for the standard three-coefficien
+t fit and repeats the values shown in Fig.3.'>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+\end_layout
+
+\begin_layout Plain Layout
+
+op <- par (mar=c(2,4,1,1)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+# D6 <- D6[rg, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+with (D6, plotWAC(Time, GGALT, ylab='Altitude [m]'))
+\end_layout
+
+\begin_layout Plain Layout
+
+GG <- D6$GGALT
+\end_layout
+
+\begin_layout Plain Layout
+
+GG[D6$K/D6$AOAREF > 1.45] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+lines (D6$Time, GG, col='red', lwd=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+op <- par (mar=c(5,4,1,1)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+with (D6, plotWAC(data.frame(Time, WICS, WIXS), ylab='W [m/s]', col=c('blue',
+ 'darkorange'), legend.position=NA))
+\end_layout
+
+\begin_layout Plain Layout
+
+legend('top', legend=c('old', 'new'), lty=c(1,1), lwd=c(2,2), col=c('blue',
+ 'darkorange'))
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:plot-K2}
+\end_layout
+
+\end_inset
+
+ shows the distribution of values of 
+\begin_inset Formula $K/\alpha^{*}$
+\end_inset
+
+ for this flight, and Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:plot-K3}
+\end_layout
+
+\end_inset
+
+ shows the values of 
+\begin_inset Formula $K$
+\end_inset
+
+ plotted vs.
+\begin_inset space ~
+\end_inset
+
+values of 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ (with short periods at the start and end excluded to avoid regions with
+ full flaps), with colors separating the 
+\begin_inset Quotes eld
+\end_inset
+
+normal
+\begin_inset Quotes erd
+\end_inset
+
+ from 
+\begin_inset Quotes eld
+\end_inset
+
+possible flaps
+\begin_inset Quotes erd
+\end_inset
+
+ regions of flight.
+ If values of 
+\begin_inset Formula $K/\alpha^{*}$
+\end_inset
+
+ larger than 1.45 are assumed to be 
+\begin_inset Quotes eld
+\end_inset
+
+normal
+\begin_inset Quotes erd
+\end_inset
+
+ flight, this provides a way of including only these points when determining
+ the sensitivity coefficients.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:flight-mode}
+\end_layout
+
+\end_inset
+
+ shows the height of the aircraft during ORCAS flight 6, with blue indicating
+ normal flight and red indicating times when the aircraft configuration
+ may affect the coefficient of lift and the airflow around the aircraft.
+ The red portions are in reasonable correspondence with times when the aircraft
+ configuration might change and also correlate reasonably to those times
+ when the vertical wind appears to be erroneous.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Then a histogram of 
+\begin_inset Formula $K/\alpha^{*}$
+\end_inset
+
+ suggests that a typical value for flight regions where flaps would not
+ be used is about 1.8 and, for regions with likely flap deployment, is about
+ 1.3.
+ On this basis, an alternative prediction of the angle-of-attack is 
+\begin_inset Formula $a^{\dagger}=K/1.8$
+\end_inset
+
+.
+ Where this differs significantly from 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ (as expected for zero vertical wind) this might be identified as a region
+ of different aircraft configuration and different sensitivity coefficients,
+ so that such regions should be excluded from normal determination of the
+ sensitivity coefficients.
+ If the coefficient of lift and/or the effecting lift area increase, a smaller
+ angle of attack would be required to produce the same lift, so 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ would be expected to be smaller than 
+\begin_inset Formula $a^{\dagger}$
+\end_inset
+
+ as observed.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<CL-section, include=TRUE, fig.cap=c('Expected angle of attack (ADAGGER)
+ plotted against the standard angle-of-attack reference AOAREF, for ORCAS
+ flight 6.
+ Black symbols indicate a ratio smaller than 1.08, while red symbols indicate
+ a ratio larger than 1.08 as might be expected for aerodynamic changes like
+ those caused by use of flaps.', 'Plot of altitude during ORCAS flight 6,
+ where the blue line indicates a ratio (ADAGGER/AOAREF) smaller than 1.08
+ and the red line a ratio larger than 1.8.')>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+D6 <- Data[Data$TASX > 90 & Data$RF == 6,]
+\end_layout
+
+\begin_layout Plain Layout
+
+D6$ADAGGER <- D6$K/1.8
+\end_layout
+
+\begin_layout Plain Layout
+
+# with(D, plot(AOAREF, K, pch=20))
+\end_layout
+
+\begin_layout Plain Layout
+
+with(D6, plot(AOAREF, ADAGGER, pch=20, col='blue'))
+\end_layout
+
+\begin_layout Plain Layout
+
+with(D6[D6$AOAREF/D6$ADAGGER > 1.2,], points (AOAREF, ADAGGER, pch=20, col='red')
+)
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(c(0,8), c(0,8), col='darkorange', lty=2, lwd=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+title(sprintf ('flight 6'))
+\end_layout
+
+\begin_layout Plain Layout
+
+with(D6, plotWAC(data.frame(Time, GGALT), col='red'))
+\end_layout
+
+\begin_layout Plain Layout
+
+D6$GGALT[D6$AOAREF/D6$ADAGGER > 1.2] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+lineWAC(D6$Time, D6$GGALT, col='blue')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+For ORCAS research flight 6, Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:CL-section1}
+\end_layout
+
+\end_inset
+
+ shows a plot of 
+\begin_inset Formula $\alpha^{\dagger}$
+\end_inset
+
+ vs.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+, with the two flight regimes differentiated by color.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:CL-section2}
+\end_layout
+
+\end_inset
+
+ shows the altitude history for this flight, where the flight portions consider
+ "regular" and "possible flaps" periods are distinguished by blue or red
+ colors, respectively, along the line.
+ This suggests fitting for sensitivity coefficients using only data flagged
+ as "regular" in this way.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<revised-fit, include=TRUE, fig.cap=c('Revised fit using data from ORCAS
+ flights 1, 2, 3, 6, 8, 9, 11, 14, 18, qualified as described in the text.
+ This fit includes dependence on QCF, and log(GGALT).', 'Histogram of the
+ difference between the two estimates of angle of attack, as represented
+ by the fit and as represented by the reference value.', 'Vertical wind for
+ ORCAS flight 6, calculated using the angle-of-attack calculated as in the
+ preceding two figures where QCF and log(GGALT) were added terms in the
+ fit.')>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## exclude these flights: 4,5,7,10, 12,13,15,16,17,19
+\end_layout
+
+\begin_layout Plain Layout
+
+Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF
+ == 8 | Data$RF == 9
+\end_layout
+
+\begin_layout Plain Layout
+
+Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
+\end_layout
+
+\begin_layout Plain Layout
+
+Test[is.na(Test)] <- FALSE
+\end_layout
+
+\begin_layout Plain Layout
+
+DF <- Data[Test & Data$TASX > 110 & abs(Data$ROLL) < 2, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+# Test <- Test & Data$K/Data$AOAREF > 1.45
+\end_layout
+
+\begin_layout Plain Layout
+
+f <- lm (AOAREF~QR+I(QR*M)+QCF+I(log(GGALT)), data=DF)
+\end_layout
+
+\begin_layout Plain Layout
+
+cf <- as.vector(coef(f))
+\end_layout
+
+\begin_layout Plain Layout
+
+cfk <- cf  ## save for use in text
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M) + cf[4] * Data$QCF
+ + cf[5]*log(Data$GGALT)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIK <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIKS <- SmoothInterp (Data$WIK)
+\end_layout
+
+\begin_layout Plain Layout
+
+DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M) + cf[4] * DF$QCF + cf[5]*log(DF$
+GGALT)
+\end_layout
+
+\begin_layout Plain Layout
+
+plot (DF$AOAREF, DF$AK, pch=20, col='blue', xlab='Reference Value [deg.]',
+ ylab='Calculated Value from (1)')
+\end_layout
+
+\begin_layout Plain Layout
+
+lines (c(1,5), c(1,5), lwd=3, lty=2, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(DF$AK-DF$AOAREF, breaks=200, xlim=c(-1,1))
+\end_layout
+
+\begin_layout Plain Layout
+
+with (Data[Data$RF == 6,], plotWAC(data.frame(Time, WICS, WIKS), col=c('blue',
+ 'red'), ylab='W [m/s]', ylim=c(-2,2), legend.position='top'))
+\end_layout
+
+\begin_layout Plain Layout
+
+title('ORCAS Flight 6')
+\end_layout
+
+\begin_layout Plain Layout
+
+## now do it again for the composite data-set, with 2 coefficients, for
+ later filtering
+\end_layout
+
+\begin_layout Plain Layout
+
+f <- lm (AOAREF~QR, data=DF)
+\end_layout
+
+\begin_layout Plain Layout
+
+cf <- as.vector(coef(f))
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AKF <- cf[1] + Data$QR * cf[2]
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIXS <- SmoothInterp (Data$WIX)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Because 
+\begin_inset Formula $K$
+\end_inset
+
+ depends on 
+\begin_inset Formula $1/q$
+\end_inset
+
+, this suggests that an improved fit might be obtained by including the
+ variable QCF in the empirical representation of angle of attack.
+ When this was tested, there was a significant improvement in the fit, with
+ a linear rather than inverse dependence providing lower residual standard
+ deviation.
+ The added term log(GGALT) also provided some small additional improvement.
+ To illustrate the result from this revised fit, measurements from flights
+ 1, 2, 3, 6, 8, 9, 11, 14, and 18 were used to calculate the appropriate
+ coefficients.
+ These were chosen because these flights all individually provided reasonably
+ consistent fit results, while excluded flights often did not.
+ Some of the excluded flights were very short flights or were flights for
+ diversion to other airports rather than for research.
+ Figures
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:revised-fit1}
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:revised-fit2}
+\end_layout
+
+\end_inset
+
+ show that a significantly improved fit is obtained when dependence on QCF
+ and log(GGALT) is included, with the residual standard deviation reduced
+ from 0.12 to 0.08
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+ by inclusion of that dependence.
+ The resulting vertical wind (Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:revised-fit3}
+\end_layout
+
+\end_inset
+
+) also shows important improvement over the vertical wind shown in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:flight-mode}
+\end_layout
+
+\end_inset
+
+, calculated without inclusion of the additional factors.
+ Inclusion of the variable 
+\begin_inset Formula $K$
+\end_inset
+
+ directly also provided significant improvement when tested alone, but not
+ after inclusion of QCF, so 
+\begin_inset Formula $K$
+\end_inset
+
+ was not used, partly because uncertainty in weight of the aircraft, which
+ enters 
+\begin_inset Formula $K$
+\end_inset
+
+, appeared to lead to more variation from flight to flight.
+ The single fit to the set of flights listed above provided a reasonably
+ consistent representation of all ORCAS flights, as will be shown later.
+ The following representation of angle of attack is a good candidate for
+ representing vertical wind in ORCAS:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\alpha=a_{0}+\frac{\mathrm{ADIFR}}{\mathrm{QCF}}\left(a_{1}+a_{2}M\right)+a_{3}\mathrm{QCF}+a_{4}\ln(\mathrm{GGALT)}\label{eq:QCFfit}
+\end{equation}
+
+\end_inset
+
+where the coefficients {
+\begin_inset Formula $a_{0}--a_{4}$
+\end_inset
+
+} are {
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfk[1],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfk[2],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfk[3],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfk[4],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfk[5],4)}
+\end_layout
+
+\end_inset
+
+}.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Fitting high-frequency and low-frequency components separately
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Fitting-high-frequency-and"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Still another approach is tried next.
+ It is based on representing the high-frequency and low-frequency contributions
+ to angle of attack separately.
+ The reason for this approach is that the fluctuations and the offset in
+ angle of attack seem to require different representations, so a single
+ representation like that in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:stdAOA"
+
+\end_inset
+
+) or (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:QCFfit"
+
+\end_inset
+
+) has difficulty matching both the amplitude of fluctuations and the variation
+ of the mean during the flight.
+ Separating the contributions into two components and fitting them separately
+ might provide a better representation of the angle of attack.
+\end_layout
+
+\begin_layout Standard
+The steps are these:
+\end_layout
+
+\begin_layout Enumerate
+Separate 
+\begin_inset Formula $\alpha^{*}$
+\end_inset
+
+ into two components using a low-pass filter for the slowly varying component
+ and the complementary high-pass filter for the fast-varying component,
+ so that 
+\begin_inset Formula $\alpha^{*}=\alpha_{f}^{*}+\alpha_{s}^{*}$
+\end_inset
+
+.
+ Here a cutoff frequency corresponding to a period of 600
+\begin_inset space ~
+\end_inset
+
+s will be used..
+ Also calculated similar low-pass-filtered and high-pass-filtered values
+ for the variables 
+\begin_inset Formula $A=\Delta p_{\alpha}/q$
+\end_inset
+
+ (ADIFR/QCF) and 
+\begin_inset Formula $M$
+\end_inset
+
+ (Mach number), and also 
+\begin_inset Formula $q$
+\end_inset
+
+ (QCF) for possible use in fitting..
+ 
+\end_layout
+
+\begin_layout Enumerate
+For the high-frequency component, find a representation having the simple
+ form
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\alpha_{f}^{*}=c_{0}+c_{1}A_{f}\label{eq:AKfast}
+\end{equation}
+
+\end_inset
+
+For this fit, restrict the measurements to be fit to TASX>110 and |ROLL|<2,
+ and to avoid end effects of the filter exclude about 1.5 times the filter
+ time constant from the start and end of the time series.
+ (This functional form was found to be adequate and additional terms are
+ not needed.)
+\end_layout
+
+\begin_layout Enumerate
+For the low-frequency component, use a more complicated 5-coefficient fit,
+ which leads to a significant improvement over the two-coefficient fit:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\alpha_{s}^{*}=d_{0}+d_{1}A_{s}+d_{2}(A_{s}M_{s})+d_{3}M_{s}+d_{4}q_{s}\label{eq:AKslow}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then find the resulting parameterized representation of the angle of attack
+ from the sum of these equations:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\alpha=c_{0}+c_{1}A_{f}+d_{0}+d_{1}A_{s}+d_{2}A_{s}M_{s}+d_{3}M_{s}+d_{4}q_{s}=\alpha_{f}+\alpha_{s}\label{eq:AKsum}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<filterfit, include=TRUE, fig.cap=c('The high-pass value of the reference
+ angle $
+\backslash
+
+\backslash
+alpha^*_f$ plotted vs.
+ the high-pass version of the ratio of ADIFR to QCF, for ORCAS flight 6.',
+ 'The low-pass component of the reference AOAREFS and the result from the
+ fit to this component for the five-coefficient fit, for ORCAS flight 6.',
+ 'The vertical wind obtained by calculating the two filtered components
+ separately and adding them to obtain the angle of attack (red line).
+ Also shown is the fit result obtained using the five-coefficient fit from
+ the previous section (green line) and the result of filtering WIK (cyan
+ line).')>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+## exclude these flights: 4,5,7,10, 12,13,15,16,17,19
+\end_layout
+
+\begin_layout Plain Layout
+
+Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF
+ == 8 | Data$RF == 9
+\end_layout
+
+\begin_layout Plain Layout
+
+Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
+\end_layout
+
+\begin_layout Plain Layout
+
+DF <- Data[Test & Data$TASX > 110 & abs(Data$ROLL) < 2, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+# DF <- DF[901:(nrow(DF)-1200),]
+\end_layout
+
+\begin_layout Plain Layout
+
+#DF <- DF[DF$Test > 1.45,]
+\end_layout
+
+\begin_layout Plain Layout
+
+ff <- lm(AOAREFF ~ QRF, data=DF)
+\end_layout
+
+\begin_layout Plain Layout
+
+cff <- coef(ff)
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit(ff)
+\end_layout
+
+\begin_layout Plain Layout
+
+with(DF, plot (QRF, AOAREFF, pch=20, xlim=c(-0.06,0.06), ylim=c(-1.1, 1.6)))
+\end_layout
+
+\begin_layout Plain Layout
+
+xf <- c(-0.1, 0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+yf <- cff[1] + cff[2]*xf
+\end_layout
+
+\begin_layout Plain Layout
+
+lines (xf, yf, col='darkorange', lwd=2, lty=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+fs <- lm(AOAREFS~QRS+I(QRS*MS)+MS+QCFS, data=DF)
+\end_layout
+
+\begin_layout Plain Layout
+
+cfs <- coef (fs)
+\end_layout
+
+\begin_layout Plain Layout
+
+SummarizeFit (fs)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AKF <- cff[1] + cff[2] * Data$QRF
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AKS <- cfs[1] + cfs[2] * Data$QRS  + cfs[3] * Data$QRS * Data$MS +
+ cfs[4] * Data$MS+ cfs[5] * Data$QCFS
+\end_layout
+
+\begin_layout Plain Layout
+
+with (Data[Data$RF == 6, ], plotWAC (data.frame (Time, AOAREFS, AKS), ylab='slow
+ component [deg.]'))
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$AK <- Data$AKS + Data$AKF
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIY <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIYS <- SmoothInterp (Data$WIY)
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIF <- Data$WIC + (Data$AKF+Data$AOAREFS-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIFS <- SmoothInterp (Data$WIF)
+\end_layout
+
+\begin_layout Plain Layout
+
+nf <- 6
+\end_layout
+
+\begin_layout Plain Layout
+
+with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WICS, WIKS, WIFS, WIYS),
+ ylim=c(-2,2), 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       lwd=c(2,2,2,1), col=c('blue', 'darkgreen'
+, 'cyan', 'red'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       legend.position='top'))
+\end_layout
+
+\begin_layout Plain Layout
+
+abline (h=0, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], 
+\end_layout
+
+\begin_layout Plain Layout
+
+        title (sprintf ('ORCAS flight %d, mean WIK %.2f WIY %.2f WIF %.2f',
+ nf, 
+\end_layout
+
+\begin_layout Plain Layout
+
+        mean (WIK, na.rm=TRUE), mean (WIY, na.rm=TRUE), mean (WIF, na.rm=TRUE))))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The same set of flights as used in the preceding subsection were used for
+ this fit.
+ The result for the high-frequency fit is {
+\begin_inset Formula $c_{o},\,c_{1}$
+\end_inset
+
+} = {
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cff[1], 4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cff[2], 4)}
+\end_layout
+
+\end_inset
+
+}, and the result for the low-pass-filtered component is {
+\begin_inset Formula $d_{0},\,d_{1},\,d_{2},\,d_{3}$
+\end_inset
+
+} = {
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfs[1],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfs[2],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfs[3],4)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(cfs[4],4)}
+\end_layout
+
+\end_inset
+
+}.
+ The coefficient 
+\begin_inset Formula $c_{0}$
+\end_inset
+
+ is near zero as expected and should be omitted.
+ For the composite data set, both gave good fits, with residual standard
+ deviations of 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(summary(ff)$sigma, 4)}
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(summary(fs)$sigma, 4)}
+\end_layout
+
+\end_inset
+
+ respectively for the high-frequency and low-frequency components.
+ The latter is a very good representation of the slowly varying component,
+ while the former will be affected by real fluctuations in the vertical
+ wind and so is expected to be larger.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:filterfit1}
+\end_layout
+
+\end_inset
+
+ shows that the resulting high-frequency component matches the reference
+ value very well, while Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:filterfit2}
+\end_layout
+
+\end_inset
+
+ shows similar good agreement for the slowly varying component.
+ The vertical wind, shown in Fig.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:filterfit3}
+\end_layout
+
+\end_inset
+
+ for ORCAS flight 6, also appears very good.
+ The deviation in vertical wind near 21:05:00 UTC appears consistent with
+ a real fluctuation, although it is also near where the aircraft passes
+ through 25,000 ft and this often seems to correlate with a perturbation
+ in vertical wind.
+ (It is also, perhaps coincidentally, the altitude limit for the use of
+ any flaps.) Other small perturbations near 20:00:00 are more suspicious
+ and may be remnant effects of the aerodynamic effects discussed in the
+ previous section.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+A set of plots of the various vertical wind candidates is included, starting
+ with Fig.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:plotall1}
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+ The four vertical wind candidates, shown for each flight in plots appended
+ to this report, are:
+\end_layout
+
+\begin_layout Enumerate
+(blue) WICS: The original vertical wind in the EOL files.
+\end_layout
+
+\begin_layout Enumerate
+(green) WIKS: The vertical wind determined by fits that include two additional
+ terms, using data for flights 1, 2, 3, 6, 8, 9, 11, 14, and 18 to determine
+ one 5-coefficient all-project fit and then applying that result to all
+ flights.
+ The added terms in the fit are QCF and log(GGALT).
+\end_layout
+
+\begin_layout Enumerate
+(red) WIYS: The vertical wind determined by separating angle-of-attack into
+ two components by complementary filtering and then fitting the two components
+ separately, before adding the result.
+ This differs from the next component, WIFS, in representing the low-frequency
+ component by a fit to the calibration data (that assumes vertical wind
+ of zero) rather than eliminating it as in WIFS.
+ 
+\end_layout
+
+\begin_layout Enumerate
+(cyan) WIFS: The filtered vertical wind determined from the high-frequency
+ component in WIYS, with the low-frequency component represented by the
+ low-pass filtered version of the reference angle-of-attack.
+ In this case, real fluctuations with duration longer than the cut-off period
+ (here, 600
+\begin_inset space ~
+\end_inset
+
+s) are removed, while they are retained in WIYS.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<chk-all, include=FALSE, eval=FALSE, fig.cap=' '>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# for (i in 1:19) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  # if (i == 12) {next}
+\end_layout
+
+\begin_layout Plain Layout
+
+  # D <- Data[Data$TASX > 90 & Data$RF == i,]
+\end_layout
+
+\begin_layout Plain Layout
+
+  # D$ADAGGER <- D$K/1.8
+\end_layout
+
+\begin_layout Plain Layout
+
+  # with(D, plot(AOAREF, ADAGGER, pch=20, col='blue'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  # with(D[D$AOAREF/D$ADAGGER > 1.2,], points (AOAREF, ADAGGER, pch=20, col='red'
+))
+\end_layout
+
+\begin_layout Plain Layout
+
+  # lines(c(0,8), c(0,8), col='darkorange', lty=2, lwd=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+  # title(sprintf ('flight %d', i))
+\end_layout
+
+\begin_layout Plain Layout
+
+  # with(D, plotWAC(data.frame(Time, GGALT), col='red'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  # D$GGALT[D$AOAREF/D$ADAGGER > 1.2] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+  # lineWAC(D$Time, D$GGALT, col='blue')
+\end_layout
+
+\begin_layout Plain Layout
+
+  # title(sprintf ('flight %d', i))
+\end_layout
+
+\begin_layout Plain Layout
+
+# }
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+\end_layout
+
+\begin_layout Plain Layout
+
+op <- par (mar=c(2,4,1,1)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+for (i in 1:19) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (i == 12) {next}
+\end_layout
+
+\begin_layout Plain Layout
+
+  D <- Data[Data$RF == i & Data$TASX > 85,]
+\end_layout
+
+\begin_layout Plain Layout
+
+  with (D, plotWAC(Time, GGALT, ylab='Altitude [m]'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  title (sprintf ('flight %d', i))
+\end_layout
+
+\begin_layout Plain Layout
+
+  GG <- D$GGALT
+\end_layout
+
+\begin_layout Plain Layout
+
+  GG[D$K/D$AOAREF > 1.65] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+  lines (D$Time, GG, col='red', lwd=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+  op <- par (mar=c(5,4,1,1)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+  with (D, plotWAC(data.frame(Time, WICS, WIXS), ylab='new W [m/s]'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  abline (h=0, col='red', lty=2)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Recommendation
+\end_layout
+
+\begin_layout Standard
+The variable WIY appears to be the best representation of vertical wind,
+ but there is little difference between WIY and WIK so WIY might support
+ the use of WIK.
+ The disadvantage of WIY is that it requires post-processing because it
+ involves filtering to determine the two components that enter the result,
+ application of empirical coefficients separately to the two components,
+ and summing the results.
+ The result, however, is not a filtered result, and it will not distort
+ from real offsets in the vertical wind except as they affect the estimation
+ of the empirical coefficients.
+ This variable then appears better than straight high-pass filtering of
+ the vertical wind.
+ A post-processing step similar to that used in HIPPO-5 could be developed
+ to implement this scheme, and appropriate coefficients are listed in Sect.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Fitting-high-frequency-and"
+
+\end_inset
+
+.
+ The variable WIK, however, is almost as good and has the significant advantage
+ that it would be incorporated into the first-pass processing.
+ The appropriate formula and coefficients are listed at the end of Sect.
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:Consideration-of-aerodynamic"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+\color blue
+– End of Memo –
+\family default
+\color inherit
+ 
+\end_layout
+
+\begin_layout Standard
+Reproducibility:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Project:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Archive package:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+.zip
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Contains:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+attachment list below
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Program:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+.Rnw
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+This document:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+.pdf
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Workflow:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Workflow
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+.pdf
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Original Data:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+/scr/raf_data/ORCAS/ORCASrf01.nc, etc 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Data Archive:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NCAR HPSS (not github) 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{thisFileName}
+\end_layout
+
+\end_inset
+
+.Rdata
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family sans
+\shape smallcaps
+\color blue
+Git:
+\family default
+\shape default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+https://github.com/WilliamCooper/Reprocessing.git – see above files
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+attachm{AKRDforORCAS.Rnw
+\backslash
+
+\backslash
+AKRDforORCAS.pdf
+\backslash
+
+\backslash
+WorkflowAKRDforORCAS.pdf
+\backslash
+
+\backslash
+SessionInfo}
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<plot-all, include=TRUE, fig.cap='Plots for each ORCAS flight showing the
+ four candidates for vertical wind.'>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+\end_layout
+
+\begin_layout Plain Layout
+
+for (nf in 1:19) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  op <- par (mar=c(2,4,1,1)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (nf == 12) {next}
+\end_layout
+
+\begin_layout Plain Layout
+
+  # with (Data[Data$RF == nf,], plotWAC(data.frame(Time, AKS, AOAREFS), legend.pos
+ition='topright'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WIKS, WIYS), ylim=c(-2,2)
+, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       lwd=c(2,1), col=c('darkgreen', 'red'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       legend.position='top'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  abline (h=0, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+  with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], 
+\end_layout
+
+\begin_layout Plain Layout
+
+        title (sprintf ('ORCAS flight %d, mean WIK %.2f WIY %.2f WIF %.2f',
+ nf, 
+\end_layout
+
+\begin_layout Plain Layout
+
+        mean (WIK, na.rm=TRUE), mean (WIY, na.rm=TRUE), mean (WIF, na.rm=TRUE))))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  op <- par (mar=c(5,4,1,1)+0.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+  with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WICS, WIFS), ylim=c(-2,2)
+, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       lwd=c(2,1), col=c('blue', 'cyan'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       legend.position='top'))
+\end_layout
+
+\begin_layout Plain Layout
+
+  abline (h=0, col='darkorange')
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<all-flights, include=FALSE, eval=FALSE, fig.cap="Recalculated vertical
+ wind WIX and original and standard values (WICS and WISS), all with 60-s
+ smoothing.">>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Data <- Data[Data$TASX > 50, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+V <- c("Time", "WICS", "WISS", "WIXS")
+\end_layout
+
+\begin_layout Plain Layout
+
+for (i in 1:19) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (i == 12) {next}
+\end_layout
+
+\begin_layout Plain Layout
+
+  plotWAC(Data[Data$RF == i, V], col=c("blue", "darkgreen", "red"))
+\end_layout
+
+\begin_layout Plain Layout
+
+  # lineWAC(Data$Time, Data$GGVS/10, col='green')
+\end_layout
+
+\begin_layout Plain Layout
+
+  title(sprintf("Flight %d mean w: old %.2f std %.2f new %.2f", i, 
+\end_layout
+
+\begin_layout Plain Layout
+
+      mean(Data[Data$RF == i, "WICS"], na.rm=TRUE), 
+\end_layout
+
+\begin_layout Plain Layout
+
+      mean(Data[Data$RF == i, "WISS"], na.rm=TRUE), 
+\end_layout
+
+\begin_layout Plain Layout
+
+      mean(Data[Data$RF == i, "WIXS"], na.rm=TRUE)))
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<Filter-all-flights, include=FALSE, eval=FALSE, fig.cap=c("Recalculated
+ vertical wind WIFS after filtering WIXS, and original and expanded-fit
+ (WICS and WIKS) values, all with 60-s smoothing.", 'A short period from
+ the previous plot, to illustrate the high-frequency response of the three
+ calculated values.')>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Rate <- 1
+\end_layout
+
+\begin_layout Plain Layout
+
+V <- c("Time", "WICS", "WIKS", "WIFS", "WIXS")
+\end_layout
+
+\begin_layout Plain Layout
+
+## guard against infinite values
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIX[which(is.infinite(Data$WIX))] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIXS[which(is.infinite(Data$WIXS))] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIK[which(is.infinite(Data$WIK))] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIKS[which(is.infinite(Data$WIKS))] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WIC[which(is.infinite(Data$WIC))] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+Data$WICS[which(is.infinite(Data$WICS))] <- NA
+\end_layout
+
+\begin_layout Plain Layout
+
+for (i in c(1:19)){
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (i == 12) {next}
+\end_layout
+
+\begin_layout Plain Layout
+
+  D <- Data[Data$RF == i,]
+\end_layout
+
+\begin_layout Plain Layout
+
+  CutoffFreq <- 600 * Rate    
+\end_layout
+
+\begin_layout Plain Layout
+
+  ## Rate is defined in preceding code, 
+\end_layout
+
+\begin_layout Plain Layout
+
+  ## 1 or 25 for std or high-rate file
+\end_layout
+
+\begin_layout Plain Layout
+
+  d <- zoo::na.approx (as.vector(D$WIX), maxgap=100*Rate, na.rm = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+  d[is.na(d)] <- 0
+\end_layout
+
+\begin_layout Plain Layout
+
+  D$WIF <- D$WIX - signal::filtfilt( signal::butter (3, 1/CutoffFreq), d)
+\end_layout
+
+\begin_layout Plain Layout
+
+  D$WIFS <- SmoothInterp (D$WIF)
+\end_layout
+
+\begin_layout Plain Layout
+
+  plotWAC(D[, V], ylim=c(-2,2))
+\end_layout
+
+\begin_layout Plain Layout
+
+  # lineWAC(Data$Time, Data$GGVS/10, col='green')
+\end_layout
+
+\begin_layout Plain Layout
+
+  title(sprintf("Flight %d mean w: old %.2f 6-coef %.2f filtered %.2f", i,
+ mean(D[, "WICS"], na.rm=TRUE), mean(D[, "WIKS"], na.rm=TRUE), mean(D[, "WIFS"],
+ na.rm=TRUE)))
+\end_layout
+
+\begin_layout Plain Layout
+
+  if (i == 6) {
+\end_layout
+
+\begin_layout Plain Layout
+
+     D <- D[!is.na(D$Time), ]
+\end_layout
+
+\begin_layout Plain Layout
+
+     with (D[setRange(D, 203800, 204200),], plotWAC(data.frame(Time, WIC,
+ WIK, WIF, WIX)))
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<save-system-info, echo=FALSE>>= 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+cat (toLatex(sessionInfo()), file="SessionInfo")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+system (sprintf("zip %s.zip %s.Rnw %s.pdf Workflow%s.pdf SessionInfo", thisFileName,
+ thisFileName, thisFileName, thisFileName))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<make-workflow-diagram, echo=FALSE, eval=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+library(DiagrammeR)
+\end_layout
+
+\begin_layout Plain Layout
+
+grViz ("DG-ORCAS.dot", engine='dot')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
