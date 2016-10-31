@@ -1,0 +1,103 @@
+digraph G {
+  node [style=filled, color=lightblue];
+  "finding empirical coefficients" [shape=Mdiamond];
+  "background" [shape=box, width=2.0];
+  "selecting data" [shape=box, width=1.8];
+  "fitting and selecting\nthe formula" [shape=box, width=3];
+  "checking and\nillustrating results" [shape=box, width=2.0];
+  "recommendation" [shape=box, width=2.5];
+  "finding empirical coefficients" -> "background";
+  "finding empirical coefficients" -> "selecting data";
+  "finding empirical coefficients" -> "fitting and selecting\nthe formula";
+  "finding empirical coefficients" -> "checking and\nillustrating results";
+  "finding empirical coefficients" -> "recommendation";
+  subgraph cluster5 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="task 5";
+      "recommendation" -> "list new\ncoefficients" -> "append WI,\neach flight,\nand discuss";
+  }
+  subgraph cluster4 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="task 4";
+      "checking and\nillustrating results" -> "plot AKRD\nvs AOAREF" -> "calculate new\nvertical wind" -> "plot vs\noriginal";
+  }
+  subgraph cluster3 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="task 3";
+      "fitting and selecting\nthe formula" -> "the standard\nformula" -> "explore\naerodynamics" -> "complementary-\nfilter fit" ->"summarize";
+  }
+  subgraph cluster2 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="task 2";
+      "selecting data" -> "describe data\nrestrictions" -> "tabulate flights\nto be used" -> "construct the\ndata.frame";
+  }
+  subgraph cluster1 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="task 1";
+      "background" -> "illustrate\nthe problem" -> "present\nequations" -> "discuss the\nmeasurements";
+  }
+}
+digraph G5 {
+  node [style=filled, color=lightblue];
+  "empirical coefficients" [shape=Mdiamond];
+  "angle of attack" [shape=box, width=2.0];
+  "sideslip angle" [shape=box, width=1.8];
+  "independent calibration\nusing LAMS" [shape=box, width=3];
+  "airspeed from the\ngust pod" [shape=box, width=2.0];
+  "summary of\nsensitivity coefficients" [shape=box, width=2.5];
+  "empirical coefficients" -> "angle of attack";
+  "empirical coefficients" -> "sideslip angle";
+  "empirical coefficients" -> "independent calibration\nusing LAMS";
+  "empirical coefficients" -> "airspeed from the\ngust pod";
+  "empirical coefficients" -> "summary of\nsensitivity coefficients";
+  subgraph cluster5 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="section 5.5";
+    "summary of\nsensitivity coefficients" -> "tabulate\nbest results";
+  }
+  subgraph cluster4 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="section 5.4";
+      "airspeed from the\ngust pod" -> "select and\nqualify measurements" -> "search for\nvalid fit" -> "test vs standard" -> "plot comparison\nvia knitr";
+  }
+  subgraph cluster3 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="section 5.3";
+    "independent calibration\nusing LAMS" -> "select data" -> "calculate AOA\nand sideslip angle\nfrom LAMS" -> "plot vs\nradome values";
+  }
+  subgraph cluster2 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="section 5.2";
+      "sideslip angle" -> "develop basic\nequations" -> "apply to\nradome system";
+      "develop basic\nequations" -> "apply to\ngust-pod";
+      "apply to\nradome system" -> "find best\nfit coef." -> "plot to\ncheck";
+      "apply to\ngust-pod" -> "find best\nfit" -> "plot and\nreport resuts";
+  }
+  subgraph cluster1 {
+    node [style=filled,color=white];
+    style=filled;
+    color=lightgrey;
+    label="section 5.1";
+      "angle of attack" -> "present basis\nfor calibration" -> "apply to\nthe radome" ;
+      "apply to\nthe radome" -> "select best\nspeed-run data" -> "find fit\ncoefficients" -> "compare to\similar results" -> "expand data\nused for fit" -> "generate plots\nto illustrate fit" -> "consider\nuncertainty";
+      "present basis\nfor calibration" -> "apply to the\ngust-pod" -> "find best\nfit coefficients" -> "report coefficients";
+  }
+}
