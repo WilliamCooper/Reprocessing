@@ -790,7 +790,8 @@ where
 \begin_inset Formula $\{c\}=\{4.605,18.44,6.75\}$
 \end_inset
 
-.The approach used here is described in detail in the Wind Uncertainty technical
+.
+ The approach used here is described in detail in the Wind Uncertainty technical
  note.
  It is to use a reference value for angle of attack, 
 \begin_inset Formula $\alpha^{*}$
@@ -1090,8 +1091,8 @@ ref{fig:S08summarize-fit1}
 .
  While the representation of the variation in reference angle is reasonable,
  there are some regions with significant scatter from the fit and a pattern
- with calculated values larger than the reference values and high angle
- of attack that is not represented well by the fit.
+ with calculated values larger than the reference values at high angle of
+ attack that is not represented well by the fit.
  A histogram of the difference (Fig.
 \begin_inset space ~
 \end_inset
@@ -1137,9 +1138,9 @@ Sexpr{round(summary(f)$sigma,3)}
 \end_inset
 
 , was reasonable but affected by that second peak.
- The standard deviation was reduced only slightly (about 10%) from the fit
- that used only the first term, but it still appears worthwhile to use this
- three-coefficient fit instead.
+ The standard deviation was reduced only slightly (by about 10%) from the
+ fit that used only the first term, but it still appears worthwhile to use
+ this three-coefficient fit instead.
  Several other options were considered, including direct dependence on Mach
  number, air density, pressure, altitude, and powers and products of these,
  but none of these provided significant (>0.01) further reduction in the
@@ -1170,7 +1171,7 @@ status open
 
 
 \backslash
-ref{fig:A08summarize-fit1}
+ref{fig:S08summarize-fit1}
 \end_layout
 
 \end_inset
@@ -1183,7 +1184,7 @@ status open
 
 
 \backslash
-ref{fig:A08summarize-fit2}
+ref{fig:S08summarize-fit2}
 \end_layout
 
 \end_inset
@@ -2384,32 +2385,37 @@ title('ORCAS Flight 6')
 
 \begin_layout Plain Layout
 
-f <- lm (AOAREF~QR, data=DF)
+## this is commented now because filtering is done another way
 \end_layout
 
 \begin_layout Plain Layout
 
-cf <- as.vector(coef(f))
+# f <- lm (AOAREF~QR, data=DF)
 \end_layout
 
 \begin_layout Plain Layout
 
-SummarizeFit(f)
+# cf <- as.vector(coef(f))
 \end_layout
 
 \begin_layout Plain Layout
 
-Data$AKF <- cf[1] + Data$QR * cf[2]
+# SummarizeFit(f)
 \end_layout
 
 \begin_layout Plain Layout
 
-Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
+# Data$AKF <- cf[1] + Data$QR * cf[2]
 \end_layout
 
 \begin_layout Plain Layout
 
-Data$WIXS <- SmoothInterp (Data$WIX)
+# Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
+\end_layout
+
+\begin_layout Plain Layout
+
+# Data$WIXS <- SmoothInterp (Data$WIX)
 \end_layout
 
 \begin_layout Plain Layout

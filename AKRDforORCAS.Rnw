@@ -193,7 +193,7 @@ where $\Delta p_{\alpha}$ is the pressure difference between upward
 and downward ports on the radome (ADIFR), $q$ is dynamic pressure
 (QCF), and $M$ is the Mach number calculated using the uncorrected
 static and dynamic pressure (PSF and QCF). The three coefficients
-specified in that document are $\{c\}=\{4.605,18.44,6.75\}$.The approach
+specified in that document are $\{c\}=\{4.605,18.44,6.75\}$. The approach
 used here is described in detail in the Wind Uncertainty technical
 note. It is to use a reference value for angle of attack, $\alpha^{*}$,
 defined by
@@ -263,14 +263,14 @@ of the angle of attack produced by (1) with these coefficients to
 the reference values given by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:S08summarize-fit1}.
 While the representation of the variation in reference angle is reasonable,
 there are some regions with significant scatter from the fit and a
-pattern with calculated values larger than the reference values and
+pattern with calculated values larger than the reference values at
 high angle of attack that is not represented well by the fit. A histogram
 of the difference (Fig.~\ref{fig:S08summarize-fit2}) shows a reasonable
 distribution but a second peak where the fitted angle-of-attack is
 about 0.1~$^{\circ}$ higher than the reference value. The residual
 standard deviation for this fit, \Sexpr{round(summary(f)$sigma,3)}$^{\circ}$,
 was reasonable but affected by that second peak. The standard deviation
-was reduced only slightly (about 10\%) from the fit that used only
+was reduced only slightly (by about 10\%) from the fit that used only
 the first term, but it still appears worthwhile to use this three-coefficient
 fit instead. Several other options were considered, including direct
 dependence on Mach number, air density, pressure, altitude, and powers
@@ -279,7 +279,7 @@ further reduction in the standard deviation of the residuals. Two
 added terms that did give significant reduction were $q$ (QCF) and
 $z$ (GGALT) or $\log(z)$. These are discussed in the next section
 and do provide some improvement in the residual standard deviation
-and in plots like Figs.~\ref{fig:A08summarize-fit1} and \ref{fig:A08summarize-fit2}. 
+and in plots like Figs.~\ref{fig:S08summarize-fit1} and \ref{fig:S08summarize-fit2}. 
 
 <<S08summarize-fit, include=TRUE, fig.cap=c("Calculated value of angle of attack vs the reference value used in the fit.", "Histogram of the difference between the calculated angle of attack and the reference value.")>>=
 
@@ -487,12 +487,13 @@ hist(DF$AK-DF$AOAREF, breaks=200, xlim=c(-1,1))
 with (Data[Data$RF == 6,], plotWAC(data.frame(Time, WICS, WIKS), col=c('blue', 'red'), ylab='W [m/s]', ylim=c(-2,2), legend.position='top'))
 title('ORCAS Flight 6')
 ## now do it again for the composite data-set, with 2 coefficients, for later filtering
-f <- lm (AOAREF~QR, data=DF)
-cf <- as.vector(coef(f))
-SummarizeFit(f)
-Data$AKF <- cf[1] + Data$QR * cf[2]
-Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
-Data$WIXS <- SmoothInterp (Data$WIX)
+## this is commented now because filtering is done another way
+# f <- lm (AOAREF~QR, data=DF)
+# cf <- as.vector(coef(f))
+# SummarizeFit(f)
+# Data$AKF <- cf[1] + Data$QR * cf[2]
+# Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
+# Data$WIXS <- SmoothInterp (Data$WIX)
 
 @
 
