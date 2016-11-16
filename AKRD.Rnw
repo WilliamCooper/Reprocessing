@@ -181,7 +181,7 @@ require(grid)
 require(ggthemes)
 ReviseProjects <- c('DC3', 'TORERO')  ## these are the projects to process 
 nP <- length (ReviseProjects)
-# ReviseProjects <- 'ORCAS'
+ReviseProjects <- 'ORCAS'
 Directory <- DataDirectory ()			
 VarList <- c("ADIFR", "GGVSPD", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX", "QCXC")
 ## add variables needed to recalculate wind
