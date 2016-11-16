@@ -72,7 +72,7 @@
 <<initialization,echo=FALSE,include=FALSE>>=
 
 require(knitr)
-opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:", dev='png', dpi=100)
 opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
 options(digits=3)
 thisFileName <- "AKRDforORCAS"
@@ -113,7 +113,7 @@ if (ReloadData) {
     RFB <- 0.85
     ## some flights are bad, often for short flights: 5, 10, 13, 15, 16
     if (flt == 3 || flt == 7 || flt == 11 || flt == 14 || flt == 17) {RFB <- 0.75}
-    if (nflt == 18) {RFB <- 0.40}
+    if (flt == 18) {RFB <- 0.40}
     D <- D[!is.na(D$Time),]
     LW <- 65000
     if (flt == 9) {LW <- 45000}
@@ -121,8 +121,9 @@ if (ReloadData) {
     if (flt == 18) {LW <- 35000}
     TOW <- LW + as.numeric(D$Time[nrow(D)] - D$Time[1])*RFB
     D$W <- (TOW-D$TF*RFB)
-    D$K <- (500 / TOW) * (TOW - D$TF * RFB) / D$QCF
+    D$K <- (500 / TOW) * (TOW - D$TF * RFB) / (D$QCF * cos (D$ROLL*pi/180))
     D$QR <- D$ADIFR / D$QCF
+    D$QR[D$QCF < 20] <- NA
     D$QR[is.infinite(D$QR)] <- NA
     D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
     D$M <- MachNumber (D$PSF, D$QCF)
@@ -144,13 +145,11 @@ if (ReloadData) {
     D$MS[is.na(D$MS)] <- 0
     D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
     D$MF <-  D$M - D$MS
-    rf <- c(1:900, (nrow(D)-1200):nrow(D))
-    # D$MF[rf] <- NA
-    # D$MS[rf] <- NA
-    # D$QRS[rf] <- NA
-    # D$QRF[rf] <- NA
-    D$AOAREFF[rf] <- NA
-    D$AOAREFS[rf] <- NA
+    ## limit to times between first TASX > 90 and last TASX > 90:
+    TS <- D$Time[D$TASX > 90]
+    TS <- TS[!is.na(TS)]
+    B <- TS[1]; E <- TS[length(TS)]
+    D <- D[D$Time >= B & D$Time <= E,]
     Data <- rbind (Data, D)
   }
   save(Data, file=SaveRData)
@@ -193,10 +192,10 @@ where $\Delta p_{\alpha}$ is the pressure difference between upward
 and downward ports on the radome (ADIFR), $q$ is dynamic pressure
 (QCF), and $M$ is the Mach number calculated using the uncorrected
 static and dynamic pressure (PSF and QCF). The three coefficients
-specified in that document are $\{c\}=\{4.605,18.44,6.75\}$. The approach
-used here is described in detail in the Wind Uncertainty technical
-note. It is to use a reference value for angle of attack, $\alpha^{*}$,
-defined by
+specified in that document are $\{c\}=\{4.605,18.44,6.75\}$. The
+approach used here is described in detail in the Wind Uncertainty
+technical note. It is to use a reference value for angle of attack,
+$\alpha^{*}$, defined by
 
 \begin{equation}
 \alpha^{*}=\theta-\frac{w_{p}}{V}\label{eq:alpha-star}
@@ -400,10 +399,12 @@ D6 <- Data[Data$TASX > 85 & Data$RF == 6,]
 with (D6, plotWAC (data.frame (Time, K/AOAREF), ylim=c(0,3), ylab='K/AOAREF', legend.position='topright'))
 abline (h=1.5, col='red', lty=2)
 with (D6, hist (K/AOAREF, breaks=100, xlim=c(0.5,2)))
-rg <- setRange(D6, 164500, 223500)
+# rg <- setRange(D6, 164500, 223500)
+rg <- 301:(nrow(D6)-300)
 with (D6[rg,], plot (AOAREF, K, pch=20, col='blue'))
 K <- D6$K
-K[D6$K/D6$AOAREF > 1.45] <- NA
+KBreak <- 1.45
+K[D6$K/D6$AOAREF > KBreak] <- NA
 points (D6$AOAREF[rg], K[rg], pch=20, col='darkgreen')
 xp <- c(1,6)
 yp <- xp*1.5
@@ -441,7 +442,7 @@ op <- par (mar=c(2,4,1,1)+0.1)
 # D6 <- D6[rg, ]
 with (D6, plotWAC(Time, GGALT, ylab='Altitude [m]'))
 GG <- D6$GGALT
-GG[D6$K/D6$AOAREF > 1.45] <- NA
+GG[D6$K/D6$AOAREF > KBreak] <- NA
 lines (D6$Time, GG, col='red', lwd=2)
 op <- par (mar=c(5,4,1,1)+0.1)
 with (D6, plotWAC(data.frame(Time, WICS, WIXS), ylab='W [m/s]', col=c('blue', 'darkorange'), legend.position=NA))
@@ -468,11 +469,21 @@ to those times when the vertical wind appears to be erroneous.
 <<revised-fit, include=TRUE, fig.cap=c('Revised fit using data from ORCAS flights 1, 2, 3, 6, 8, 9, 11, 14, 18, qualified as described in the text. This fit includes dependence on QCF, and log(GGALT).', 'Histogram of the difference between the two estimates of angle of attack, as represented by the fit and as represented by the reference value.', 'Vertical wind for ORCAS flight 6, calculated using the angle-of-attack calculated as in the preceding two figures where QCF and log(GGALT) were added terms in the fit.')>>=
 
 ## exclude these flights: 4,5,7,10, 12,13,15,16,17,19
-Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF == 8 | Data$RF == 9
-Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
-Test[is.na(Test)] <- FALSE
-DF <- Data[Test & Data$TASX > 110 & abs(Data$ROLL) < 2, ]
-# Test <- Test & Data$K/Data$AOAREF > 1.45
+# Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF == 8 | Data$RF == 9
+# Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
+# Test[is.na(Test)] <- FALSE
+
+## eliminate 600 s at start and end of flights to avoid filter start-up deviations
+DF <- data.frame()
+best <- c(1,2,3,6,8,9,11,14,18)
+for (flt in best) {
+  if (flt == 12) {next}
+  D <- Data[Data$RF == flt, ]
+  D <- D[601:(nrow(D)-600), ]
+  DF <- rbind (DF, D)
+}  
+DF <- DF[DF$TASX > 110 & abs(DF$ROLL) < 2, ]
+# Test <- Test & Data$K/Data$AOAREF > KBreak
 f <- lm (AOAREF~QR+I(QR*M)+QCF+I(log(GGALT)), data=DF)
 cf <- as.vector(coef(f))
 cfk <- cf  ## save for use in text
@@ -576,27 +587,37 @@ of attack from the sum of these equations:\\
 \alpha=c_{0}+c_{1}A_{f}+d_{0}+d_{1}A_{s}+d_{2}A_{s}M_{s}+d_{3}M_{s}+d_{4}q_{s}=\alpha_{f}+\alpha_{s}\label{eq:AKsum}
 \end{equation}
 
-<<filterfit, include=TRUE, fig.cap=c('The high-pass value of the reference angle $\\alpha^*_f$ plotted vs. the high-pass version of the ratio of ADIFR to QCF, for ORCAS flight 6.', 'The low-pass component of the reference AOAREFS and the result from the fit to this component for the five-coefficient fit, for ORCAS flight 6.', 'The vertical wind obtained by calculating the two filtered components separately and adding them to obtain the angle of attack (red line). Also shown is the fit result obtained using the five-coefficient fit from the previous section (green line) and the result of filtering WIK (cyan line).')>>=
+\clearpage
 
-## exclude these flights: 4,5,7,10, 12,13,15,16,17,19
-Test <- Data$RF == 1 | Data$RF == 2 | Data$RF == 3 | Data$RF == 6 | Data$RF == 8 | Data$RF == 9
-Test <- Test | Data$RF == 11 | Data$RF == 14 | Data$RF == 18
-DF <- Data[Test & Data$TASX > 110 & abs(Data$ROLL) < 2, ]
-# DF <- DF[901:(nrow(DF)-1200),]
-#DF <- DF[DF$Test > 1.45,]
-ff <- lm(AOAREFF ~ QRF, data=DF)
+<<filterfit, include=TRUE, fig.height=5, fig.cap=c('The high-pass value of the reference angle $\\alpha^*_f$ plotted vs. the high-pass version of the ratio of ADIFR to QCF, for the combined flights 1, 2, 3, 6, 8, 9, 11, 14, and 18 from the ORCAS project.', 'The low-pass component of the reference AOAREFS and the result from the fit to this component for the five-coefficient fit, for ORCAS flight 6.', 'The vertical wind for ORCAS flight 6, obtained by calculating the two filtered components separately and adding them to obtain the angle of attack (red line). Also shown is the fit result obtained using the five-coefficient fit from the previous section (green line) and the result of filtering WIK (cyan line).')>>=
+
+#DF <- DF[DF$Test > KBreak,]
+ff <- lm(AOAREFF ~ 0 + QRF, data=DF)
 cff <- coef(ff)
+cff <- c(0, cff[1])
 SummarizeFit(ff)
 with(DF, plot (QRF, AOAREFF, pch=20, xlim=c(-0.06,0.06), ylim=c(-1.1, 1.6)))
 xf <- c(-0.1, 0.1)
 yf <- cff[1] + cff[2]*xf
 lines (xf, yf, col='darkorange', lwd=2, lty=2)
+
+@
+
+\clearpage
+
+<<slow-component, include=TRUE, fig.height=5, fig.cap='The low-pass component of the reference AOAREFS and the result from the fit to this component for the five-coefficient fit, for ORCAS flight 6.'>>=
+
 fs <- lm(AOAREFS~QRS+I(QRS*MS)+MS+QCFS, data=DF)
 cfs <- coef (fs)
-SummarizeFit (fs)
 Data$AKF <- cff[1] + cff[2] * Data$QRF
 Data$AKS <- cfs[1] + cfs[2] * Data$QRS  + cfs[3] * Data$QRS * Data$MS + cfs[4] * Data$MS+ cfs[5] * Data$QCFS
 with (Data[Data$RF == 6, ], plotWAC (data.frame (Time, AOAREFS, AKS), ylab='slow component [deg.]'))
+SummarizeFit (fs)
+
+@
+
+<<combined-result, include=TRUE, fig.cap='The vertical wind for ORCAS flight 6, obtained by calculating the two filtered components separately and adding them to obtain the angle of attack (red line). Also shown is the fit result obtained using the five-coefficient fit from the previous section (green line) and the result of filtering WIK (cyan line).'>>=
+
 Data$AK <- Data$AKS + Data$AKF
 Data$WIY <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
 Data$WIYS <- SmoothInterp (Data$WIY)
@@ -618,24 +639,25 @@ for this fit. The result for the high-frequency fit is \{$c_{o},\,c_{1}$\}
 = \{\Sexpr{round(cff[1], 4)}, \Sexpr{round(cff[2], 4)}\}, and the
 result for the low-pass-filtered component is \{$d_{0},\,d_{1},\,d_{2},\,d_{3}$\}
 = \{\Sexpr{round(cfs[1],4)}, \Sexpr{round(cfs[2],4)}, \Sexpr{round(cfs[3],4)},
-\Sexpr{round(cfs[4],4)}\}. The coefficient $c_{0}$ is near zero
-as expected and should be omitted. For the composite data set, both
-gave good fits, with residual standard deviations of \Sexpr{round(summary(ff)$sigma, 4)}
+\Sexpr{round(cfs[4],4)}\}. The coefficient $c_{0}$ is forced zero
+as expected for a high-pass-filtered result. For the composite data
+set, both gave good fits, with residual standard deviations of \Sexpr{round(summary(ff)$sigma, 4)}
 and \Sexpr{round(summary(fs)$sigma, 4)} respectively for the high-frequency
 and low-frequency components. The latter is a very good representation
 of the slowly varying component, while the former will be affected
 by real fluctuations in the vertical wind and so is expected to be
-larger. Figure~\ref{fig:filterfit1} shows that the resulting high-frequency
-component matches the reference value very well, while Fig.~\ref{fig:filterfit2}
+larger. Figure~\ref{fig:filterfit} shows that the resulting high-frequency
+component matches the reference value very well, while Fig.~\ref{fig:slow-component}
 shows similar good agreement for the slowly varying component. The
-vertical wind, shown in Fig.~\ref{fig:filterfit3} for ORCAS flight
-6, also appears very good. The deviation in vertical wind near 21:05:00
-UTC appears consistent with a real fluctuation, although it is also
-near where the aircraft passes through 25,000 ft and this often seems
-to correlate with a perturbation in vertical wind. (It is also, perhaps
-coincidentally, the altitude limit for the use of any flaps.) Other
-small perturbations near 20:00:00 are more suspicious and may be remnant
-effects of the aerodynamic effects discussed in the previous section. 
+vertical wind, shown in Fig.~\ref{fig:combined-result} for ORCAS
+flight 6, also appears very good. The deviation in vertical wind near
+21:05:00 UTC appears consistent with a real fluctuation, although
+it is also near where the aircraft passes through 25,000 ft and this
+often seems to correlate with a perturbation in vertical wind. (It
+is also, perhaps coincidentally, the altitude limit for the use of
+any flaps.) Other small perturbations near 20:00:00 are more suspicious
+and may be remnant effects of the aerodynamic effects discussed in
+the previous section. 
 
  The four vertical wind candidates, shown for each flight in plots
 appended to this report, are:
@@ -658,6 +680,7 @@ the low-pass filtered version of the reference angle-of-attack. In
 this case, real fluctuations with duration longer than the cut-off
 period (here, 600~s) are removed, while they are retained in WIYS.
 \end{enumerate}
+\clearpage
 
 
 \section{Recommendation}

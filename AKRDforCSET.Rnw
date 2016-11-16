@@ -1,0 +1,587 @@
+%% LyX 2.2.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage[unicode=true]
+ {hyperref}
+\usepackage{breakurl}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+
+\makeatother
+
+\begin{document}
+\EOLmemo
+\global\addressee={CSET data-processing file}
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}}  & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}}  & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}}  & vertical wind for CSET\tabularnewline
+\end{tabular}
+
+<<CSET-initialization,echo=FALSE,include=FALSE>>=
+
+require(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:", dev='png', dpi=100)
+opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+options(digits=3)
+thisFileName <- "AKRDforCSET"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+require(ggthemes)
+Directory <- DataDirectory ()
+Flight <- "rf01" 			
+Project = "CSET"			 
+ProjectDir <- Project
+fname = sprintf("%s%s/%s%s.nc", Directory,ProjectDir,Project,Flight)
+VarList <- c("ADIFR", "GGVSPD", "VSPD_A", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX", "QCXC")
+## add variables needed to recalculate wind
+VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW", "VNS", "THDG")
+# Data <- getNetCDF (fname, VarList)		#XXX set variables needed here
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+@
+
+<<CSET-construct-dataframe>>=
+
+## compile a composite data.frame 
+ReloadData <- FALSE
+# ReloadData <- TRUE
+Data <- data.frame()
+if (ReloadData) {
+  for (flt in 1:16) {
+    fname = sprintf("%s%s/%srf%02d.nc", DataDirectory(),ProjectDir,Project,flt)
+    fno <- flt
+    D <- getNetCDF (fname, VarList, F=fno)
+    D$DENS <- (D$PSXC * 100) / (StandardConstant('Rd') * (D$ATX+273.15))
+    # D$K <- 100000/(D$DENS * D$TASX^2)
+    # D$K <- 500 / D$QCF
+    D$TF <- as.vector(D$Time-D$Time[1])
+    RFB <- 0.85
+    D <- D[!is.na(D$Time),]
+    LW <- 65000
+    TOW <- LW + as.numeric(D$Time[nrow(D)] - D$Time[1])*RFB
+    D$W <- (TOW-D$TF*RFB)
+    D$K <- (500 / TOW) * (TOW - D$TF * RFB) / D$QCF
+    D$QR <- D$ADIFR / D$QCF
+    D$QR[D$QCF < 20] <- NA
+    D$QR[is.infinite(D$QR)] <- NA
+    D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
+    D$M <- MachNumber (D$PSF, D$QCF)
+    D$WICS <- SmoothInterp (D$WIC)
+    CutoffFreq <- 600
+    Rate <- 1
+    D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
+    D$AOAREFS[is.na(D$AOAREFS)] <- 0
+    D$AOAREFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+    D$AOAREFF <-  D$AOAREF - D$AOAREFS
+    D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
+    D$QRS[is.na(D$QRS)] <- 0
+    D$QRS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
+    D$QRF <-  D$QR - D$QRS
+    D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
+    D$QCFS[is.na(D$QCFS)] <- 0
+    D$QCFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
+    D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
+    D$MS[is.na(D$MS)] <- 0
+    D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+    D$MF <-  D$M - D$MS
+    ## limit to times between first TASX > 90 and last TASX > 90:
+    TS <- D$Time[D$TASX > 90]
+    TS <- TS[!is.na(TS)]
+    B <- TS[1]; E <- TS[length(TS)]
+    D <- D[D$Time >= B & D$Time <= E,]
+    Data <- rbind (Data, D)
+  }
+  save(Data, file=SaveRData)
+} else {
+  load(file=SaveRData)
+}
+
+@
+
+
+\section{The problem in CSET}
+
+The standard processing for vertical wind did not work well for CSET.
+The flights featured frequent climbs and descents, with some low-level
+flight, and the vertical-wind measurements seemed to correlate with
+climbs and descents in ways that were hard to understand. Apparent
+systematic effects during low-level flight and especially during climbs
+seemed to point to some difference in performance of the radome during
+some periods of flight. It appeared plausible that these periods were
+linked to the use of flaps, which could conceivably affect the airflow
+in ways that change the sensitivity coefficients of the radome. This
+was explored in a related study of the ORCAS vertical wind (see \href{https://drive.google.com/open?id=0B1kIUH45ca5ASjU2XzU1U1BmS1k}{this link}),
+so that discussion won't be repeated here. Instead, the approach followed
+in ORCAS after that study will be used here. Otherwise, the structure
+of this memo and the code incorporated here is similar to that for
+ORCAS.
+
+\section{The standard fit}
+
+The first step here will be to re-fit the measurements to the standard
+formula used to represent angle of attack $\alpha$, from the Processing
+Algorithms technical note:
+
+\begin{equation}
+\alpha=c_{0}+\frac{\Delta p_{\alpha}}{q}(c_{1}+c_{2}M)\label{eq:stdAOA}
+\end{equation}
+where $\Delta p_{\alpha}$ is the pressure difference between upward
+and downward ports on the radome (ADIFR), $q$ is dynamic pressure
+(QCF), and $M$ is the Mach number calculated using the uncorrected
+static and dynamic pressure (PSF and QCF). The three coefficients
+specified in that document are $\{c\}=\{4.605,18.44,6.75\}$. The
+approach used here is described in detail in the Wind Uncertainty
+technical note. It is to use a reference value for angle of attack,
+$\alpha^{*}$, defined by
+
+\begin{equation}
+\alpha^{*}=\theta-\frac{w_{p}}{V}\label{eq:alpha-star}
+\end{equation}
+which would equal the angle of attack if the vertical wind were zero,
+and then determine the coefficients in (\ref{eq:stdAOA}) that minimize
+the difference between $\alpha^{*}$ and $\alpha$.
+
+\section{Data used\label{sec:Data-used}}
+
+This memo will use measurements from rf01\textendash rf16 (downloaded
+in Nov 2015). Some data restrictions are needed, for two reasons: 
+\begin{enumerate}
+\item Near the start and end of flights, there are periods where flaps and/or
+landing gear are deployed, leading to large potential errors in angle
+of attack. For CSET, there are frequent climbs and descents, so it
+is best to exclude periods of low-speed flight unless at levels well
+above the surface where they may have arisen in the course of speed
+runs. It appears that if TASX is required to exceed 110~m/s, this
+provides some separation between these two cases, so that will be
+used to qualify data for this study,. For most other projects, 130~m/s
+was used, but in CSET there are some legs flown slower than this so
+110~m/s appears more appropriate. 
+\item Because there are additional potential uncertainties for measurements
+in turns, the data used to determine sensitivity coefficients in the
+following were restricted to cases where the roll was between $-2$
+and $2^{\circ}$. This is also needed for the reference value developed
+below for angle-of-attack to be valid.
+\end{enumerate}
+<<CSET-fits, include=TRUE>>=
+
+SummarizeFit <- function(ft) {
+  print (summary(ft)$call)
+  print ("Coefficients:")
+  print (summary(ft)$coefficients)
+  print (sprintf ("Residual standard deviation: %.3f, dof=%d", summary(ft)$sigma, summary(ft)$df[2]))
+  print (sprintf ("R-squared %.3f", summary(ft)$r.squared))
+}
+
+## temporary: restrict to one flight
+Test <- (Data$RF == 16) & (Data$TASX > 110) & (abs(Data$ROLL) < 2)
+Test[is.na(Test)] <- FALSE
+DF <- Data[Test, ]
+f <- lm (AOAREF~QR+I(QR*M), data=DF)
+cf <- as.vector(coef(f))
+
+@
+
+\section{New coefficients }
+
+\subsection{The standard formula with new coefficients}
+
+A fit of (\ref{eq:stdAOA}) to the data from flight 16 only, qualified
+as in Sect.~\ref{sec:Data-used}, led to best-fit coefficients \{$c_{1--3}$\}
+= \{\Sexpr{cf[1]}, \Sexpr{cf[2]}, \Sexpr{cf[3]}\}. A comparison
+of the angle of attack produced by (1) with these coefficients to
+the reference values given by (\ref{eq:alpha-star}) is shown in Fig.~\ref{fig:CSET-S08summarize-fit1}.
+This representation of the variation in reference angle is quite good,
+and a histogram of the difference (Fig.~\ref{fig:CSET-S08summarize-fit2})
+shows a reasonable distribution but some indication of a bimodal distribution,
+suggesting that perhaps there are different flight modes where the
+sensitivity coefficients are different. The residual standard deviation
+for this fit, \Sexpr{round(summary(f)$sigma,3)}$^{\circ}$, was reasonable
+but affected by that second peak. The standard deviation was reduced
+only slightly (by about 10\%) from the fit that used only the first
+term, but it still appears worthwhile to use this three-coefficient
+fit instead. Several other options were considered, including direct
+dependence on Mach number, air density, pressure, altitude, and powers
+and products of these, but none of these provided significant (>0.01)
+further reduction in the standard deviation of the residuals. Two
+added terms that did give significant reduction were $q$ (QCF) and
+$z$ (GGALT) or $\log(z)$. These are discussed in the next section
+and do provide some improvement in the residual standard deviation
+and in plots like Figs.~\ref{fig:CSET-S08summarize-fit1} and \ref{fig:CSET-S08summarize-fit2}. 
+
+<<CSET-S08summarize-fit, include=TRUE, fig.height=6, fig.cap=c("Calculated value of angle of attack vs the reference value used in the fit.", "Histogram of the difference between the calculated angle of attack and the reference value.")>>=
+
+SummarizeFit(f)
+
+## new angle-of-attack
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M)
+Data$AKSTD <- 4.605 + Data$QR * (18.44 + 6.75 * Data$M)
+DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M)
+plot (DF$AOAREF, DF$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
+lines (c(1,5), c(1,5), lwd=3, lty=2, col='darkorange')
+hist(DF$AK-DF$AOAREF, breaks=100, xlab='fit result for angle of attack minus reference value [deg.]', main=NA)
+
+@
+
+\clearpage
+
+The revised vertical wind based on the new three-coefficient fit can
+be estmated from the previous value (WIC) modified to be WIX=WIC+($\alpha$-AKRD)$\pi$V/180
+where $\alpha$ is given by (1), $V$ is the airspeed and $\pi/180$
+is needed to convert from degrees to radians. Figure~\ref{fig:CSET-S08new-vw}
+shows the result for flight 16 with the addition of this new measurement
+of the vertical wind. The red trace (WIXS, WIX with 60-s smoothing)
+represents the new variable. The standard-coefficient fit with values
+from the Processing Algorithms document (WIS, green line) has an evident
+problem in the center portion of this flight and another of opposite
+sign for 20:00:00\textendash 21:00:00. The new fit (leading to WIX)
+gave better results but still some offsets that look suspicious, so
+a different empirical representation of angle of attack seems needed. 
+
+<<CSET-S08new-vw, include=TRUE, fig.height=4.5, fig.cap="Vertical wind measurements for CSET flight 16. WICS is the original vertical wind in the EOL directory for CSET, WISS is the vertical wind calculated using the standard sensitivity coefficients in the document on processing algorithms, and WIXC is the vertical wind based on the new three-coefficient fit. All have been smoothed (about 20-s time constant) to reduce scatter over this plot, which spans the full flight.">>=
+
+Data$WIX <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WISTD <- Data$WIC + (Data$AKSTD - Data$AKRD) * pi * Data$TASF / 180
+Data$WIXS <- SmoothInterp (Data$WIX)
+Data$WISS <- SmoothInterp (Data$WISTD)
+# DataW <- Data
+# DataW <- WindProcessor(DataW) ## WIN is now based on ATTACK as in the netCDF file
+# Data$WICN <- DataW$WIN
+# DataW <- Data
+# DataW$ATTACK <- DataW$AKRD <- DataW$AK       ## replace by new-cal-coef value
+# DataW <- WindProcessor(DataW)  ## will then have both WICN (old value) and WIN (new value)
+# Data$WIN <- DataW$WIN
+# Data$WICNS <- SmoothInterp (Data$WICN)
+# Data$WINS  <- SmoothInterp (Data$WIN)
+V <- c("Time", "WICS", "WISS", "WIXS")  ## WICS is original-WIC-smoothed, WIX is new, WIXS is new smoothed
+# could also include WICN (original through processor) and WIN (new through processor)
+D16 <- Data[Data$RF == 16, ]
+plotWAC(D16[, V], col=c('blue', 'darkgreen', 'red'), lwd=c(3,2,1),legend.position='top')
+
+@
+
+<<CSET-revised-fit, include=TRUE, dev='png', fig.cap=c('Revised fit using data from CSET for all flights, qualified as described in the text. This fit includes dependence on QCF, and log(GGALT).', 'Histogram of the difference between the two estimates of angle of attack, as represented by the fit and as represented by the reference value.', 'Vertical wind for CSET flight 16, calculated using the angle-of-attack calculated as in the preceding two figures where QCF and log(GGALT) were added terms in the fit.')>>=
+
+## eliminate 600 s at start and end of flights to avoid filter start-up deviations
+DF <- data.frame()
+best <- c(1,2,3,4,6,10,12,16)
+for (flt in best) {
+  D <- Data[Data$RF == flt, ]
+  D <- D[601:(nrow(D)-600), ]
+  DF <- rbind (DF, D)
+}  
+DF <- DF[DF$TASX > 110 & abs(DF$ROLL) < 2, ]
+# Test <- Test & Data$K/Data$AOAREF > 1.45
+f <- lm (AOAREF~QR+I(QR*M)+QCF+I(log(GGALT)), data=DF)
+cf <- as.vector(coef(f))
+cfk <- cf  ## save for use in text
+# SummarizeFit(f)
+Data$AK <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$M) + cf[4] * Data$QCF + cf[5]*log(Data$GGALT)
+Data$WIK <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WIKS <- SmoothInterp (Data$WIK)
+DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M) + cf[4] * DF$QCF + cf[5]*log(DF$GGALT)
+plot (DF$AOAREF, DF$AK, pch=20, col='blue', xlab='Reference Value [deg.]', ylab='Calculated Value from (1)')
+lines (c(1,5), c(1,5), lwd=3, lty=2, col='darkorange')
+hist(DF$AK-DF$AOAREF, breaks=200, xlim=c(-1,1), main=NA)
+with (Data[Data$RF == 16,], plotWAC(data.frame(Time, WICS, WIKS), col=c('blue', 'red'), ylab='W [m/s]', ylim=c(-2,2), legend.position='top'))
+title('CSET Flight 16')
+## now do it again for the composite data-set, with 2 coefficients, for later filtering
+## this is commented now because filtering is done another way
+# f <- lm (AOAREF~QR, data=DF)
+# cf <- as.vector(coef(f))
+# SummarizeFit(f)
+# Data$AKF <- cf[1] + Data$QR * cf[2]
+# Data$WIX <- Data$WIC + (Data$AKF-Data$AKRD)*pi*Data$TASF/180.
+# Data$WIXS <- SmoothInterp (Data$WIX)
+
+@
+
+\subsection{A fit involving additional terms\label{subsec:five-coef}}
+
+The study of aerodynamic effects in ORCAS suggested that an improved
+fit might be obtained by including the variable QCF in the empirical
+representation of angle of attack. When this was tested, there was
+a significant improvement in the fit, with a linear rather than inverse
+dependence providing lower residual standard deviation. The added
+term log(GGALT) also provided some small additional improvement. Figures~\ref{fig:CSET-revised-fit1}
+and \ref{fig:CSET-revised-fit2} show that a significantly improved
+fit is obtained when dependence on QCF and log(GGALT) is included.
+The resulting vertical wind (Fig.~\ref{fig:CSET-revised-fit3}) also
+shows important improvement over the vertical wind shown in Fig.~\ref{fig:CSET-S08new-vw},
+calculated without inclusion of the additional factors. The single
+fit to the set of all flights listed above provided a reasonably consistent
+representation of vertical wind, as will be shown later, which is
+an indication of consistent radome performance throughout the project.
+The following representation of angle of attack is a good candidate
+for representing vertical wind in CSET:\\
+\begin{equation}
+\alpha=a_{0}+\frac{\mathrm{ADIFR}}{\mathrm{QCF}}\left(a_{1}+a_{2}M\right)+a_{3}\mathrm{QCF}+a_{4}\ln(\mathrm{GGALT)}\label{eq:QCFfit}
+\end{equation}
+where the coefficients \{$a_{0}--a_{4}$\} are \{\Sexpr{round(cfk[1],4)},
+\Sexpr{round(cfk[2],4)}, \Sexpr{round(cfk[3],4)}, \Sexpr{round(cfk[4],5)},
+\Sexpr{round(cfk[5],6)}\}. This gave a residual standard deviation
+of \Sexpr{round(summary(f)$sigma, 2)}~$^{\circ}$, which is reasonable
+in comparison to other GV projects.\\
+
+
+\subsection{Fitting high-frequency and low-frequency components separately\label{subsec:Fitting-high-frequency-and}}
+
+Still another approach is tried next. It is based on representing
+the high-frequency and low-frequency contributions to angle of attack
+separately. The reason for this approach is that the fluctuations
+and the offset in angle of attack seem to require different representations,
+so a single representation like that in (\ref{eq:stdAOA}) or (\ref{eq:QCFfit})
+has difficulty matching both the amplitude of fluctuations and the
+variation of the mean during the flight. Separating the contributions
+into two components and fitting them separately might provide a better
+representation of the angle of attack.
+
+The steps are these:
+\begin{enumerate}
+\item Separate $\alpha^{*}$ into two components using a low-pass filter
+for the slowly varying component and the complementary high-pass filter
+for the fast-varying component, so that $\alpha^{*}=\alpha_{f}^{*}+\alpha_{s}^{*}$.
+Here a cutoff frequency corresponding to a period of 600~s will be
+used.. Also calculate similar low-pass-filtered and high-pass-filtered
+values for the variables $A=\Delta p_{\alpha}/q$ (ADIFR/QCF) and
+$M$ (Mach number), and also $q$ (QCF) for possible use in fitting.. 
+\item For the high-frequency component, find a representation having the
+simple form\\
+\begin{equation}
+\alpha_{f}^{*}=c_{0}+c_{1}A_{f}\label{eq:AKfast}
+\end{equation}
+For this fit, restrict the measurements to be fit to TASX>110 and
+|ROLL|<2, and to avoid end effects of the filter exclude times within
+one filter time constant from the start and end of the time series.
+The time-series selection before this elimination of the starting
+and ending periods extended from the first to the last time that TASX
+exceeded 90~m/s, to eliminate periods when the aircraft was still
+on the ground. This functional form was found to be adequate and additional
+terms (e.g., involving the third standard coefficient) were not needed.
+\item For the low-frequency component, use a more complicated 5-coefficient
+fit, which leads to a significant improvement over the two-coefficient
+fit:\\
+\begin{equation}
+\alpha_{s}^{*}=d_{0}+d_{1}A_{s}+d_{2}(A_{s}M_{s})+d_{3}M_{s}+d_{4}q_{s}\label{eq:AKslow}
+\end{equation}
+\end{enumerate}
+Then find the resulting parameterized representation of the angle
+of attack from the sum of these equations:\\
+\begin{equation}
+\alpha=c_{0}+c_{1}A_{f}+d_{0}+d_{1}A_{s}+d_{2}A_{s}M_{s}+d_{3}M_{s}+d_{4}q_{s}=\alpha_{f}+\alpha_{s}\label{eq:AKsum}
+\end{equation}
+
+<<CSET-filterfit, include=TRUE, fig.cap=c('The high-pass value of the reference angle $\\alpha^*_f$ plotted vs. the high-pass version of the ratio of ADIFR to QCF, for CSET flight 16.', 'The low-pass component of the reference AOAREFS and the result from the fit to this component for the five-coefficient fit (AKS), for CSET flight 16.', 'The vertical wind obtained for CSET flight 16 by calculating the two filtered components separately and adding them to obtain the angle of attack (red line). Also shown is the fit result obtained using the five-coefficient fit from the previous section (green line) and the result of filtering WIK (cyan line).')>>=
+
+#DF <- DF[DF$Test > 1.45,]
+ff <- lm(AOAREFF ~ 0 + QRF, data=DF)  # "0 +" suppresses constant term
+cff <- coef(ff)
+SummarizeFit(ff)
+with(DF, plot (QRF, AOAREFF, pch=20, xlim=c(-0.07,0.11), ylim=c(-1.5, 2.2)))
+xf <- c(-0.1, 0.2)
+yf <- cff[1]*xf
+lines (xf, yf, col='darkorange', lwd=2, lty=2)
+fs <- lm(AOAREFS~QRS+I(QRS*MS)+MS+QCFS, data=DF)
+cfs <- coef (fs)
+SummarizeFit (fs)
+Data$AKF <- cff[1] * Data$QRF
+Data$AKS <- cfs[1] + cfs[2] * Data$QRS  + cfs[3] * Data$QRS * Data$MS + cfs[4] * Data$MS+ cfs[5] * Data$QCFS
+D16 <- Data[Data$RF == 16, ]
+D16$AKS[1:600] <- NA
+D16$AKS[(nrow(D16)-600):nrow(D16)] <- NA
+with (D16, plotWAC (data.frame (Time, AOAREFS, AKS), ylab='slow component [deg.]'))
+Data$AK <- Data$AKS + Data$AKF
+Data$WIY <- Data$WIC + (Data$AK-Data$AKRD)*pi*Data$TASF/180.
+Data$WIYS <- SmoothInterp (Data$WIY)
+Data$WIF <- Data$WIC + (Data$AKF+Data$AOAREFS-Data$AKRD)*pi*Data$TASF/180.
+Data$WIF <- Data$AKF * Data$TASF * pi/180
+Data$WIFS <- SmoothInterp (Data$WIF)
+nf <- 16
+with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WICS, WIKS, WIFS, WIYS), ylim=c(-2,2), 
+                                       lwd=c(2,2,2,1), col=c('blue', 'darkgreen', 'cyan', 'red'),
+                                       legend.position='top'))
+abline (h=0, col='darkorange')
+with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], 
+        title (sprintf ('CSET flight %d, mean WIK %.2f WIY %.2f WIF %.2f', nf, 
+        mean (WIK, na.rm=TRUE), mean (WIY, na.rm=TRUE), mean (WIF, na.rm=TRUE))))
+
+@
+
+All flights were used for this fit. The result for the high-frequency
+fit is \{$c_{o},\,c_{1}$\} = \{0, \Sexpr{round(cff[1], 4)}\}, and
+the result for the low-pass-filtered component is \{$d_{0},\,d_{1},\,d_{2},\,d_{3}$\}
+= \{\Sexpr{round(cfs[1],4)}, \Sexpr{round(cfs[2],4)}, \Sexpr{round(cfs[3],4)},
+\Sexpr{round(cfs[4],4)}\}. The coefficient $c_{0}$ is forced to
+be zero and should be omitted. For the composite data set, both gave
+good fits, with residual standard deviations of \Sexpr{round(summary(ff)$sigma, 4)}
+and \Sexpr{round(summary(fs)$sigma, 4)} respectively for the high-frequency
+and low-frequency components. The latter is a very good representation
+of the slowly varying component, while the former will be affected
+by real fluctuations in the vertical wind and so is expected to be
+larger. Figure~\ref{fig:CSET-filterfit1} shows that the resulting
+high-frequency component matches the reference value very well, while
+Fig.~\ref{fig:CSET-filterfit2} shows similar good agreement for
+the slowly varying component. The vertical wind, shown in Fig.~\ref{fig:CSET-filterfit3}
+for CSET flight 16, also appears very good.
+
+ The four vertical wind candidates, shown for each flight in plots
+appended to this report, are:
+\begin{enumerate}
+\item (blue) WICS: The original vertical wind in the EOL files.
+\item (green) WIKS: The vertical wind determined by fits that include two
+additional terms, using data from all CSET flights to determine one
+5-coefficient all-project fit and then applying that result to all
+flights. The added terms in the fit are QCF and log(GGALT).
+\item (red) WIYS: The vertical wind determined by separating angle-of-attack
+into two components by complementary filtering and then fitting the
+two components separately, before adding the result. This differs
+from the next component, WIFS, in representing the low-frequency component
+by a fit to the calibration data (that assumes vertical wind of zero)
+rather than eliminating it as in WIFS. 
+\item (cyan) WIFS: The filtered vertical wind determined from the high-frequency
+component in WIYS, with the low-frequency component represented by
+the low-pass filtered version of the reference angle-of-attack. In
+this case, real fluctuations with duration longer than the cut-off
+period (here, 600~s) are removed, while they are retained in WIYS.
+\end{enumerate}
+
+
+\section{Recommendation}
+
+The variable WIY appears to be the best representation of vertical
+wind, but there is little difference between WIY and WIK so WIY might
+support the use of WIK. The disadvantage of WIY is that it requires
+post-processing because it involves filtering to determine the two
+components that enter the result, application of empirical coefficients
+separately to the two components, and summing the results. The result,
+however, is not a filtered result, and it will not distort from real
+offsets in the vertical wind except as they affect the estimation
+of the empirical coefficients. This variable then appears better than
+straight high-pass filtering of the vertical wind. A post-processing
+step similar to that used in HIPPO-5 could be developed to implement
+this scheme, with appropriate coefficients as listed in Sect.~\ref{subsec:Fitting-high-frequency-and}.
+The variable WIK, however, is almost as good and has the significant
+advantage that it would be incorporated into the first-pass processing.
+The appropriate formula and coefficients are listed at the end of
+Sect.~\ref{subsec:five-coef}.
+
+\clearpage{}
+\begin{center}
+\textsf{\textcolor{blue}{\textendash{} End of Memo \textendash{}}} 
+\par\end{center}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}}  & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}}  & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}}  & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{This document:}}}  & \Sexpr{thisFileName}.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow:}}}  & not available, but see WorkflowAKRDforORCAS.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}}  & /scr/raf\_data/CSET/CSETrf01.nc, etc \tabularnewline
+\textsf{\textsc{\textcolor{blue}{Data Archive:}}}  & NCAR HPSS (not github) \Sexpr{thisFileName}.Rdata\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}}  & https://github.com/WilliamCooper/Reprocessing.git \textendash{} see
+above files\tabularnewline
+\end{tabular}
+
+\attachm{AKRDforCSET.Rnw\\AKRDforCSET.pdf\\SessionInfo} 
+
+<<CSET-plot-all, include=TRUE, fig.cap='Plots for each CSET flight showing the four candidates for vertical wind.'>>=
+
+layout(matrix(1:2, ncol = 1), widths = 1, heights = c(5,6))
+for (nf in 1:16) {
+  op <- par (mar=c(2,4,1,1)+0.1)
+  # with (Data[Data$RF == nf,], plotWAC(data.frame(Time, AKS, AOAREFS), legend.position='topright'))
+  with (Data[Data$RF == nf, ], plotWAC(data.frame(Time, WIKS, WIYS), ylim=c(-2,2), 
+                                       lwd=c(2,1), col=c('darkgreen', 'red'),
+                                       legend.position='top'))
+  abline (h=0, col='darkorange')
+  with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], 
+        title (sprintf ('CSET flight %d, mean WIK %.2f WIY %.2f WIF %.2f', nf, 
+        mean (WIK, na.rm=TRUE), mean (WIY, na.rm=TRUE), mean (WIF, na.rm=TRUE))))
+
+  op <- par (mar=c(5,4,1,1)+0.1)
+  with (Data[Data$RF == nf & Data$TASX > 110 & abs(Data$ROLL) < 2, ], plotWAC(data.frame(Time, WICS, WIFS), ylim=c(-2,2), 
+                                       lwd=c(2,1), col=c('blue', 'cyan'),
+                                       legend.position='top'))
+  abline (h=0, col='darkorange')
+}
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+
+@
+
+<<save-system-info, echo=FALSE>>= 
+
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+
+system (sprintf("zip %s.zip %s.Rnw %s.pdf SessionInfo", thisFileName, thisFileName, thisFileName))
+
+@ 
+
+<<make-workflow-diagram, echo=FALSE, eval=FALSE>>=
+
+library(DiagrammeR)
+grViz ("DG-ORCAS.dot", engine='dot')
+
+@
+\end{document}
