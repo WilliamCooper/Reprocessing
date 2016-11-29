@@ -119,7 +119,7 @@ Al Cooper
 \end_layout
 
 \begin_layout Date
-RAF Presentation 14 November 2016
+RAF Presentation 21 November 2016
 \end_layout
 
 \begin_layout Standard
@@ -216,7 +216,7 @@ status open
 
 \begin_layout Plain Layout
 
-<<initialization, include=FALSE, echo=FALSE>>=
+<<initialization, include=FALSE, fig.height=3,echo=FALSE>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -805,7 +805,7 @@ status open
 \begin_deeper
 \begin_layout Standard
 The fluctuating component may be universal, while the slowly varying component
- is likely project-dependent.
+ imight be project-dependent.
 \end_layout
 
 \end_deeper
@@ -1931,6 +1931,69 @@ status open
 \end_layout
 
 \end_deeper
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+THE HIGH-FREQUENCY COMPONENT (another view):
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Selected flights from DEEPWAVE, CSET, ORCAS
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vskip-4.7cm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename /home/cooperw/ProcessingAlgorithms/figure/fit-highpass-1.png
+	lyxscale 50
+	width 90text%
+	height 80theight%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Standard
 \begin_inset Separator plain
 \end_inset
@@ -2123,7 +2186,7 @@ Representing the slowly varying component
 
 \begin_layout Enumerate
 To avoid bias, would like to omit regions with real updraft from this fit.
- (Return to this.)
+ (Iterate?)
 \end_layout
 
 \begin_layout Enumerate
@@ -3436,10 +3499,330 @@ Single-pass
 filtering: Will have a disadvantage; probably very little difference vs
  forward/backward.
  
-\color red
-Need to test this
-\color inherit
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+SINGLE vs TWO-PASS FILTER
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Block
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+ORCAS flight 11
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<single-vs-two, include=TRUE, fig.height=3.5,fig.cap=''>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+D <- getNetCDF ('/Data/ORCAS/ORCASrf11F.nc', c('WIY', 'WIC', 'WIS', 'WIF'))
+\end_layout
+
+\begin_layout Plain Layout
+
+with (D[setRange(D, 200000, 210000), ], {
+\end_layout
+
+\begin_layout Plain Layout
+
+      plotWAC (data.frame(Time, WIY, WIS, 
+\end_layout
+
+\begin_layout Plain Layout
+
+               100*(WIS-WIY)), lwd=c(1,1,3), lty=c(1,1,2), ylim=c(-2,2))
+\end_layout
+
+\begin_layout Plain Layout
+
+       mY <<- mean (WIY, na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+       mS <<- mean (WIS, na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+       sY <<- sd (WIY, na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+       sS <<- sd (WIS, na.rm=TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+  })
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+WIY mean and standard deviation 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(mY, 3)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(sY, 3)}
+\end_layout
+
+\end_inset
+
+;
+\begin_inset Newline newline
+\end_inset
+
+WIS mean and standard deviation 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(mS, 3)}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{round(sS, 3)}
+\end_layout
+
+\end_inset
+
 .
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+VARIANCE SPECTRA, SINGLE vs TWO-PASS FILTER
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vskip-0.2cm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Block
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+blue: WIY; green: WIS; brown: WIF; red: WIY unsmoothed
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename MEMPlotYSF.png
+	lyxscale 50
+	width 75text%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+RECOMMENDATION
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout SummaryBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+Change routine processing:
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+New complementary filter, (1/600)
+\begin_inset space ~
+\end_inset
+
+Hz, similar to horizontal-wind complementary filter.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Apply to (ADIFR/QCF) and QCF.
+\end_layout
+
+\begin_layout Enumerate
+Use separate fit coefficients for low-pass and high-pass components.
+\end_layout
+
+\begin_layout Enumerate
+Sum to get the result for angle of attack.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Replace WIC with this new value (WIY in this memo) and replace AKRD with
+ this new value (AKY here).
+\end_layout
+
+\begin_layout Enumerate
+Optionally, include WIF (high-pass-filtered WIC) and 
+\begin_inset Newline newline
+\end_inset
+
+WIX <- WIC.
+\end_layout
+
+\end_deeper
+\begin_layout Block
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+FOR ORCAS AND CSET?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Maybe use the values already produced, while the new capability is developed
+ and tested?
+\end_layout
+
+\begin_layout Itemize
+See files in /scr/raf_data/ORCAS/WAC and .../CSET/WAC, Also, DEEPWAVE, CONTRAST,
+ MPEX.
 \end_layout
 
 \end_deeper
