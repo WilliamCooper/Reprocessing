@@ -86,7 +86,6 @@ ui <- fluidPage (
 server <- function (input, output, session) {
   
   observe({
-    print (input$Rplot)
     vp <- switch (input$Rplot,
       'track' = 1,
       'temperature' = 3,

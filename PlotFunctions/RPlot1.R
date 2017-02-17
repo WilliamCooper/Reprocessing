@@ -1,6 +1,6 @@
 ### plot 1: construct flight track with map
 RPlot1 <- function (data, Flight=NA, Seq=NA) { 
-  ## needs LATC, LONC, WDC, WSC, GGALT
+  ## needs LATC, LONC, WDC, WSC, GGALT, PSXC
   op <- par (mfrow=c(1,1), mar=c(5,5,2,2)+0.1,oma=c(1.1,0,0,0))
   plotTrack(data, .Spacing=60, .WindFlags=10)
   AddFooter ()
