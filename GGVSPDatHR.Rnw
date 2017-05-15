@@ -1,0 +1,350 @@
+%% LyX 2.2.2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt,english]{report}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{verbatim}
+\usepackage{graphicx}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\topicofnote} \global\topicofnote={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Aircraft Algorithm Memo re: \the\topicofnote \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\RAFAlgorithmMemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Research Aviation Facility}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Algorithm Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.2truein\leftline{\textcolor{blue}{\textsf{Subject: \the\topicofnote}}}
+\leftline{\textcolor{blue}{\textsf{Al Cooper}}}
+\leftline{\textcolor{blue}{\textsf{\datetoday}}} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+\begin{comment}
+set topicofnote to topic of note
+\end{comment}
+
+\topicofnote={Recommended alternative to GGVSPD}
+
+\RAFAlgorithmMemo
+
+\section*{Background}
+
+In recent processing, GGVSPD has been the variable used for rate-of-climb
+of the aircraft when WIC is calculated. Recently, when producing high-rate
+output for the WINTER project, Cory Wolff noticed that the variance
+spectra for WIC seemed to have a suspicious ``hump'' in the 1\textendash 10~Hz
+range of frequencies. An example is shown in Fig.~1. (Note that the
+spectrum weighted by frequency is shown to emphasize the peak at around
+3~Hz.) The source of this peak is a similar peak in GGVSPD, which
+enters the calculation of vertical wind ($w$) directly as can be
+seen from the approximate formula for $w$:\\
+\begin{equation}
+w=w_{p}+V\thinspace\tan(\alpha-\theta)\label{eq:w-formula}
+\end{equation}
+where $w_{p}$ is the upward motion of the aircraft (here, GGVSPD),
+$V$ the airspeed, $\alpha$ the angle of attack and $\theta$ the
+pitch. Cory found that this peak was not always present in the WINTER
+flights but was particularly prominent in flight 10. The feature is
+usually present in GGVSPD but its importance varies because in most
+cases the second term on the right side of (1), arising from the measured
+relative wind, dominates and obscures the peak in the spectrum of
+GGVSPD. It only appears in WIC in cases of low turbulence where the
+second term on the right side of (1) makes a smaller contribution
+than the first term dependent on $w_{p}$.
+
+With Chris Webster, Cory and I investigated GGVSPD as it appears from
+various processing schemes. GGVSPD is measured at 10~Hz, so the production
+of 25-Hz WIC requires that the variable be converted to 25 Hz by interpolation.
+When nimbus is used to produce 25-Hz output, the calculation of the
+vertical wind at 25~Hz is the same regardless of what choice is made
+for output of GGVSPD, whether 1~Hz, 10~Hz or 25~Hz. However, the
+spectrum obtained for GGVSPD does depend on the output rate for GGVSPD,
+as shown in the next figure where the blue line is the spectrum for
+GGVSPD output at 10~Hz and the red line the spectrum for 25-Hz output.
+\begin{center}
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.65\textwidth]{WICspectrumWINTERrf10h}
+\par\end{centering}
+\caption{Variance spectrum for the variable WIC for WINTER flight 10, 6:00:00\textendash 7:00:00.
+This was the result of nimbus 25-Hz processing.}
+\end{figure}
+\par\end{center}
+
+This figure suggests two conclusions:
+\begin{enumerate}
+\item The noise in GGVSPD around 3~Hz is present in the sample-rate measurements
+at 10~Hz, so it cannot be attributed entirely to the procedure used
+to interpolate to 25 Hz.
+\item Because the 25-Hz spectrum has a larger amount of noise, the interpolation
+to 25~Hz apparently does introduce additional noise.
+\end{enumerate}
+\begin{center}
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.65\textwidth]{GGVSPDspecWINTERrf10}
+\par\end{centering}
+\caption{Variance spectra for two measurements of GGVSPD, one (red line) from
+25-Hz output and the other (blue line) obtained from sample-rate output
+at 10~Hz.}
+\end{figure}
+\par\end{center}
+
+The remainder of this note explores alternatives for reducing the
+spectral peak at 3~Hz that appears in GGVSPD.
+
+\section*{Alternatives to Consider}
+
+These options are discussed here:
+\begin{enumerate}
+\item Simply smoothing GGVSPD to remove the apparent noise.
+\item Using a complementary-filter approach where the slow component is
+GGVSPD (or, for generality extending back before GGVSPD was available,
+differentiated GGALT) and the fast component is integrated vertical
+acceleration (ACINS).
+\item Using a baro-loop-style updating of the INS output to GPS altitude
+instead of pressure altitude.
+\item Using the variable ROC that I recently discussed in an RSIG meeting
+and documented.
+\end{enumerate}
+In Cory's case (WINTER), option 4 won't work because there are frequent
+spikes in the pressure signal\footnote{This is a separate problem not addressed in this memo, but it appears
+to be serious and is worth further attention.} that contaminate the ROC variable and because, at high rate, the
+differentiated pressure is noisy. The other three appear to be reasonable
+alternatives and will be explored and documented in the following
+sub-sections of this memo.
+
+\subsection*{Smoothing GGVSPD to remove the noise}
+
+Applying a weak filter to GGVSPD would be fairly simple to implement
+but is perhaps the least satisfactory because it requires assuming
+that the high-frequency component of GGVSPD (above 1~Hz) is false
+and should be attenuated. GGVSPD is sampled at 10~Hz so there is
+a possibility of aliasing of higher frequency components, including
+any aircraft vibration caused by the props, into the problematic region
+around 3~Hz unless some filtering is imposed to control it. To illustrate
+that this would be effective, the measurements from the same flight
+used for the earlier figures (WINTER flight 10, 6:00:00\textendash 7:00:00
+UTC) were processed with smoothing by Savitzky-Golay third-order polynomials
+with various lengths and the results were compared to the original
+values produced by 25-Hz processing. Figure ~3 shows three variance
+spectra for GGVSPD: (i) GGVSPD25, the original 25~Hz spectrum produced
+by nimbus; (ii) GGVSPD, obtained by using the sample-rate (10-Hz)
+measurements of GGVSPD interpolated to 25~Hz and smoothed with length-21
+Savitzky-Golay polynomials; and (iii) the same but using length-15
+polynomials. The corresponding results for vertical wind are shown
+in Fig.~4. Both smoothed results look acceptable, so it may be preferable
+to use the smaller smoothing length. The approximate smoothing period
+for a 15-point polynomial is 5 points or, used with a constructed
+25-Hz variable, about 5~Hz or the Nyquist frequency of the original
+measurements. This is added justification for this choice, so the
+choice leading to WICA in Fig.~4 (the cyan line) is recommended.
+This leads to a reasonable variance spectrum for vertical wind and
+does not have an unreasonable effect on a true signal for frequencies
+below 1~Hz.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.7\textwidth]{MEMPlotGGVSPD}
+\par\end{centering}
+\caption{Variance spectra for the rate-of-climb of the aircraft during the
+segment of WINTER flight 10 from 6:00:00 to 7:00:00. The original
+spectrum produced by nimbus is the red line, variable GGVSPD25, and
+the two other lines are the result of interpolating the sample-rate
+(10-Hz) measurements of GGVSPD to 25~Hz and then smoothing with third-order
+Savitzky-Golay polynomials with length 21 (GGVSPD) or length 15 (GGVSPDa).}
+
+\end{figure}
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.7\textwidth]{MEMPlotWICWINTER}
+\par\end{centering}
+\caption{The vertical-wind measurements that result from using the three values
+of rate-of-climb shown in Fig.~3.}
+
+\end{figure}
+
+Implementation is straightforward in R but would be more difficult
+in nimbus because the Savitzky-Golay polynomials used for this calculation
+are centered rather than recursive filters. There may be a possible
+replacement filter, but my exploration did not find a good substitute.
+Implementation of this option in nimbus would therefore take more
+study, but it would be quite straightforward to implement this in
+a second-pass calculation. For that purpose, the initial 25-Hz files
+should be produced with 10-Hz GGVSPD, and then the second pass would
+interpolate to 25~Hz and then apply the Savitzky-Golay filter before
+recalculating the vertical wind. Because (\ref{eq:w-formula}) is
+a good approximation, the new vertical wind can be calculated by simply
+subtracting the GGVSPD variable as originally used and then adding
+back the new GGVSPD variable.
+
+<<initialization, include=FALSE>>=
+
+library(Ranadu)
+library(knitr)
+library(reshape2)
+library(grid)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=4.7, fig.pos="center", digits=4)
+thisFileName <- "GGVSPDatHR"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+VarList <- c('PSXC', 'ATX', 'GGALT', 'LATC', 'GGVSPD', 'ACINS', 'WIC', 'SSLIP')
+VarList <- c(VarList, 'PITCH', 'ATTACK', 'GGVEW', 'GGVNS', 'VEW', 'VNS', 'TASX', 'THDG', 'ROLL')
+
+@
+
+<<get-data>>=
+
+Project <- 'WINTER'
+Flight <- 10
+Rate <- 25
+source('~/RStudio/Ranadu/R/getNetCDF.R')  ## restore -- not necessary
+## HR is produced with sample-rate GGVSPD (10 Hz); H with 25 Hz GGVSPD
+Data <- getNetCDF(sprintf('%s%s/%srf%02dHR.nc', DataDirectory (), Project, Project, Flight), VarList)
+Data$WIC <- zoo::na.approx (as.vector(Data$WIC), maxgap=1000, na.rm=FALSE)
+Data$WICorig <- Data$WIC  ## save to use later
+DNEW <- WindProcessor (Data)
+Data$WICC <- DNEW$WIN  ## recalculated WIC using GGVSPD as interp. in getNetCDF
+D <- getNetCDF(sprintf('%s%s/%srf%02dH.nc', DataDirectory (), Project, Project, Flight), VarList)
+D$WIC <- zoo::na.approx (as.vector(D$WIC), maxgap=1000, na.rm=FALSE)
+Data$GGVSPD25 <- D$GGVSPD  ## the 25-Hz version from nimbus
+Data$WIC25 <- D$WIC        ## " " "
+source('~/RStudio/Ranadu/R/getNetCDFv2.R')  ## uses 15-pt SG filter instead of 21-pt
+D <- getNetCDF(sprintf('%s%s/%srf%02dHR.nc', DataDirectory (), Project, Project, Flight), VarList)
+Data$GGVSPDa <- D$GGVSPD
+Data$WICA <- Data$WIC + Data$GGVSPDa - Data$GGVSPD25
+Data$WIC <- Data$WIC + Data$GGVSPD - Data$GGVSPD25
+# unlink('/Data/WINTER/WINTERrf10z.nc')
+# makeNetCDF(Data, '/Data/WINTER/WINTERrf10z.nc')
+source('~/RStudio/Ranadu/R/getNetCDF.R')  ## restore 
+
+@
+
+\subsection*{A complementary filter approach }
+
+<<pressure-derivative, include=FALSE, fig.cap='Comparison of GPS-provided rate of climb (GGVSPD) and that calculated from the complementary filter.'>>=
+
+## update to GGVSPD instead
+Data$WPSTAR <- cumsum(Data$ACINS / Rate)
+Data$WPSTAR <- zoo::na.approx (as.vector(Data$WPSTAR), maxgap=1000, na.rm=FALSE)
+Data$WPSTAR <- ShiftInTime(Data$WPSTAR, .shift=-20)
+Data$DIF <- Data$GGVSPD - Data$WPSTAR
+Data$DIF <- zoo::na.approx (as.vector(Data$DIF), maxgap=1000, na.rm=FALSE)
+tau <- 25  ## 10 s
+Data$DIFW <- signal::filter (signal::butter (3, 2/tau), Data$DIF)
+Data$ROCG <- Data$WPSTAR + Data$DIFW
+tau <- 50
+Data$DIFW <- signal::filter (signal::butter (3, 2/tau), Data$DIF)
+Data$ROCG50 <- Data$WPSTAR + Data$DIFW
+tau <- 10
+Data$DIFW <- signal::filter (signal::butter (3, 2/tau), Data$DIF)
+Data$ROCG10 <- Data$WPSTAR + Data$DIFW
+# with(Data, plotWAC(data.frame (Time, GGVSPD, ROCG), ylab='rate of climb'))
+SE <- getStartEnd (Data)
+i1 <- 7500; i2 <- nrow(Data) - 7500
+R <- i1:i2
+meanw <- with (Data[R,], mean (ROCG-GGVSPD, na.rm=TRUE))
+sdw   <- with (Data[R,], sd   (ROCG-GGVSPD, na.rm=TRUE))
+Data$WIR <- Data$WICorig + Data$ROCG - Data$GGVSPD25
+Data$WIR50 <- Data$WICorig + Data$ROCG50 - Data$GGVSPD25
+Data$WIR10 <- Data$WICorig + Data$ROCG10 - Data$GGVSPD25
+DTemp <- Data
+DTemp$GGVSPD <- Data$ROCG
+DNEW <- WindProcessor(DTemp)
+Data$WIRC <- DNew$WIN
+unlink('/Data/WINTER/WINTERrf10z.nc')
+makeNetCDF(Data, '/Data/WINTER/WINTERrf10z.nc')
+
+@
+
+A second alternative is to use GGVSPD or differentiated GGALT as the
+slow reference for the integrated acceleration.\footnote{The advantage of using GGALT is that it is present in many past projects
+while GGVSPD is a recent addition to the list of variables. Differentiation
+of GGALT has verified that, at least at low rate, a result equivalent
+to GGVSPD is obtained after an appropriate time shift.} Then a new variable ROCG ($w_{p}^{\prime})$ can be defined as\\
+\[
+w_{p}^{*}[i]=\sum_{1}^{i}(a_{j}\Delta t)
+\]
+\begin{equation}
+w_{p}^{\prime}=w_{p}^{*}\left(1-F_{s}\right)+F_{s}w_{p}\label{eq:ROCG}
+\end{equation}
+which shows the complementary-filter nature of the variable. In this
+formula, $w_{p}^{*}$ is the result of integrating the acceleration
+from the INS (with measurements separated in time by $\Delta t=0.04$~s
+for high-rate measurements) and $w_{p}$ is GGVSPD. The function $F_{s}$
+is a low-pass filter, taken here as a Butterworth filter with cutoff
+period of 10~s. This variable then incorporates the accuracy of GGVSPD
+at low frequency with the fast-response of the INS at high frequency.
+Like the other complementary filter used for horizontal wind, this
+works best if the cutoff period is selected at a point where the signals
+are the same so that any phase shift or imprecision at the transition
+point is compensated by the combination of identical signals. The
+result is a rate-of-climb measurement that does not have the erroneous
+3-Hz peak in the variance spectrum.
+
+The next figure shows that this removes the noise peak from WIC. The
+red line is the original measurement WIC and the blue line is the
+vertical wind recalculated with ROCG as defined by (2).
+\begin{center}
+\includegraphics[width=0.65\textwidth]{WICandWINspecWINTERrf10}
+\par\end{center}
+
+\clearpage{}
+
+\section*{\emph{Recommendation}}
+
+The problem Cory identified appears to exist in high-rate files from
+many projects. See, for example, CSETrf06hrt.nc, 19:33:00\textendash 19:53:00.
+Although it is often masked by dominating relative-wind fluctuations,
+it seems worth eliminating. The proposed variable uses a complementary-filter
+approach similar to that used for the horizontal wind and would seem
+to be a useful change to standard processing. It will be particularly
+useful when processing at high rate.
+
+\vskip0.5truein \centerline{\textcolor{blue}{---- end of this memo ----}}
+
+%\attach{attachment}
+
+%\attachm{first\\second}
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}
