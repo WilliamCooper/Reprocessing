@@ -10,9 +10,36 @@
 \setlength{\parskip}{\medskipamount}
 \setlength{\parindent}{0pt}
 \usepackage{verbatim}
+\usepackage{ifthen}
 \usepackage{graphicx}
 
 \makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+ \newlength{\lyxhang}
+ \IfFileExists{hanging.sty}{
+   \usepackage{hanging}
+   \newenvironment{hangparagraphs}
+     {%
+       \ifthenelse{\lengthtest{\parindent > 0pt}}%
+         {\setlength{\lyxhang}{\parindent}}%
+         {\setlength{\lyxhang}{2em}}%
+       \par\begin{hangparas}{\lyxhang}{1}%
+     }
+     {\end{hangparas}}
+ }{%else
+   \newenvironment{hangparagraphs}
+     {%
+       \ifthenelse{\lengthtest{\parindent > 0pt}}%
+         {\setlength{\lyxhang}{\parindent}}%
+         {\setlength{\lyxhang}{2em}}%
+       \begin{hangparas}%
+     }
+     {\end{hangparas}}
+   \newcommand{\hangpara}{\hangindent \lyxhang \hangafter 1 \noindent}
+   \newenvironment{hangparas}{\setlength{\parindent}{\z@}
+   \everypar={\hangpara}}{\par}
+ }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 \input colordvi
 \usepackage{color}
@@ -211,11 +238,11 @@ Implementation of this option in nimbus would therefore take more
 study, but it would be quite straightforward to implement this in
 a second-pass calculation. For that purpose, the initial 25-Hz files
 should be produced with 10-Hz GGVSPD, and then the second pass would
-interpolate to 25~Hz and then apply the Savitzky-Golay filter before
-recalculating the vertical wind. Because (\ref{eq:w-formula}) is
-a good approximation, the new vertical wind can be calculated by simply
-subtracting the GGVSPD variable as originally used and then adding
-back the new GGVSPD variable.
+first interpolate to 25~Hz and then apply the Savitzky-Golay filter
+before recalculating the vertical wind. Because (\ref{eq:w-formula})
+is a good approximation, the new vertical wind can be calculated by
+simply subtracting the GGVSPD variable as originally used and then
+adding back the new GGVSPD variable.
 
 <<initialization, include=FALSE>>=
 
@@ -264,6 +291,8 @@ source('~/RStudio/Ranadu/R/getNetCDF.R')  ## restore
 <<pressure-derivative, include=FALSE, fig.cap='Comparison of GPS-provided rate of climb (GGVSPD) and that calculated from the complementary filter.'>>=
 
 ## update to GGVSPD instead
+Data$ZALT <- zoo::na.approx (as.vector (Data$GGALT), maxgap=5000, na.rm=FALSE)
+Data$VDIFF <- c(Data$GGVSPD[1], 25*diff(Data$ZALT))
 Data$WPSTAR <- cumsum(Data$ACINS / Rate)
 Data$WPSTAR <- zoo::na.approx (as.vector(Data$WPSTAR), maxgap=1000, na.rm=FALSE)
 Data$WPSTAR <- ShiftInTime(Data$WPSTAR, .shift=-20)
@@ -290,9 +319,9 @@ Data$WIR10 <- Data$WICorig + Data$ROCG10 - Data$GGVSPD25
 DTemp <- Data
 DTemp$GGVSPD <- Data$ROCG
 DNEW <- WindProcessor(DTemp)
-Data$WIRC <- DNew$WIN
-unlink('/Data/WINTER/WINTERrf10z.nc')
-makeNetCDF(Data, '/Data/WINTER/WINTERrf10z.nc')
+Data$WIRC <- DNEW$WIN
+# unlink('/Data/WINTER/WINTERrf10z.nc')
+# makeNetCDF(Data, '/Data/WINTER/WINTERrf10z.nc')
 
 @
 
@@ -311,22 +340,176 @@ which shows the complementary-filter nature of the variable. In this
 formula, $w_{p}^{*}$ is the result of integrating the acceleration
 from the INS (with measurements separated in time by $\Delta t=0.04$~s
 for high-rate measurements) and $w_{p}$ is GGVSPD. The function $F_{s}$
-is a low-pass filter, taken here as a Butterworth filter with cutoff
-period of 10~s. This variable then incorporates the accuracy of GGVSPD
-at low frequency with the fast-response of the INS at high frequency.
-Like the other complementary filter used for horizontal wind, this
-works best if the cutoff period is selected at a point where the signals
-are the same so that any phase shift or imprecision at the transition
-point is compensated by the combination of identical signals. The
-result is a rate-of-climb measurement that does not have the erroneous
-3-Hz peak in the variance spectrum.
+is a low-pass filter, taken here as a third-order Butterworth filter
+with cutoff period of 1~s. This variable then incorporates the accuracy
+of GGVSPD at low frequency with the fast-response of the INS at high
+frequency. Like the other complementary filter used for horizontal
+wind, this works best if the cutoff period is selected at a point
+where the signals are the same so that any phase shift or imprecision
+at the transition point is compensated by the combination of identical
+signals. The result is a rate-of-climb measurement that does not have
+the erroneous 3-Hz peak in the variance spectrum.
 
-The next figure shows that this removes the noise peak from WIC. The
-red line is the original measurement WIC and the blue line is the
-vertical wind recalculated with ROCG as defined by (2).
+Figure 5 shows that the new variable ROCG (the red line) does not
+have the noise peak that is present in GGVSPD (the green line, the
+original measurement GGVSPD as output at 25~Hz). The blue line is
+the result of calculating ROCG but using a 0.5~Hz cutoff frequency
+instead of 1~Hz as used for ROCG. This reduces the spectral density
+near 1~Hz by relying on the integrated INS acceleration at that frequency
+instead of the GPS vertical motion. ROCG depends on GGVSPD for frequencies
+below the cutoff frequency and on integrated ACINS for frequencies
+above the cutoff, so ROCG and ROCG2 differ only in the region near
+the cutoff frequencies for the two different filters that they use.
+Because the INS does not detect the 1-Hz motion that is present in
+GGVSPD, it may be that the 1-Hz contribution is also noise and the
+lower cutoff frequency is a better choice. 
 \begin{center}
-\includegraphics[width=0.65\textwidth]{WICandWINspecWINTERrf10}
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.7\textwidth]{MEMPlotROCGWINTER}
+\par\end{centering}
+\caption{Variance spectra for the new rate-of-climb variable ROCG, for WINTER
+flight 10, 6:05:00\textendash 6:55:00 UTC. Also shown is the original
+variable GGVSPD (output from nimbus at 25~Hz) and a variable labeled
+ROCG2 that is calculated as for ROCG but with a filter cutoff frequency
+for the complementary filter of 0.5~Hz instead of 1~Hz as for ROCG.}
+\end{figure}
 \par\end{center}
+
+The result for the vertical wind, WIR, is shown as the green line
+in Fig.~6. The peak present in WIC is not present and the spectrum
+for frequencies above 1~Hz now looks reasonable. Using 0.5~Hz as
+the cutoff frequency leads to the variable WIR2, which has still lower
+variance in the region from 0.5 to 1~Hz. Although WIR looks better
+in this plot, it may be preferable to use WIR2 because the integrated
+acceleration produces a lower variance in this region than that present
+in GGVSPD, suggesting that the latter is still a noise contribution
+in this frequency range.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.7\textwidth]{MEMPlotWIRWINTER}
+\par\end{centering}
+\caption{The variance spectrum for the vertical wind (WIR) calculated using
+ROCG. Also shown are the original WIC spectrum (WIC) and WIR2, a variable
+similar to WIR but based on ROCG2 as presented and discussed in the
+previous figure caption. }
+
+\end{figure}
+
+Calculation of this variable would be possible during nimbus processing.
+Each time step, there will need to be an update to the integrated-ACINS
+variable $w_{p}^{*}$and application of the Butterworth filter to
+the difference between $w_{p}$ (measured by GGVSPD or differenced
+GGALT) and $w_{p}^{*}$. The third-order Butterworth filter is an
+ARMA filter using eight coefficients and requiring preservation of
+six quantities from the three preceding samples as well as the current
+measurements. Its implementation therefore can follow the model used
+in the complementary filter, but with new coefficients representing
+the different cutoff frequency required for ROCG.
+
+One subtle aspect of implementation of the complementary filter is
+that the high-frequency variations in GGVSPD do not enter WIR so the
+lever-arm correction for the location of the GPS antenna should not
+be applied directly to WIR but instead to GGVSPD before the complementary
+filter, so that only slow variations in pitch affect WIR.
+
+\subsection*{A baro-loop approach}
+
+The method used by the INS to obtain reasonable measurements of rate-of-climb
+in variable VSPD uses updating to the pressure altitude in a baro-loop.
+The modification used here updates to the geometric altitude represented
+by GGALT instead, so the term ``baro-loop'' is not appropriate,
+but the technique is so well documented with that name that the term
+still seems descriptive here. The general algorithm can be summarized
+as follows:
+\begin{enumerate}
+\item Initialize five variables:
+\begin{enumerate}
+\item wp3=wp3last=GGVSPD{[}1{]}
+\item hi3=GGALT{[}1{]}
+\item hx=hxx=0
+\end{enumerate}
+\item Determine feedback coefficients \{$c_{0},\,c_{1},\,c_{2}$\} for specified
+time constant $\tau$ from\\
+\[
+\{c_{0},\,c_{1},\,c_{2}\}=\{3/\tau,\,3/\tau^{2},\,1/\tau^{3}\}
+\]
+with $\tau$ tentatively chosen to be 10~s.
+\item For each time $t_{i}$:
+\begin{enumerate}
+\item wp3 <- wp3 + (ACINS{[}$t_{i}${]} - $c_{1}$ {*} hx - $c_{2}$ {*}
+hxx) / Rate
+\item hi3 <- hi3 + (wp3 - $c_{0}$ {*} hx) / Rate
+\item hx <- hi3 - GGALT{[}$t_{i}${]}
+\item hxx <- hxx + hx / Rate
+\item WPG{[}$t_{i}${]} <- (wp3 + wp3last) / 2
+\item wp3last <- wp3
+\end{enumerate}
+\end{enumerate}
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.7\textwidth]{MEMPlotWPGWINTER}
+\par\end{centering}
+\caption{Variance spectrum for the variable WPG (green line) obtained using
+the ``baro-loop'' calculation updating to GGVSPD instead of pressure
+altitude. Also shown are the original GGVSPD variable and the variable
+obtained by the complementary-filter approach of the previous sub-section.}
+
+\end{figure}
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=0.7\textwidth]{MEMPlotWILWINTER}
+\par\end{centering}
+\caption{Variance spectrum for WIL, the vertical wind calculating using WPG
+as provided by the new baro-loop calculation and as shown in the previous
+figure. Also shown are the spectra for the original WIC variable and
+for the variable WIR based on the complementary-filter approach of
+the previous subsection.}
+
+\end{figure}
+
+WPG is then the new rate-of-climb variable to use when calculating
+the vertical wind. Figure~7 shows the variance spectrum for this
+new variable, and Fig.~8 shows the spectrum for vertical wind (WIL)
+calculated using WPG. It is notable that the variance spectrum for
+WIL in the frequency range from about 0.1\textendash 1~Hz is significantly
+lower than that obtained for either of the other alternatives shown
+in Fig.~8. In this baro-loop calculation of WIL, the measurements
+in that range of frequencies are provided by the integrated INS acceleration
+rather than GGVSPD, while GGVSPD is dominant in the other two variables.
+The INS may produce vertical veolcities missing part of the signal
+for these frequencies, but it seems more likely that the measurement
+GGVSPD overestimates the variance here. 
+\begin{hangparagraphs}
+<<baro-loop, include=TRUE, fig.cap=''>>=
+
+Data$WPG <- rep(0, nrow(Data))
+# C <- c(0.15, 0.0075, 0.000125)
+zeta <- 1/10  ## approx 10-s time constant, providing rapid feedback
+C <- c(3*zeta, 3*zeta^2, zeta^3)
+wp3 <- Data$GGVSPD[1];hi3 <- Data$GGALT[1];hxx <- 0; hx <- 0; wp3last <- wp3
+for (i in 1:nrow(Data)) {
+  wp3 <- wp3 + (Data$ACINS[i] - C[2] * hx - C[3] * hxx) / Rate
+  hi3 <- hi3 + (wp3 - C[1] * hx) / Rate
+  hx <- hi3 - Data$GGALT[i]
+  hxx <- hxx + hx / Rate
+  Data$WPG[i] <- (wp3 + wp3last) / 2
+  wp3last <- wp3
+}
+Data$WIL <- Data$WICorig + Data$WPG - Data$GGVSPD25
+unlink('/Data/WINTER/WINTERrf10z.nc')
+makeNetCDF(Data, '/Data/WINTER/WINTERrf10z.nc')
+
+@
+\end{hangparagraphs}
+
+Implementation for WPG and WIL would likely be the simplest of the
+alternatives presented here because the code already exists for a
+baro-loop calculation, previously used for the variable WP3. Only
+two minor changes would be needed: (i) new coefficients as specified
+above; and (ii) use GGALT instead of PALT for the loop reference altitude.
 
 \clearpage{}
 
@@ -335,10 +518,18 @@ vertical wind recalculated with ROCG as defined by (2).
 The problem Cory identified appears to exist in high-rate files from
 many projects. See, for example, CSETrf06hrt.nc, 19:33:00\textendash 19:53:00.
 Although it is often masked by dominating relative-wind fluctuations,
-it seems worth eliminating. The proposed variable uses a complementary-filter
-approach similar to that used for the horizontal wind and would seem
-to be a useful change to standard processing. It will be particularly
-useful when processing at high rate.
+it seems worth eliminating. Of the three alternatives developed in
+this memo, the third based on a new implementation of a baro-loop-style
+calculation based on the reference altitude GGALT appears to be the
+simplest to implement and is likely to be the most free of contaminating
+noise. This is also the easiest to implement and, because it uses
+only GGALT and not GGVSPD, does not need any special changes to apply
+to older projects before GGVSPD was recorded. Because of uncertainty
+regarding which variable is preferable, WIL or WIR, it might be useful
+to produce both. (We already have developed a case for another rate-of-climb
+variable named ROC and have called the vertical wind from that WIR,
+so a different name should be selected for this new result. More discussion
+of names will be useful before a choice is made.
 
 \vskip0.5truein \centerline{\textcolor{blue}{---- end of this memo ----}}
 

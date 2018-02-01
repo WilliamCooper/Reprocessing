@@ -7,6 +7,12 @@
 \geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
+\usepackage{url}
+\usepackage[unicode=true,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=true,pdfborder={0 0 0},pdfborderstyle={},backref=section,colorlinks=true]
+ {hyperref}
+ \usepackage{breakurl}
 \setlength{\parskip}{\medskipamount}
 \setlength{\parindent}{0pt}
 \usepackage{color}
@@ -141,7 +147,12 @@ M=Mach number using uncorrected pressures, AOAREF=PITCH-(GGVSPD/TASF){*}180/$\pi
 QCF) and the low-pass and high-pass components of these produced by
 a Butterworth third-order filter with cutoff frequency of 1/600 Hz.
 A version of the filter was used that made two passes, one forward
-and one backward, through the data and combined the results.
+and one backward, through the data and combined the results. Some
+exploration of values for the cutoff frequency led to similar results
+over a wide range from 0.01~Hz to 0.001~Hz, but the choice (1/600)~Hz
+appeared to be a good compromise between the conflicting requirements
+to represent the low-pass component well without having it distort
+the high-pass response.
 \item The file was truncated to include only data spanning from the first
 measurement of airspeed above 90~m/s to the last, to avoid periods
 when the aircraft was still on the ground or just after take-off.
@@ -172,7 +183,7 @@ of the results.
 
 require(knitr)
 opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:", dev='png', dpi=100)
-opts_chunk$set(fig.width=6, fig.height=5, fig.pos="center", digits=4)
+opts_chunk$set(fig.width=6, fig.height=5, fig.align="center", digits=4)
 options(digits=5)
 thisFileName <- "AKRD"
 require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
@@ -181,7 +192,8 @@ require(grid)
 require(ggthemes)
 ReviseProjects <- c('DC3', 'TORERO')  ## these are the projects to process 
 nP <- length (ReviseProjects)
-ReviseProjects <- 'ORCAS'
+# ReviseProjects <- 'ORCAS'
+ReviseProjects <- 'none'
 Directory <- DataDirectory ()			
 VarList <- c("ADIFR", "GGVSPD", "PITCH", "QCF", "PSF", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX", "QCXC")
 ## add variables needed to recalculate wind
@@ -189,7 +201,7 @@ VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW", "VNS",
 SaveRData <- sprintf("%s.Rdata", thisFileName)
 ## this controls if new coefficients are calculated and associated plots made:
 NewCoefficients <- FALSE
-#NewCoefficients <- TRUE
+NewCoefficients <- TRUE
 
 @
 
@@ -199,6 +211,7 @@ ReloadData <- FALSE
 # ReloadData <- TRUE
 Project <- "ORCAS"
 Data <- data.frame()
+CutoffFreq <- 600
 if (ReloadData) {
   for (flt in 1:19) {
     if (flt == 12) {next}  ## file is bad
@@ -211,22 +224,22 @@ if (ReloadData) {
     D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
     D$M <- MachNumber (D$PSF, D$QCF)
     D$WICS <- SmoothInterp (D$WIC)
-    CutoffFreq <- 600
+    # CutoffFreq <- 600
     Rate <- 1
     D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
     D$AOAREFS[is.na(D$AOAREFS)] <- 0
-    D$AOAREFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+    D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$AOAREFS)
     D$AOAREFF <-  D$AOAREF - D$AOAREFS
     D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
     D$QRS[is.na(D$QRS)] <- 0
-    D$QRS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
+    D$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$QRS)
     D$QRF <-  D$QR - D$QRS
     D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
     D$QCFS[is.na(D$QCFS)] <- 0
-    D$QCFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
+    D$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$QCFS)
     D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
     D$MS[is.na(D$MS)] <- 0
-    D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+    D$MS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$MS)
     D$MF <-  D$M - D$MS
     ## limit to times between first TASX > 90 and last TASX > 90:
     TS <- D$Time[D$TASX > 90]
@@ -250,22 +263,22 @@ if (ReloadData) {
     D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
     D$M <- MachNumber (D$PSF, D$QCF)
     D$WICS <- SmoothInterp (D$WIC)
-    CutoffFreq <- 600
+    # CutoffFreq <- 600
     Rate <- 1
     D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
     D$AOAREFS[is.na(D$AOAREFS)] <- 0
-    D$AOAREFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+    D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$AOAREFS)
     D$AOAREFF <-  D$AOAREF - D$AOAREFS
     D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
     D$QRS[is.na(D$QRS)] <- 0
-    D$QRS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
+    D$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$QRS)
     D$QRF <-  D$QR - D$QRS
     D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
     D$QCFS[is.na(D$QCFS)] <- 0
-    D$QCFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
+    D$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$QCFS)
     D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
     D$MS[is.na(D$MS)] <- 0
-    D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+    D$MS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$MS)
     D$MF <-  D$M - D$MS
     ## limit to times between first TASX > 90 and last TASX > 90:
     TS <- D$Time[D$TASX > 90]
@@ -288,22 +301,22 @@ if (ReloadData) {
     D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
     D$M <- MachNumber (D$PSF, D$QCF)
     D$WICS <- SmoothInterp (D$WIC)
-    CutoffFreq <- 600
+    # CutoffFreq <- 600
     Rate <- 1
     D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
     D$AOAREFS[is.na(D$AOAREFS)] <- 0
-    D$AOAREFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+    D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$AOAREFS)
     D$AOAREFF <-  D$AOAREF - D$AOAREFS
     D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
     D$QRS[is.na(D$QRS)] <- 0
-    D$QRS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
+    D$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$QRS)
     D$QRF <-  D$QR - D$QRS
     D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
     D$QCFS[is.na(D$QCFS)] <- 0
-    D$QCFS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
+    D$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$QCFS)
     D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
     D$MS[is.na(D$MS)] <- 0
-    D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+    D$MS <- signal::filtfilt (signal::butter (3, 2/CutoffFreq), D$MS)
     D$MF <-  D$M - D$MS
     ## limit to times between first TASX > 90 and last TASX > 90:
     TS <- D$Time[D$TASX > 90]
@@ -359,6 +372,8 @@ DF <- DF[DF$TASX > 110 & abs(DF$ROLL) < 2, ]
 if (NewCoefficients) {
   f <- lm (AOAREF ~ QR + I(QR*M), data=DF)
   cf <- coef(f)
+  ff <- lm (AOAREFF ~ 0 + QRF + I(QRF*MF), data=DF)
+  ## NOTE: the QRF*MF term doesn't appear to be worth including
   ff <- lm (AOAREFF ~ 0 + QRF, data=DF)
   cffn <- coef (ff)
   cff <- 21.481   ## force DEEPWAVE value
@@ -367,6 +382,9 @@ if (NewCoefficients) {
   save (cffn, cff, cfs, ff, fs, file='AKRD-fit-coef.Rdata')
 } else {
   load (file='AKRD-fit-coef.Rdata')
+  # cffn <- 19.70547
+  # cff <- 21.481
+  # cfs <- c(4.525341674, 19.933222011, -0.001960992)
 }
   SummarizeFit <- function(ft) {
     print (summary(ft)$call)
@@ -382,15 +400,15 @@ if (NewCoefficients) {
 
 The result of fitting using (\ref{eq:alpha-fast}) was $c_{1}=$\Sexpr{round(cffn,4)},
 but an earlier fit to more selective speed-run and other data in DEEPWAVE
-suggested a value of $c_{1}=21.481$, as described in the NCAR Technical
-Note on Wind Uncertainty. That appears to provide a good representation
+suggested a value of $c_{1}=21.481$, as described in this 
+\href{http://n2t.net/ark:/85065/d7qr4zqr}{NCAR Technical
+Note on Wind Uncertainty}. That appears to provide a good representation
 of the CSET/ORCAS data as well, so that coefficient will be used here.
 For the low-pass component, the coefficients from the fit to (\ref{eq:alpha-slow})
 were \{$d$\} = \{\Sexpr{round(cfs[1], 4)}, \Sexpr{round(cfs[2], 4)},
 \Sexpr{round(cfs[3], 6)}\}, and the residual standard deviation for
 this fit was \Sexpr{round(summary(fs)$sigma, 3)}. These results are
-discussed further in a presentation that is available {[}need links
-here and to TN{]} here, where the choice for $c_{1}$ is also explained.
+discussed further in a presentation that is available \href{https://drive.google.com/open?id=0B1kIUH45ca5ALXktNklmdkl3bFU}{here}, where the choice for $c_{1}$ is also explained.
 
 \section*{New values for the vertical wind}
 
@@ -420,8 +438,8 @@ Data$WIY <- DataW$WIN
 Data$WIYS <- zoo::na.approx (as.vector (Data$WIY), maxgap=1000, na.rm=FALSE)
 Data$WIYS[is.na(Data$WIYS)] <- 0
 Rate <- 1
-CutoffFreq <- 600 * Rate
-Data$WIYS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), Data$WIYS)
+# CutoffFreq <- 600 * Rate
+Data$WIYS <- signal::filtfilt (signal::butter (3, 2/(CutoffFreq*Rate)), Data$WIYS)
 Data$WIF <-  Data$WIY - Data$WIYS
 
 @
@@ -458,7 +476,7 @@ routine run faster.
 \textsf{\textcolor{blue}{\textendash{} End of Memo \textendash{}}}
 \par\end{center}
 
-<<copy-original-file>>=
+<<copy-original-file, eval=FALSE>>=
 
 # Project <- 'CSET'
 # files.CSET <- list.files(sprintf('%s%s', Directory, Project), sprintf ('%srf...nc', Project))
@@ -504,7 +522,7 @@ copy_attributes <- function (atv, v, nfile) {
 
 @
 
-<<modify-netCDF-file, include=TRUE>>=
+<<modify-netCDF-file, include=TRUE, eval=FALSE>>=
 
 VarListRef <- VarList
 for (file.name in files.ALL) {
@@ -549,7 +567,7 @@ for (file.name in files.ALL) {
     Rate <- 50
     Dim <- list(Dimensions[["sps50"]], Dimensions[["Time"]])
   }
-  CutoffFreq <- 600 * Rate
+  # CutoffFreq <- 600 * Rate
   D$QR <- D$ADIFR / D$QCF
   D$QR[D$QCF < 20] <- NA
   D$QR[is.infinite(D$QR)] <- NA
@@ -564,28 +582,28 @@ for (file.name in files.ALL) {
   }
   D$M <- MachNumber (D$PSF, D$QCF)
   D$WICS <- SmoothInterp (D$WIC)
-  CutoffFreq <- 600 * Rate
+  # CutoffFreq <- 600 * Rate
   D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
   D$AOAREFS[is.na(D$AOAREFS)] <- 0
-  D$AOAREFS2 <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
-  D$AOAREFS1 <- signal::filter (signal::butter (3, 1/CutoffFreq), D$AOAREFS)
+  D$AOAREFS2 <- signal::filtfilt (signal::butter (3, 2/(CutoffFreq*Rate)), D$AOAREFS)
+  D$AOAREFS1 <- signal::filter (signal::butter (3, 2/(CutoffFreq*Rate)), D$AOAREFS)
   D$AOAREFF <-  D$AOAREF - D$AOAREFS2
   D$AOAREFF1 <-  D$AOAREF - D$AOAREFS1
   D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
   D$QRS[is.na(D$QRS)] <- 0
-  D$QRS2 <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QRS)
-  D$QRS1 <- signal::filter (signal::butter (3, 1/CutoffFreq), D$QRS)
+  D$QRS2 <- signal::filtfilt (signal::butter (3, 2/(CutoffFreq*Rate)), D$QRS)
+  D$QRS1 <- signal::filter (signal::butter (3, 2/(CutoffFreq*Rate)), D$QRS)
   D$QRS <- D$QRS2
   D$QRF <-  D$QR - D$QRS2
   D$QRF1 <- D$QR - D$QRS1
   D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
   D$QCFS[is.na(D$QCFS)] <- 0
-  D$QCFS2 <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$QCFS)
-  D$QCFS1 <- signal::filter (signal::butter (3, 1/CutoffFreq), D$QCFS)
+  D$QCFS2 <- signal::filtfilt (signal::butter (3, 2/(CutoffFreq*Rate)), D$QCFS)
+  D$QCFS1 <- signal::filter (signal::butter (3, 2/(CutoffFreq*Rate)), D$QCFS)
   D$QCFS <- D$QCFS2
   D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
   D$MS[is.na(D$MS)] <- 0
-  D$MS <- signal::filtfilt (signal::butter (3, 1/CutoffFreq), D$MS)
+  D$MS <- signal::filtfilt (signal::butter (3, 2/(CutoffFreq*Rate)), D$MS)
   D$MF <-  D$M - D$MS
   D$AK <- cff * D$QRF + cfs[1] + cfs[2] * D$QRS + cfs[3] * D$QCFS
   D$AK1 <- cff * D$QRF1 + cfs[1] + cfs[2] * D$QRS1 + cfs[3] * D$QCFS1
@@ -599,7 +617,7 @@ for (file.name in files.ALL) {
   D$WIS <- DataW$WIN
   d <- zoo::na.approx (as.vector(D$WIY), maxgap=100*Rate, na.rm = FALSE)
   d[is.na(d)] <- 0
-  D$WIF <- D$WIY - signal::filtfilt( signal::butter (3, 1/CutoffFreq), d)
+  D$WIF <- D$WIY - signal::filtfilt( signal::butter (3, 2/(CutoffFreq*Rate)), d)
   ## now have WIF, WIY, WIS and AK, variables with new values to add
   varF <- ncvar_def ("WIF", 
                     units="m/s", 

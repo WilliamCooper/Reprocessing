@@ -21,7 +21,8 @@ Start <- 0
 End <- 0
 # source('~/RStudio/Ranadu/R/getNetCDF.R')  ## restore -- not necessary
 ## HR is produced with sample-rate GGVSPD (10 Hz); H with 25 Hz GGVSPD
-Data <- getNetCDF(sprintf('%s%s/%srf%02dHR.nc', DataDirectory (), Project, Project, Flight), VarList)
+# Data <- getNetCDF(sprintf('%s%s/%srf%02dHR.nc', DataDirectory (), Project, Project, Flight), VarList)
+Data <- getNetCDF('/Data/WINTER/cjw.nc', c(VarList, 'WPG'), Start=60000, End=70000)
 Data$WIC <- zoo::na.approx (as.vector(Data$WIC), maxgap=1000, na.rm=FALSE)
 Data$WICorig <- Data$WIC  ## save to use later
 DNEW <- WindProcessor (Data)
@@ -104,7 +105,9 @@ for (i in 1:nrow(Data)) {
   wp3last <- wp3
 }
 Data$WIL <- Data$WICorig + Data$WPG - Data$GGVSPD25
-fnew <- sprintf ('%s%s/WAC/%srf%02dz.nc', DataDirectory(), Project, Project, Flight)
+Data$RCHK <- runif(nrow(Data), 0, 0.2)
+Data$GCHK <- rnorm(nrow(Data), 0, 0.05)
+fnew <- sprintf ('%s%s/WAC/%srf%02dZ.nc', DataDirectory(), Project, Project, Flight)
 unlink(fnew)
 makeNetCDF(Data, fnew)
 
