@@ -1,0 +1,1246 @@
+%% LyX 2.3.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt,twoside,english]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1.2in,rmargin=1in,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage{babel}
+\usepackage{verbatim}
+\usepackage{amsbsy}
+\usepackage[authoryear]{natbib}
+\usepackage[unicode=true]
+ {hyperref}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newcommand{\lyxaddress}[1]{
+	\par {\raggedright #1
+	\vspace{1.4em}
+	\noindent\par}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+%\fancyhead{}
+%\fancyfoot[CE,CO]{}
+\newtoks{\topicofnote} \global\topicofnote={}
+\newdimen\longindent \longindent=3.5truein
+%\fancyhead[L]{Aircraft Algorithm Memo re: \the\topicofnote \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlst}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\renewcommand{\datetoday}{11 February 2018}
+\newcommand{\RAFAlgorithmMemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Research Aviation Facility}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Algorithm Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.2truein\leftline{\textcolor{blue}{\textsf{Subject: \the\topicofnote}}}
+\leftline{\textcolor{blue}{\textsf{Al Cooper}}}
+\leftline{\textcolor{blue}{\textsf{\datetoday}}} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlst}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlst}}
+\newcommand{\cc}[1]{\begin{lyxlst}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlst}}
+\newcommand{\attach}[1]{\begin{lyxlst}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlst}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\begin{document}
+\title{\textbf{Wind Measurements in WECAN:}\\
+Some Studies of the Measurements\\
+\textcolor{black}{\large{}with suggested revised processing algorithms}}
+\author{Al Cooper}
+\date{\datetoday}
+\maketitle
+
+\lyxaddress{National Center for Atmospheric Research\\
+Earth Observing Laboratory\\
+Research Aviation Facility\\
+cooperw@ucar.edu}
+
+\vfill{}
+\cleardoublepage{} \pagenumbering{roman}
+
+\renewcommand{\contentsname}{Table of Contents} \tableofcontents{}
+\vfill{}
+\eject
+
+\renewcommand{\abstractname}{Abstract}\thispagestyle{plain}\begin{abstract}
+
+This document discusses some aspects of the measurements of wind in
+WECAN, with focus on two topics: (a) the empirical relationships used
+to obtain angle-of-attack from the pressure measurements, and (b)
+the use of the LAMS observations from ARISTO-2016 to refine those
+relationships. As part of these studies, the high-rate spectra for
+wind will be reviewed and checked against expectations for flight
+in an inertial subrange. 
+
+\end{abstract}
+
+\cleardoublepage{}
+
+\begin{comment}
+set topicofnote to topic of note
+\end{comment}
+
+\pagenumbering{arabic}
+
+\section{Introduction}
+
+This report is relatively limited in scope and much less detailed
+than the \href{https://drive.google.com/file/d/11Y2U9RbmcFNVdXSiio3s7xppFEk9UfX9/view?usp=sharing}{similar report}
+on wind measurements in SOCRATES. There are fewer new aspects of the
+instrumentation than was the case in SOCRATES, and it appears that
+the wind measurements are relatively good already, so this is more
+a case of fine tuning. Neverthesess, the results should be useful
+not only for WECAN but also for future projects that use the C-130.
+
+This report is organized into the following major sections:
+\begin{itemize}
+\item Section 2 discusses the ARISTO-2016 flights and the use of LAMS as
+a reference for a complementary-filter representation of angle-of-attack
+similar to that developed for the GV in SOCRATES. This is only a summary
+because the results were documented previously in a report titled
+``ARISTO-LAMS.pdf''\href{https://drive.google.com/open?id=0B1kIUH45ca5AU3pfZG53X0pGZjg}{\textquotedblleft ARISTO-LAMS.pdf\textquotedblright}.
+This section also develops the representation of sideslip based on
+LAMS.
+\item Section 3 develops the complementary-filter representation of angle
+of attack following the approach discussed in several previous memos
+and reports, including WindInSOCRATES.pdf.
+\item Section 4 shows plots of the resulting vertical wind for each flight
+in WECAN.
+\item Section 5 includes a brief examination of some variance spectra for
+the three wind components, with a focus on the results at frequencies
+above 1\_Hz.
+\item Section 6 then summarizes the results and the resulting recommendations.
+\end{itemize}
+The present text document and the data processing are incorporated
+into a single file, named ``WindInWECAN.Rnw'', located in the EOL
+directory \textasciitilde cooperw/RStudio/Reprocessing. A ``Reproducibility''
+Appendix discusses how this work could be duplicated, and all the
+needed components are archived in a GitHub directory, as discussed
+in that Appendix, except for some data files that are too large for
+reasonable archiving in GitHub. The LyX document that produced the
+.Rnw document is also included there.
+
+For reference, the ``standard'' representation in use for several
+years, as described in the Processing Algorithms\href{https://drive.google.com/open?id=0B1kIUH45ca5Aa29JbjJkel82NFU}{Processing Algorithms}
+document, has been
+
+\begin{equation}
+\alpha=c_{0}+\frac{\Delta p_{\alpha}}{q}\left(c_{1}+c_{2}M\right)\label{eq:standard-formula}
+\end{equation}
+and the coefficients were found by fitting that formula to a reference
+that assumes there is zero vertical wind:\\
+\begin{equation}
+\alpha^{*}=\theta-\frac{w_{p}}{V}\label{eq:calibration-formula}
+\end{equation}
+
+The justification for this form is that studies of five-hole pressure
+sensors have found a Mach-number dependence that affects their sensitivity. 
+
+Here the approach will be different. The reference value is split
+into two components, $\alpha^{*}=\alpha_{f}^{*}+\alpha_{s}^{*}$ that
+result from applying a Butterworth low-pass filter to $\alpha^{*}$
+(in the code, the variable AOAREF) to obtain $\alpha_{s}^{*}$ and
+then finding $\alpha_{f}^{*}$from $\alpha_{f}^{*}=\alpha^{*}-\alpha_{s}^{*}$.
+These components are then represented by separate fits:
+
+\begin{equation}
+\alpha_{f}=\left(\frac{\mathrm{\{ADIFR\}}}{\mathrm{\{QCF\}}}\right)_{f}(c_{0}+c_{1}M)\label{eq:alpha-fast}
+\end{equation}
+\begin{equation}
+\alpha_{s}=d_{0}+d_{1}\left(\frac{\mathrm{\{ADIFR\}}}{\mathrm{\{QCF\}}}\right)_{s}+d_{2}\mathrm{\{QCF\}}_{s}\label{eq:alpha-slow}
+\end{equation}
+where the $f$ and $s$ subscripts represent the high-pass and low-pass
+components after filtering. More complicated representations were
+tested in both cases, but these appear to provide adequate fits without
+additional terms. The $c_{1}$ term representing Mach-number dependence
+does not appear to be necessary, but the expectation that there will
+be some dependence on $M$ justified its tentative inclusion. However,
+the fits below show no significant difference with $c_{1}=0$, and
+an analysis of variance made its inclusion appear questionable, so
+it has been dropped from the fits presented here.
+
+This approach has two advantages:
+\begin{enumerate}
+\item The important sensitivity to fluctuations is not compromised by efforts
+to represent the slowly varying zero level for angle of attack.
+\item The slowly varying zero reference can be represented by more complex
+equations without needing to apply those to the high-frequency component.
+\end{enumerate}
+<<initialization, include=FALSE>>=
+
+require(knitr)
+opts_chunk$set(fig.path='figure/C-', echo=FALSE, include=FALSE, fig.lp="fig:", dev='png', dpi=100, fig.show='hold', size='footnotesize', replace.assign=TRUE, width=49)
+opts_chunk$set(fig.width=6, fig.height=5, fig.align="center", digits=4)
+options(digits=5)
+thisFileName <- "WindInWECAN"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+require(ggthemes)
+require(zoo)
+library(scales)
+source('chunks/removeSpikes.R')
+source('chunks/SplitDV.R')
+refline <- function (vmin=-100, vmax=100) {
+  lines(c(vmin, vmax), c(vmin, vmax), col='darkorange', lwd=2, lty=2)
+}
+Directory <- DataDirectory ()			
+## this controls if new coefficients are calculated and associated plots made:
+NewCoefficients <- FALSE
+NewCoefficients <- TRUE
+source('chunks/SummarizeFit.R')
+source('chunks/AddWindC130.R')
+source('chunks/SummarizeFit.R')
+CutoffPeriod <- 600
+Rate <- 1
+VarList <- c("ADIFR", "PITCH", "QCF", "PSFD", "AKRD", "WIC", "TASF", "GGALT", "ROLL", "PSXC", "ATX", "QCXC", 
+  "EWX", "ACINS","GGLAT")  ## last three are needed for ROC, in case it is needed
+## add variables needed to recalculate wind
+VarList <- c(VarList, "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "VEW", "VNS", "THDG")
+
+@
+
+\section{Relevant Results from ARISTO-2016}
+
+LAMS was flown on the C-130 during both ARISTO-2015 and ARISTO-2016,
+but there were some problems with LAMS operation or data processing
+on many of the flights so only the results from ARISTO-2016 flight
+6, which included good low-altitude flight segments and so provided
+reasonable coverage of the C-130 flight envelope, are used here. A
+report on those studies is available at \href{https://drive.google.com/open?id=0B1kIUH45ca5AU3pfZG53X0pGZjg}{this URL}. 
+
+\subsection{Angle of attack}
+
+For the present study, it is necessary to repeat some of that analysis
+because the previous study used the conventional representation (\ref{eq:standard-formula})
+while here the aim is to find coefficients to use with the complementary-filter
+representation given by (\ref{eq:alpha-fast}) and (\ref{eq:alpha-slow}).
+The latter representation of the slowly varying component of angle
+of attack should be determined best from data spanning all the projects,
+but the representation of the rapidly varying component can be determined
+well by using the LAMS-derived measurements of angle of attack as
+the reference for the fit, replacing (\ref{eq:calibration-formula}).
+The advantage of using the LAMS-based reference value is that it is
+not necessary to assume that the vertical wind is zero, while (\ref{eq:calibration-formula})
+requires such an assumption. For this reason, the fit determining
+the ``fast'' component, as given by (\ref{eq:alpha-fast}), is found
+here using this procedure:
+\begin{enumerate}
+\item Find the angle of attack from the LAMS measurements as described in
+the ARISTO-LAMS document referenced above Restrict the measurements
+that are used to the cases with smallest estimated random error, as
+described in that document.
+\item Find the complementary-filter components of that angle of attack by
+applying a low-pass filter to find the ``slow'' component and then
+subtracting that slow component from the measurement to find the complementary
+``fast'' component. Find the corresponding fast and slow components
+of the two terms $\mathrm{ADIFR/QCF}$ and $\mathrm{(ADIFR/QCF)*Mach}$where
+$\mathrm{Mach}$ is the Mach number determined from the uncorrected
+pressure measurements $\mathrm{PSFD,\,QCF}$ and $\mathrm{EWX}.$
+\item Fit the ``fast'' components using the form of (\ref{eq:alpha-fast})
+with $c_{2}$ set equal to zero, because including that term in the
+fit did not lead to significant improvement. Use the data from ARISTO-2016
+flight 6, 23:00:00 to 2:00:00 UTC. After studying various intervals,
+this period was selected because it appeared to provide consistent
+results and was an interval where the quality of the LAMS operation
+appeared to be high. 
+\end{enumerate}
+The LAMS data for this flight were compiled previously during the
+ARISTO-LAMS study, so the data.frame constructed during that study
+is simply reloaded for the present analysis. See the earlier document
+for the explanation of how that data,frame was constructed and for
+the R code used. The data file is named ARISTO-LAMS.Rdata and loading
+it restores a data.frame named ``Data'' that contains the data used
+in the previous study.
+
+<<processWind>>=
+
+## This is the function that processes the LAMS line-of-sight speeds to find the relative wind and 
+## angles of attack and sideslip.
+
+processWind <- function(Data) {
+  Data$BEAM1speed <- zoo::na.approx (as.vector(Data$BEAM1speed), maxgap=1000, na.rm = FALSE)
+  Data$BEAM2speed <- zoo::na.approx (as.vector(Data$BEAM2speed), maxgap=1000, na.rm = FALSE)
+  Data$BEAM3speed <- zoo::na.approx (as.vector(Data$BEAM3speed), maxgap=1000, na.rm = FALSE)
+  Data$BEAM4speed <- zoo::na.approx (as.vector(Data$BEAM4speed), maxgap=1000, na.rm = FALSE)
+  ## replace with Scott's values
+  if (PCA) {
+    Data$BEAM1speed <- zoo::na.approx (as.vector(Data$Beam1_LAMS), maxgap=1000, na.rm = FALSE)
+    Data$BEAM2speed <- zoo::na.approx (as.vector(Data$Beam2_LAMS), maxgap=1000, na.rm = FALSE)
+    Data$BEAM3speed <- zoo::na.approx (as.vector(Data$Beam3_LAMS), maxgap=1000, na.rm = FALSE)
+    Data$BEAM4speed <- zoo::na.approx (as.vector(Data$Beam4_LAMS), maxgap=1000, na.rm = FALSE)
+  }
+  ## try to fix CTHDG_LAMS bad points in transition through 180: (may no longer be needed)
+  for (i in 2:(nrow(Data)-1)) {
+    if (is.na(Data$CTHDG_LAMS[i]) || is.na(Data$CTHDG_LAMS[i-1]) || is.na(Data$CTHDG_LAMS[i+1])) {next}
+    if (abs(Data$CTHDG[i-1]-Data$CTHDG_LAMS[i+1]) > 10.) {next}
+    if ((Data$CTHDG_LAMS[i-1] < 180.) && (Data$CTHDG_LAMS[i+1] > 180)) {Data$CTHDG_LAMS[i] <- NA}
+    if ((Data$CTHDG_LAMS[i-1] > 180.) && (Data$CTHDG_LAMS[i+1] < 180)) {Data$CTHDG_LAMS[i] <- NA}
+  }
+  Data$CTHDG_LAMS <- zoo::na.approx (as.vector(Data$CTHDG_LAMS), maxgap=1000, na.rm = FALSE)
+  
+  Theta =  c(35.0802, 34.8501, 34.8496, 0.) * pi / 180 # revised 12 May 2014
+  Theta <- c(35, 0, 35, 35) * pi / 180  ## ARISTO
+  Phi = c(179.2171, -61.0712, 59.1506, 0.) * pi / 180  #  "  "
+  Phi = c(0, 0, -120, 120) * pi / 180
+  
+  # also need the distances from the IRS to LAMS: (x,y,z)
+  LL = c(-10.305, -6.319, 1.359)                # these are GV values; need C130 values
+  # unit vectors along beams are then:
+  #   a[i] = [cos(Theta[i]), -sin(Theta[i])*sin(Phi[i]), sin(Theta[i])*cos(Phi[i])]
+  # and the dot products with the (i,j,k) unit vectors give the direction cosine matrix:
+  S = c(cos(Theta[1]), -sin(Theta[1])*sin(Phi[1]), sin(Theta[1])*cos(Phi[1]), 
+                 cos(Theta[2]), -sin(Theta[2])*sin(Phi[2]), sin(Theta[2])*cos(Phi[2]), 
+                 cos(Theta[3]), -sin(Theta[3])*sin(Phi[3]), sin(Theta[3])*cos(Phi[3]))
+  S4 <- c(S, cos(Theta[4]), -sin(Theta[4])*sin(Phi[4]), sin(Theta[4])*cos(Phi[4]))
+  dim(S) <- c(3,3)
+  Si = t(solve(S))  # calculate the inverse of S -- this is the 3-beam version
+  ## the following commented lines are the python code:
+  # S4 = np.vstack ((S, [cos(Theta[3]), -sin(Theta[3])*sin(Phi[3]), sin(Theta[3])*cos(Phi[3])]))
+  # StS =  linalg.inv (ma.dot (S4.T, S4))
+  # M = ma.dot (StS, S4.T)      # matrix for finding relative wind from 4-beam LAMS
+  dim(S4) <- c(3,4)
+  StS <- S4 %*% t(S4)
+  StS <- solve(StS)
+  M <- StS %*% S4
+  
+  A = c(Data$BEAM1speed, Data$BEAM2speed, Data$BEAM3speed)
+  A4 <- c(A, Data$BEAM4speed)
+  dim(A4) <- c(nrow(Data), 4)
+  dim(A) <- c(nrow(Data), 3)
+  RW = t (Si %*% t(A))    # gives u, v, w components, RW[,1] is u
+  RW2 <- t (M %*% t(A4))
+  ## calculate the error in the solution:
+  A4P <- t (t (S4) %*% t (RW2)) - A4
+  CSQ <- A4P[,1]^2 + A4P[,2]^2 + A4P[,3]^2 + A4P[,4]^2
+
+  ## set up special data.frame for calculation of wind:
+  D <- data.frame("Time"=Data$Time)
+  D$TASX <- sqrt(RW2[,1]^2 + RW2[,2]^2 + RW2[,3]^2)
+  D$TASX3 <- sqrt(RW[,1]^2 + RW[,2]^2 + RW[,3]^2)
+  D$TASCSQ <- CSQ 
+  D$ATTACK <- atan (RW2[, 3] / RW2[, 1]) * 180 / pi
+  D$SSLIP <-  atan (RW2[, 2] / RW2[, 1]) * 180 / pi
+  D$GGVEW <- Data$CVEW_LAMS
+  D$GGVNS <- Data$CVNS_LAMS
+  D$GGVSPD <- Data$CVSPD_LAMS
+  D$VEW <- Data$CVEW_LAMS
+  D$VNS <- Data$CVNS_LAMS
+  D$THDG <- Data$CTHDG_LAMS
+  D$ROLL <- Data$CROLL_LAMS
+  D$PITCH <- Data$CPITCH_LAMS
+  ## save some variables for ease of plotting:
+  D$BEAM1speed <- Data$BEAM1speed
+  D$BEAM2speed <- Data$BEAM2speed
+  D$BEAM3speed <- Data$BEAM3speed
+  D$BEAM4speed <- Data$BEAM4speed
+  D$WDC <- Data$WDC
+  D$WSC <- Data$WSC
+  D$WIC <- Data$WIC
+  D$WD_LAMS <- Data$WD_LAMS
+  D$WS_LAMS <- Data$WS_LAMS
+  D$WI_LAMS <- Data$WI_LAMS
+  D$AKRD <- Data$AKRD
+  D$SSRD <- Data$SSRD
+  D$ADIFR <- Data$ADIFR
+  D$QCF <- Data$QCF
+  D$GGVSPD <- Data$GGVSPD
+  D$PSFD <- Data$PSFD
+  D$EWX <- Data$EWX
+  # if (grepl('rf03', fname)) {
+  #   rg <- setRange (D$Time, 192300,213000)
+  #   D <- D[rg, ]
+  # }
+  ## use standard wind processor 
+  ### rotation-rate corrections should be removed first, 
+  ### but for standard routine they are insignificant so will be ignored.
+  DW <- WindProcessor (data=D)
+  return (DW)
+}
+
+@
+
+<<LAMSfit, include=TRUE, fig.cap="Corresponding values of the \'fast\' component of angle of attack as determined from LAMS (AOAREFF) and from the emperical relationship (AKF).">>=
+
+PCA <- FALSE   # use SG processing
+thisFileName <- "ARISTO-LAMS"
+VarList2 <- c('PSFD', 'QCF', 'ATX', 'EWX', 'AKRD', 'SSRD', 'PSFRD', 'QCFR', 'ROLL', 'PITCH', 'THDG',
+             'CPITCH_LAMS', 'CROLL_LAMS', 'CTHDG_LAMS', 'CVEW_LAMS', 'CVNS_LAMS', 'CVSPD_LAMS',
+             'GGVEW', 'GGVNS', 'GGVSPD', 'ADIFR', 'PSXC', 'QCXC', 'GGALT', 'BDIFR',
+             'BEAM1speed', 'BEAM2speed', 'BEAM3speed', 'BEAM4speed', 'TASX', 'GGVSPD', 'CONCD_RWT',
+             'PS_A', 'PS_A2', 'QC_A', 'QC_A2', 'WIC', 'VEW', 'VNS')
+SaveRDataB <- sprintf ('%sB.Rdata', thisFileName)
+
+load (SaveRDataB)
+Data$AOAREF <- Data$PITCH - (Data$GGVSPD / Data$TASX) * (180 / pi)
+Data$QR <- Data$ADIFR / Data$QCF
+Data$Mach <- MachNumber (Data$PSFD, Data$QCF, Data$EWX)
+Data$Valid <- Data$TASX > 60 & abs(Data$ROLL) < 5 & Data$PITCH < 20 & Data$CONCD_RWT < 10
+Data$Valid[is.na(Data$Valid)] <- FALSE
+
+## conventional fit, kept here for reference
+DF <- Data[Data$Valid, ]
+f <- lm (AOAREF~QR+I(QR*Mach), data=DF)
+cf <- coefficients(f)
+Data$AKRD <- cf[1] + Data$QR * (cf[2] + cf[3] * Data$Mach)  # replace AKRD with new fit
+
+DW <- processWind (Data)  # get LAMS-based TAS, ATTACK, SSLIP, TASCSQ
+DW$Valid <- Data$Valid
+## now correct DW$ATTACK to match AKRD, assuming offset with linear-in-time change
+## NOTE that ATTACK then needs to be used with PITCH, not CPITCH_LAMS, to calc W
+DW$TE <- Data$TE <- as.vector (DW$Time-DW$Time[1])
+cff <- with (DW[DW$TASCSQ < 0.1 & DW$Valid,], coef(lm((AKRD-ATTACK) ~ (TE))))
+# cff <- with (Data[Valid,], coef(lm((PITCH-CPITCH_LAMS) ~ (TE)))) # didn't work as well
+DW$DA <- cff[1]+cff[2]*DW$TE
+DW$ATTACK <- DW$ATTACK + DW$DA
+# with (DW[DW$TASCSQ < 0.1 & DW$Valid,], plot(data.frame(PSFD, AKRD-ATTACK), type='p', pch=20, col='blue', ylim=c(-2,2)))
+# abline(h=0, col='red')
+DW$TASL <- DW$TASX  ## processWind returns LAMS-based TAS in TASX
+## transfer some other variables for convenience
+DW$TASX <- Data$TASX
+DW$QR <- Data$QR
+DW$Mach <- Data$Mach
+DW$AOAREF <- Data$AOAREF
+DW$PITCH <- Data$PITCH  # needed if W recalculated
+DW$ROLL <- Data$ROLL
+DW$THDG <- Data$THDG
+DW$WIL <- DW$WIN    ## this is the LAMS-only value
+DW$WIC <- Data$WIC
+DF <- DW     ## use a restricted data.frame to fit to LAMS-based ATTACK
+DF$ATTACK[DF$TASCSQ > 0.1] <- NA  ## only use good 4-beam measurements from LAMS
+DF$AKRD[DF$TASCSQ > 0.1] <- NA  
+## eliminate some additional ATTACK measurements that are obviously bad in this flight:
+dt <- DF$ATTACK - DF$AKRD
+dt <- dt - mean (dt, na.rm=TRUE)
+DF$ATTACK[abs(dt) > 0.8] <- NA
+DF$AKRD[abs(dt) > 0.8] <- NA
+DF <- DF[DF$Valid, ]
+
+## find the conventional-formula values using the LAMS-based reference "ATTACK"
+fl <- lm (ATTACK ~ QR + I(QR*Mach), data=DF)
+cfl <- coef (fl)
+
+## repeat with complementry-filtered values:
+D <- DF  ## this is just to re-use code without changing data.frame variables
+D$QR[D$QCF < 20] <- NA
+D$QR[is.infinite(D$QR)] <- NA 
+D$M <- MachNumber (D$PSFD, D$QCF)
+D$QRM <- D$QR * D$M
+D$AOAREFS <- zoo::na.approx (as.vector(D$ATTACK), maxgap=1000*Rate, na.rm = FALSE)
+D$AOAREFS[is.na(D$AOAREFS)] <- 0
+D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$AOAREFS)
+D$AOAREFF <-  D$AOAREF - D$AOAREFS
+D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
+D$QRS[is.na(D$QRS)] <- 0
+D$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QRS)
+D$QRF <-  D$QR - D$QRS
+D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
+D$QCFS[is.na(D$QCFS)] <- 0
+D$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QCFS)
+D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
+D$MS[is.na(D$MS)] <- 0
+D$MS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$MS)
+D$MF <-  D$M - D$MS
+## This is better filtered as the product QR*M
+D$QRMS <- zoo::na.approx (as.vector(D$QRM), maxgap=1000*Rate, na.rm = FALSE)
+D$QRMS[is.na(D$QRMS)] <- 0
+D$QRMS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QRMS)
+D$QRMF <-  D$QRM - D$QRMS
+## After exploration, it was found that this time shift minimized the fit RMS:
+D$AOAREFF <- ShiftInTime(D$AOAREFF, .shift=750)
+D <- D[setRange(D, 230000,260000), ]  ## limit the interval used (after filtering)
+## fast-response fit:
+fcff <- lm(AOAREFF ~ 0 + QRF, data=D)  ## omitting M and offset after testing
+cfcff <- coef(fcff)
+D$AKF <- cfcff * D$QRF
+# Data$AKRDL <- cfl[1] + Data$QR * (cfl[2] + cfl[3] * Data$Mach) 
+# DW$AKRDL <- cfl[1] + DW$QR * (cfl[2] + cfl[3] * DW$Mach)
+# sdl <- with(DW[DW$TASCSQ < 0.1 & DW$Valid, ], sd(AKRDL-ATTACK, na.rm=TRUE))
+with(D, plot(AOAREFF, AKF, type='p', pch=20, col='blue'))
+refline(-5, 5)
+
+@
+
+The result of the fit is $c_{1}$ = \Sexpr{round(cfcff, 4)}. This
+is then the value included in the concluding recommendations, after
+further studies indicated that it is reasonably consistent with the
+values determined by reference to (\ref{eq:calibration-formula})
+
+\subsection{Sideslip angle}
+
+For the GV, the complementary-filter approach was not needed for sideslip
+because the conventional representation was adequate, subject to appropriate
+adjustment for offsets in heading and sideslip as determined from
+a set of circle maneuvers. It is expected that the same will be true
+for the C-130, and the evaluation presented in ARISTO-LAMS.pdf supports
+this assumption. The favored sideslip sensitivity coefficients from
+that document are \{1.5478, 12.6582\}, very close to those used when
+processing the netCDF files on Sept 28 2018 \{1.545, 12.852\}. There
+does not seem to be a strong reason to change those coefficients,
+although using the values from ARISTO-LAMS.pdf might be better justified
+by existing documentation.\footnote{Neither matches the coefficients in the Processing Algorithms document,
+which are equivalent to \{$-0.0305,\,12.212$\}. An update to that
+document is needed to reflect whatever has been used in recent documents
+and what will be used in WECAN.} 
+
+The first coefficient cannot be determined by LAMS because of uncertainty
+in orientation. It can only be determined well by circle maneuvers,
+but there was apparently only one during WECAN flights, on test flight
+2, 18:22:07 \textendash{} 18:29:04 UTC. As described in the NCAR Technical
+Note on Uncertainty in Wind Measurements from the NSF/NCAR GV, circle
+maneuvers can separate an offset in heading from an offset in sideslip
+angle, but steady wind conditions are needed so it is usually preferable
+to use several circle maneuvers. In addition to the listed WECAN maneuver,
+circle maneuvers were also flown during WECAN-TEST test flights 1,
+18:40:01 \textendash{} 18:46:06 UTC, and 2, 18:40:44 \textendash{}
+18:46:51, and during WINTER research flight 13, 18:09:34 \textendash{}
+18:15:19 UTC. The conditions were too variable for the maneuver from
+WECAN-TEST test flight 1 and it does not appear reliable, but the
+sideslip offsets ($\Delta\beta$) and heading offsets ($\Delta\Psi$)
+are reasonably consistent for the other three maneuvers, leading to
+the indicated constant $e_{0}$ characterizing the offset in sideslip
+sensitivity as listed in the following table:
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline 
+\textbf{Project} & \textbf{Flight} & \textbf{Start {[}UTC{]}} & \textbf{End {[}UTC{]}} & $\mathbf{\boldsymbol{\Delta\Psi}}[^{\circ}]$ & $\boldsymbol{\Delta\beta}\,[^{\circ}]$ & $\boldsymbol{e_{0}}$\tabularnewline
+\hline 
+\hline 
+WECAN & tf02 & 18:22:07 & 18:29:04 & -0.97 & 0.80 & 0.74\tabularnewline
+\hline 
+WECAN-TEST & tf02 & 18:40:44 & 18:46:51 & -0.77 & 0.61 & 0.93\tabularnewline
+\hline 
+WINTER & rf13 & 18:09:34 & 18:15:19 & -0.85 & 0.68 & 0.87\tabularnewline
+\hline 
+\textbf{average} &  &  &  & -0.86 & 0.70 & 0.85\tabularnewline
+\hline 
+\end{tabular}
+\par\end{center}
+
+All these flights were processed with an offset imposed on heading
+of $-0.1^{\circ}$, so these maneuvers suggest that the first heading
+``calibration coefficient'' be changed from $-0.1$ to $+0.76$
+and the constant ``sensitivity coefficient'' for sideslip be changed
+from 1.545 to 0.85$^{\circ}$. Both changes need to be made together
+because their sum affects normal wind measurements during straight
+level flight, and the circle maneuvers suggest the sum of the two
+corrections should be about $-0.2^{\circ}$. These offsets therefore
+will appear in the conclusions of this document.
+
+\section{Finding the ``Slow'' Component of Angle of Attack}
+
+\subsection{Data used for the fit}
+
+The first step is to assemble the data to be used for fitting. The
+data set should include recent C-130 flights and projects, but should
+be reviewed also to eliminate flights that appear anomalous because
+of problems with the measurements, strong updrafts and downdrafts,
+special loading conditions, or other aspects of the flights that make
+them questionable to include.
+
+In this case, measurements from WINTER, FRAPPE and WECAN research,
+test, and ferry flights were used. A few flights were excluded because
+they led to outlier vertical-wind measurements: WINTER test flight
+1, WINTER ferry flight 1, WINTER research flights 1, 2, 3, 8, 10,
+and 13, FRAPPE flight 9, and WECAN research flights 2, 8, 14, 16,
+and 19. These were excluded because they appeared to have anomalous
+regions of vertical wind during preliminary processing and because
+there was ample data for a highly constrained fit from the remaining
+flights. However, their exclusion did not have a large effect on the
+results except in a few extreme cases.\footnote{To use different flights in the future, changes to the 'Project' statements
+and 'Bad' statements will be needed.} NOMADDS was excluded entirely after preliminary inclusion because
+there appeared to be an offset relative to the other projects that
+distorted the fit and because the composite results with NOMADSS included
+didn't work well even for NOMADSS. Finally, measurements on flight
+WECAN rf03 were excluded before 21:00 UTC because there was an apparent
+anomaly in ADIFR near the start of this flight.
+
+On the first run, the program constructs a data.frame and saves it
+in a file called 'AKRDforC130.Rdata, unless this file is already present,
+in which case the program just loads the saved file.\footnote{To reconstruct the file, delete the file with this name before running.}
+The process of constructing the data.frame used in the fit, not necessary
+if those previously determined coefficients are to be used, was as
+follows:
+\begin{enumerate}
+\item Read the netCDF file as on /scr/raf\_data/\{Project\}, for each flight
+in the listed projects, excluding the ``Bad'' files listed above.
+\item For each file, add appropriate variables for fitting (QR=ADIFR/QCF,
+M=Mach number using uncorrected pressures, AOAREF=PITCH-(GGVSPD/TASF){*}180/$\pi$,
+QCF) and the low-pass and high-pass components of these produced by
+a Butterworth third-order filter with cutoff frequency of 1/600 Hz.
+A version of the filter was used that made two passes, one forward
+and one backward, through the data and combined the results. Some
+exploration of values for the cutoff frequency led to similar results
+over a wide range from 0.01~Hz to 0.001~Hz, but the choice (1/600)~Hz
+appeared to be a good compromise between the conflicting requirements
+to represent the low-pass component well without having it distort
+the high-pass response.
+\item The file was truncated to include only data spanning from the first
+measurement of airspeed above 60~m/s to the last, to avoid periods
+when the aircraft was still on the ground or just after take-off.
+\item A variable representing flight number was added to each file. To avoid
+ambiguity among projects, FRAPPE flights were assigned flight numbers
+equal to 200 plus the flight number, and WECAN flights 300 plus the
+flight number. For test (ferry) flights, an additional 50 (70) was
+added to the flight number. This added variable, named RF, then made
+it possible to identify individual flights after all were concatenated
+into a single data-frame.
+\item The individual flights were then concatenated into one data.frame
+containing only the variables needed for fitting and a few others
+used while examining the results. The variables in the data.frame
+were ADIFR, AKRD, GGALT, GGVSPD, PITCH, PSFD, QCF, ROLL, SSLIP, TASF,
+TASX, THDG, WIC, and those added in step 2 above.
+\item From this data frame, another (called DF) was constructed to use in
+fitting. It consisted only of the selected flights listed above. In
+addition, measurements spanning 600~s from the start and end of each
+file were removed to avoid periods where end-effects seemed to cause
+problems with the filtered results and also to avoid problematic periods
+during initial climb and final descent, which otherwise seemed to
+distort the fits. (The cause may have been the use of flaps in some
+cases, or even deployment of the landng gear, which could distort
+the flow and change the empirical relationship of AKRD to the radome
+pressure measurements.
+\item The final data.frame (DF) used for the fit was also restricted to
+measurements with TASF > 60 and ROLL between $-2$ and 2$^{\circ}$,
+to avoid possible periods of slow flight or in turns. Turns in particular
+invalidate the fit assumption involved in finding the reference (AOAREF)
+used for the fit, so these need to be excluded or turns cause serious
+distortion of the results.
+\end{enumerate}
+<<construct-dataframe, eval=NewCoefficients>>=
+
+Projects <- c("WINTER", "NOMADSS", "FRAPPE", "WECAN")
+Projects <- c("WINTER", "FRAPPE", "WECAN")  ## NOMADSS seemed inconsistent with others
+## files to skip
+Bad <- c('WINTERrf10.nc', 'FRAPPErf09', 'NOMADSSrf07.nc', 'NOMADSSrf09.nc', 'NOMADSStf03.nc', 'WECANrf19.nc',
+         'WINTERrf01.nc', 'WINTERrf02.nc', 'WINTERrf03.nc', 'WINTERrf08.nc', 'WINTERrf13.nc',
+         'WINTERtf01.nc', 'WINTERff01.nc', 'WECANrf02.nc', 'WECANrf08.nc', 'WECANrf16.nc', 'WECANrf14.nc')
+
+if (file.exists('AKRDforC130.Rdata')) {
+  load('AKRDforC130.Rdata')
+} else {
+  Data <- data.frame()
+  for (Project in Projects) {
+    ## get list of available flights:
+    Fl <- sort (list.files (sprintf ("%s%s/", Directory, Project),     sprintf ("%srf...nc$", Project))) 
+    Fltf <- sort (list.files (sprintf ("%s%s/", Directory, Project),     sprintf ("%stf...nc$", Project)))
+    Flff <- sort (list.files (sprintf ("%s%s/", Directory, Project),     sprintf ("%sff...nc$", Project)))
+    for (flt in c(Fl, Fltf, Flff)) {
+      if (flt %in% Bad) {next}
+      fname = sprintf("%s%s/%s", Directory,Project,flt)
+      print(fname)
+      ## note that GGVSPD is not in NOMADSS files. Instead WIC is based on (avionics) VSPD_G, not a good variable
+      ## to use. Try substituting ROC calculated as described in ProcessingAlgorithms.pdf
+      if ('GGVSPD' %in% DataFileInfo(fname, LLrange=FALSE)$Variables) {
+        VL <- c(VarList, 'GGVSPD')
+      } else {
+        VL <- VarList
+      }
+      fno <- as.numeric(sub('.*f([0-9]*).nc', '\\1', flt))
+      if (Project == 'NOMADSS') {fno <- fno + 100}
+      if (Project == 'FRAPPE') {fno <- fno + 200}
+      if (Project == 'WECAN') {fno <- fno + 300}
+      if (flt %in% Fltf) {fno <- fno + 50}
+      if (flt %in% Flff) {fno <- fno + 70}
+      D <- getNetCDF (fname, VL, F=fno)       
+      if (fno == 303) {D <- D[setRange(D, 210000, 260000), ]} ## special for WECAN flight 3
+      if (!('GGVSPD' %in% VL)) {
+        D <- AddWind(D, addAKY=FALSE, addROC=TRUE)
+        D$GGVSPD <- D$ROC   ## BEWARE: misleading addition of a replacement for GGVSPD
+        D <- D[, -which('ROC' == names(D))] ## for consistent columns needed by rbind
+      }
+      D$QR <- D$ADIFR / D$QCF
+      D$QR[D$QCF < 20] <- NA
+      D$QR[is.infinite(D$QR)] <- NA
+      D$AOAREF <- (D$PITCH - (D$GGVSPD / D$TASF) * (180 / pi)) 
+      D$M <- MachNumber (D$PSF, D$QCF)
+      D$QRM <- D$QR * D$M
+      D$WICS <- SmoothInterp (D$WIC)
+      D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, na.rm = FALSE)
+      D$AOAREFS[is.na(D$AOAREFS)] <- 0
+      D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$AOAREFS)
+      D$AOAREFF <-  D$AOAREF - D$AOAREFS
+      D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, na.rm = FALSE)
+      D$QRS[is.na(D$QRS)] <- 0
+      D$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QRS)
+      D$QRF <-  D$QR - D$QRS
+      D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, na.rm = FALSE)
+      D$QCFS[is.na(D$QCFS)] <- 0
+      D$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QCFS)
+      D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, na.rm = FALSE)
+      D$MS[is.na(D$MS)] <- 0
+      D$MS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$MS)
+      D$MF <-  D$M - D$MS
+      D$QRMS <- zoo::na.approx (as.vector(D$QRM), maxgap=1000*Rate, na.rm = FALSE)
+      D$QRMS[is.na(D$QRMS)] <- 0
+      D$QRMS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QRMS)
+      D$QRMF <-  D$QRM - D$QRMS
+##      D$PITCHS <- zoo::na.approx (as.vector(D$PITCH), maxgap=1000*Rate, na.rm = FALSE)
+##      D$PITCHS[is.na(D$PITCHS)] <- 0
+##      D$PITCHS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$PITCHS)
+##      D$PITCHF <- D$PITCH - D$PITCHS
+     ## limit to times between first TASX > 60 and last TASX > 60:
+      TS <- D$Time[D$TASX > 60]
+      TS <- TS[!is.na(TS)]
+      B <- TS[1]; E <- TS[length(TS)]
+      D <- D[D$Time >= B & D$Time <= E,]
+      ## in addition, omit first and last 10 min:
+      D <- D[601:(nrow(D)-600), ]
+      Data <- rbind (Data, D)
+    }
+  } 
+  save(Data, file='AKRDforC130.Rdata')
+}
+  
+@
+
+<<buildDF>>=
+
+DF <- Data[Data$TASX > 65 & abs(Data$ROLL) < 2, ]
+DF <- DF[!is.na(DF$RF), ]   ## these are introduced by TASX == NA, e.g., in preceding statement, so remove them
+## now have data.frame DF containing values for fitting
+
+@
+
+<<fits-to-DF, include=FALSE>>=
+
+if (NewCoefficients) {
+  ## standard old fit:
+  f <- lm (AOAREF ~ QR + I(QR*M), data=DF)
+  cf <- coef(f)
+  DF$AK <- cf[1] + DF$QR * (cf[2] + cf[3] * DF$M)
+  ## do a preliminary calculation of vertical wind (here, WIX):
+  DF$WIX <- DF$WIC + with(DF, (AK-AKRD) * (pi/180) * TASX)
+
+  ## use this for a preliminary search for bad-WIC flights:
+  badSearch <- FALSE
+  if (badSearch) {
+    RFA <- sort(unique(DF$RF))
+    for (rf in RFA) {
+      meanf <- with(DF[DF$RF == rf,], mean(AK-AOAREF, na.rm=TRUE))
+      sdf <- with(DF[DF$RF == rf,], sd(AK-AOAREF, na.rm=TRUE))
+      print (sprintf ('flight %d mean %.2f sd %.2f', rf, meanf, sdf))
+    }
+  }
+ 
+  ff <- lm (AOAREFF ~ 0 + QRF, data=DF)
+  cffn <- coef (ff)
+  cff <- cfcff[1]   ## force LAMS value
+  fs <- lm(AOAREFS~QRS+QCFS, data=DF)
+  cfs <- coef(fs)
+  ## find a project-dependent offset {a,b,c,d for WINTER, NOMADSS, FRAPPE, WECAN)
+  cfs1a <- with(DF[DF$RF < 100, ], mean(AOAREFS - cfs[2] * QRS - cfs[3] * QCFS, na.rm=TRUE))
+  ## cfs1b <- with(DF[DF$RF > 100 & DF$RF < 200, ], mean(AOAREFS - cfs[2] * QRS - cfs[3] * QCFS, na.rm=TRUE))
+  cfs1c <- with(DF[DF$RF > 200 & DF$RF < 300, ], mean(AOAREFS - cfs[2] * QRS - cfs[3] * QCFS, na.rm=TRUE))
+  cfs1d <- with(DF[DF$RF > 300, ], mean(AOAREFS - cfs[2] * QRS - cfs[3] * QCFS, na.rm=TRUE))
+  save (cff, cfs, cfs1a, cfs1c, cfs1d, file='AKRD-fit-coef-C130.Rdata')
+} else {
+  load (file='AKRD-fit-coef-C130.Rdata')
+}
+Data$AKYA <- cff * Data$QRF + cfs[1] + cfs[2] * Data$QRS + cfs[3] * Data$QCFS
+Data$AKY <- cff * Data$QRF          + cfs[2] * Data$QRS + cfs[3] * Data$QCFS
+r <- Data$RF < 100
+Data$AKY[r] <- Data$AKY[r] + cfs1a
+r <- Data$RF > 200 & Data$RF < 300
+Data$AKY[r] <- Data$AKY[r] + cfs1c
+r <- Data$RF > 300
+Data$AKY[r] <- Data$AKY[r] + cfs1d
+Data$WIY <- Data$WIC + Data$TASX * (Data$AKY - Data$AKRD) * (pi/180)
+Data$WIYA <- Data$WIC + Data$TASX * (Data$AKYA - Data$AKRD) * (pi/180)  ## based on all-project coefs
+## add a result based only on a fit to WECAN:
+fsWECAN <- lm(AOAREFS~QRS+QCFS, data=DF[DF$RF > 300, ])
+
+fsWECANa <- lm(AOAREFS~QRS, data=DF[DF$RF > 300, ])
+cfsWECAN <- coef(fsWECAN)
+## the next result is based on an only-WECAN fit:
+Data$AKYW <- cff * Data$QRF + cfsWECAN[1] + cfsWECAN[2] * Data$QRS + cfsWECAN[3] * Data$QCFS
+Data$WIYW <- Data$WIC + Data$TASX * (Data$AKYW - Data$AKRD) * (pi/180)  ## based on WECAN-only coefs
+## add also high-pass-filter result 
+Data$WIS <- zoo::na.approx (as.vector(Data$WIYW), maxgap=1000*Rate, na.rm = FALSE)
+Data$WIS[is.na(Data$WIS)] <- 0
+Data$WIS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), Data$WIS)
+Data$WIF <- Data$WIY - Data$WIS
+DD <- Data
+DD <- Data[abs(Data$ROLL) < 2 & Data$TASX > 75 & abs(DD$GGVSPD) < 3, ]  ## impose restrictions where good WI expected
+RFA <- sort(unique(DD$RF))
+for (rf in RFA) {
+  if (rf < 300) {
+    meanf <- with(DD[DD$RF == rf,], mean(WIY, na.rm=TRUE))
+    sdf <- with(DD[DD$RF == rf,], sd(WIY, na.rm=TRUE))
+  } else {
+    meanf <- with(DD[DD$RF == rf,], mean(WIYW, na.rm=TRUE))
+    sdf <- with(DD[DD$RF == rf,], sd(WIYW, na.rm=TRUE))
+  }
+  print (sprintf ('flight %d mean %.2f sd %.2f', rf, meanf, sdf))
+}
+
+@
+
+\subsection{Fit results}
+
+The resulting fits to determine the coefficients in (\ref{eq:alpha-fast})
+and (\ref{eq:alpha-slow}) led to the coefficients $c_{0}$ = \Sexpr{round(cffn, 4)}
+and \{$d_{0},\,d_{1},\,d_{2}$\} = \{\Sexpr{round(cfs[1], 4)}, \Sexpr{round(cfs[2], 4)},
+\Sexpr{round(cfs[3], 4)}\}. However, two adjustments to these coefficients
+seemed useful:
+\begin{enumerate}
+\item The LAMS-based analysis in Section 2 led to a value for $c_{0}$ that
+was only slightly different: $c_{0}=$\Sexpr{round(cff, 4)}. As discussed
+in that section, that determination has the advantage that the reference
+values used for the fit do not depend on the assumption of zero vertical
+wind, so that value of $c_{0}$ will be adopted here.
+\item For the fit leading to \{$d_{0},\,d_{1},\,d_{2}$\}, the resulting
+residual standard deviation relative to the low-pass-filtered reference
+was \Sexpr{round(summary(fs)$sigma, 2)}$^{\circ}$, which is unexpectedly
+high and suggests that there may be project-dependent variation in
+the radome performance or some other problems with the radome measurements.
+When the analogous analysis was done for the GV, the results appeared
+to apply to all recent projects. However, these results for the C-130
+resulted in significant variation in the mean value of the resulting
+vertical wind for the three projects. The respective values of mean
+vertical wind for WINTER, FRAPPE and WECAN were \Sexpr{round(cfs[1]-cfs1a, 2)},
+\Sexpr{round(cfs[1]-cfs1c, 2)} and \Sexpr{round(cfs[1]-cfs1d, 2)}.
+This is a large enough difference, esp.~for WECAN, that it seemed
+appropriate to introduce a project-dependent correction. This could
+be done either by adjusting the constant coefficient $d_{0}$ (which
+just artificially fudges the result to zero) or by repeating the entire
+fit for each project. Both were tested. Simply adjusting $d_{0}$
+to give zero mean for WECAN led to a residual standard deviation between
+the reference values and the fit result of \Sexpr{round(with(Data[Data$RF > 300, ], sd(AOAREFS-AKY + cff * QRF, na.rm=TRUE)), 2)}
+for WECAN flights. However, a fit to the WECAN data alone gave a significantly
+smaller residual standard deviation of \Sexpr{round(summary(fsWECAN)$sigma, 2)}$^{\circ}$,
+so it appears that the values from this fit are the best to use for
+WECAN: \{$d_{0},\,d_{1},\,d_{2}$\} = \{\Sexpr{round(cfsWECAN[1], 4)},
+\Sexpr{round(cfsWECAN[2], 4)}, \Sexpr{round(cfsWECAN[3], 6)}\}.
+The last term only reduced the residual standard deviation by 0.001$^{\circ}$
+so a fit without that term appears to be just as good.\footnote{Inclusion of a term $\mathrm{(QCF*Mach)}_{s}$ was tested but did
+not provide any significant improvement either to the WECAN-only fit
+or the three-project fit.} However, it appears preferable to keep that last term anyway for
+consistency with other complementary-filter empirical representations
+of the angle of attack as described in the Processing Algorithms technical
+note and also because the last term was significant in a fit to the
+data from the other projects and from the combined projects.
+\end{enumerate}
+<<contour-plot, include=TRUE, fig.cap="Density plot showing all measurements from WECAN used in the fit. The dashed red line indicates 1:1 correspondence.">>=
+
+D <- DD[DD$RF > 300, ]
+colors <- c('gray', 'skyblue', 'forestgreen',
+  'darkorange', 'black')
+ix <- iy <- rep(0, nrow(D))
+delta <- 0.05
+# D$AOAREF <- ShiftInTime(D$AOAREF, .shift=500)
+xl <- seq(-1,5,by=delta); yl <- seq(-1,5,by=delta)
+## indices are lower limits of the bins; add 1/2 bin to position
+## no values are binned into the last bin; values smaller than the first bin limit go in ix=0
+for (i in 1:nrow(D)) { 
+  ix[i] <- which(xl > D$AKYW[i])[1] - 1
+  iy[i] <- which(yl > D$AOAREF[i])[1] - 1
+}
+xlim <- xl + delta/2
+ylim <- yl + delta/2
+xlim <- xlim[-length(xlim)]
+ylim <- ylim[-length(ylim)]
+A <- rep(0, length(xlim) * length(ylim))
+dim(A) <- c(length(xlim), length(ylim))
+for (i in 1:nrow(D)) {
+  if (!is.na(ix[i]) & !is.na(iy[i]) & (ix[i] > 0) & (iy[i] > 0)) {
+    A[ix[i], iy[i]] <- A[ix[i], iy[i]] + 1 
+  }
+}
+A[A <= 0] <- 0.1
+A <- log10(A)
+lv <- c(3, 10, 30, 100, 300, 1000)
+lvl <- log10(lv)
+# filled.contour(xlim, ylim, A,
+#   levels=lv, col=colors)
+filled.contour(xlim, ylim, A, levels=lvl, col=colors, xlab='reference angle [degrees]', ylab='AKY [degrees]', 
+  plot.axes={axis(1); axis(2); lines(c(-1,5), c(-1,5), col='red', lwd=2, lty=2)}, 
+  key.axes=axis(4, at=lvl, labels=c('3', '10', '30', '100', '300', '1000')))
+
+@
+
+Figure \ref{fig:contour-plot} shows how the resulting value for angle
+of attack (AKY) compares to the zero-vertical-wind reference value.
+Because there are so many points (more than 188,000), a conventional
+scatterplot obscures the trend because it doesn't display the density
+of points in an easily perceived way. Therefore this density plot
+show, via colors, the number of 1-Hz measurements that fall into each
+$0.05^{\circ}\times0.05^{\circ}$ area on the plot. The standard deviation
+of the difference between the reference value and the empirical formula
+is about \Sexpr{round(sd(D$AOAREF-D$AKYW, na.rm=TRUE), 2)}, but that
+scatter mostly results from non-zero vertical wind that affects the
+reference value. The standard deviation in the vertical wind for the
+project is about \Sexpr{round(sd(D$WIYW, na.rm=TRUE), 2)}, so this
+is consistent with the residual standard deviation in the fit to the
+reference value for angle of attack.\footnote{At a typical airspeed of 120 m/s, angle-of-attack fluctuations of
+0.42$^{\circ}$ give vertical-wind fluctuations of 0.42 {*} $\pi/180$
+{*} 120 $\approx$ 0.88~m/s.}
+
+\section{Plots of the Results for WECAN}
+
+The following plots show the resulting measurements of vertical wind
+for WECAN, as the variable WIY in the top panel. A black dotted line
+in that plot is a zero reference line. In addition, the bottom panel
+shows the low-pass-filtered (WIS) and high-pass-filtered (WIF) components,
+and the plot titles indicate the flight-average values and standard
+deviations. The plotted intervals start 10~min after the airspeed
+reaches 65~m/s and end 10~min before the airspeed last falls below
+65~m/s; this avoids distortion of the means during initial climbs
+and final descents when flaps are often deployed and the landing gear
+may be lowered.  Some flights deserve some comment:
+\begin{description}
+\item [{anomalous~offsets:}] Flights 2, 3, 11, 15 and 19 show larger-than-expected
+offsets in the mean vertical wind. In most cases, it is not apparent
+what could cause this or if it is a real problem, but the offset is
+suspiciously large.
+\item [{shifts~during~flights:}] Flights 14 and 16 have apparent changes
+in the mean offset during the flight. For flight 14, the offset occurs
+after climbing to about 6~km near the end of the flight, but there
+is a period at similar altitude near the start of the flight without
+this offset. In flight 16, the offset does not appear to be associated
+with any specific altitude change.
+\item [{anomalous~excursion:}] Early in flight 13, there was an apparently
+problematic peak before 21:00 UTC. Data from this period were excluded
+when fitting, but it isn't clear what caused this region of high vertical
+wind.
+\end{description}
+Because these problems appear suspicious, it may be worth including
+WIF as well as WIY in the production data-set.
+
+<<flight-plots, include=TRUE, fig.show='as-is'>>=
+
+layout(matrix(1:2, ncol=1), widths=1, heights=c(5,6)) 
+VL <- c('TASX', 'ADIFR', 'QCF', 'WIC', 'AKRD', 'ROLL')
+for (f in 1:19) {
+  DW <- getNetCDF (sprintf ('%sWECAN/WECANrf%02d.nc', Directory, f), VL)
+  DW$QR <- DW$ADIFR / DW$QCF
+  DW$QR[DW$QCF < 20] <- NA
+  DW$QR[is.infinite(DW$QR)] <- NA
+  DW$QRS <- zoo::na.approx (as.vector(DW$QR), maxgap=1000*Rate, na.rm = FALSE)
+  DW$QRS[is.na(DW$QRS)] <- 0
+  DW$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), DW$QRS)
+  DW$QRF <-  DW$QR - DW$QRS
+  DW$QCFS <- zoo::na.approx (as.vector(DW$QCF), maxgap=1000*Rate, na.rm = FALSE)
+  DW$QCFS[is.na(DW$QCFS)] <- 0
+  DW$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), DW$QCFS)
+  DW$AKYW <- cff * DW$QRF + cfsWECAN[1] + cfsWECAN[2] * DW$QRS + cfsWECAN[3] * DW$QCFS
+  DW$WIY <- DW$WIC + DW$TASX * (DW$AKYW - DW$AKRD) * (pi/180)  ## based on WECAN-only coefs
+  DW$WIS <- zoo::na.approx (as.vector(DW$WIY), maxgap=1000*Rate, na.rm = FALSE)
+  DW$WIS[is.na(DW$WIS)] <- 0
+  DW$WIS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), DW$WIS)
+  DW$WIF <- DW$WIY - DW$WIS
+  ## limit to times between first and last TASX > 65:
+  i <- which(DW$TASX > 65)
+  start <- i[1] + 600
+  end <- i[length(i)] - 600
+  DW <- DW[start:end, ]
+  op <- par (mar=c(2,4,1,1) + 0.1)
+  with (DW, plotWAC(Time, WIY, ylim=c(-6,6)), lwd=1, ylab='WIY')
+  abline (h=0, lty=3, lwd=2)
+  with (DW, title (sprintf ('Flight %d mean and std dev: %.2f+/-%.2f', f, mean(WIY, na.rm=TRUE), sd(WIY, na.rm=TRUE))))
+  op <- par (mar=c(5,4,1,1) + 0.1) 
+  with (DW, plotWAC(data.frame(Time, WIF, WIS), ylim=c(-6,6), lwd=c(1,2), col=c('blue', 'red')))
+}
+## reset in case anything gets added
+layout(matrix(1:1, ncol = 1), widths = 1, heights = c(6))
+op <- par (mar=c(5,4,1,1) + 0.1)
+
+
+@
+
+\section{High-Rate Variance Spectra from WECAN}
+
+To examine the variance spectra for the vertical wind, the empirical
+complementary-filter representation of angle of attack as represented
+by the coefficients found in Section 3.2 was applied to high-rate
+data files. The procedure is straightforward and matches the processing
+now in use for the GV in nimbus. (A function ``AddWindC130(),''
+embedded as R code in this routine, will add these variables.)
+\begin{enumerate}
+\item Load a high-rate data.frame that includes at least these variables:
+TASX, ADIFR, QCF, AKRD, WIC, PITCH and ROLL. In addition, it is useful
+to include the additional variables needed for a complete calculation
+of the three wind components: ATTACK, SSLIP, GGVEW, GGVNS, GGVSPD,
+VEW, VNS, and THDG.
+\item Add these variables to the data.frame: 
+\begin{enumerate}
+\item QR <- ADIFR / QCF
+\item low-pass-filtered and high-pass-filtered versions of QR and low-pass-filtered
+version of QCF, named QRF, QRS, QCFS. In the filter function, appropriately
+adjust for the 25-Hz data rate.
+\end{enumerate}
+\item Use the empirical coefficients $c_{1}$ and \{$d_{0},\,d_{1},\,d_{2}$
+in (\ref{eq:alpha-fast}) and (\ref{eq:alpha-slow}) to find the ``fast''
+and ``slow'' components of the angle-of-attack and add them to get
+the complete representation of angle-of-attack, here named AKY.
+\item In level flight without turns, it should be adequate to calculate
+the new vertical wind WIY from this equation:\footnote{A more general solution is to use the Ranadu function ``WindProcessor()''
+to calculate the new vertical wind. This is done by creating a working
+data.frame with ATTACK replaced by AKY and supplying that data.frame
+to the WindProcessor() function, which will return a modified data.frame
+with a variable ``WIN'' added that represents the new vertical wind,
+using a valid three-dimensional calculation suited to general use
+including in turns. This was not done when preparing this report because
+the available 25-Hz files included the output variable GGVSPD only
+at 1~Hz, while it is sampled at 10~Hz and needs to be interpolated
+to 25~Hz for the calculation of vertical wind. Alternately, the variable
+ROC could be calculated and used in place of GGVSPD, but for the C-130
+the noise in this signal introduces unacceptable noise into the vertical
+wind so some filtering of ROC (which should not have significant high-frequency
+components) would be needed. }\\
+\[
+\mathrm{WIY}=\mathrm{WIC}+\mathrm{TASX}*(\mathrm{AKY-AKRD})*\pi/180
+\]
+\end{enumerate}
+<<get-hr-data, include=FALSE>>=
+
+VLHR <- c('TASX', 'ADIFR', 'QCF', 'WIC', 'AKRD', 'ROLL', 'PITCH', 'ATTACK', 'SSLIP', 'GGLAT', 'GGALT', 'ACINS', 'PSXC', 'ATX',
+          'GGVEW', 'GGVNS', 'GGVSPD', 'VEW', 'VNS', 'THDG', 'UXC', 'VYC')
+DHR <- getNetCDF(sprintf ('%sWECAN/WECANrf08h.nc', Directory), VLHR, 210000, 220000)
+Rate <- 25
+## see 'chunks/AddWindC130.R'
+DHR <- AddWindC130 (DHR)
+DHR <- DHR[setRange(DHR, 212500, 214000), ]
+## the following is a WINTER file, saved for use below.
+DWHR <- getNetCDF(sprintf ('%sWINTER/WINTERrf08h.nc', Directory), VLHR, 115000, 122000)
+
+@
+
+<<plot-hr-spectrum, include=TRUE, fig.cap="Variance spectrum for the new vertical wind. Data from WECAN research flight 8, 21:25:00 -- 21:40:00. The spectrum for TASX is also shown as the green line.">>=
+
+g <- VSpec(DHR, 'WIY')
+VSpec(DHR, 'TASX', ADD=g) + theme_WAC()
+
+@
+
+<<three-component-spectrum, include=TRUE, fig.cap="Variance spectra for the three components of the wind, longitudinal (UXCA), lateral starboard (VYC), and vertical (WIY), for the same period shown in the preceding figure. UXCA refers to the variable UXC multiplied by sqrt(3/4) to adjust for the expected 4/3 ratio of longitudinal to lateral spectra, so with this adjustment all three spectra are expected to be the same in an inertial subrange.">>=
+
+DHR$UXCA <- DHR$UXC * sqrt(3/4)
+g <- VSpec(DHR, 'WIY')
+g <- VSpec(DHR, 'VYC', ADD=g)
+VSpec(DHR, 'UXCA', ADD=g) + theme_WAC()
+
+@
+
+A sample variance spectrum for the new vertical wind is shown in Fig.~\ref{fig:plot-hr-spectrum}.
+This is similar to others that have been examined from WECAN. It shows
+a suspicious drop below the extrapolated -5/3 reference line for the
+highest-decade frequency. This is not as pronounced as it was for
+the previous (WIC) processing, but it is still significant. In contrast,
+the spectrum for TASX is approximately as expected at high frequency,
+with no decrease beyond the -5/3 reference slope (-2/3 in these weighted-by-frequency
+plots) even at the highest frequency. Figure~\ref{fig:three-component-spectrum}
+shows all three components of the wind, for which the spectra should
+be the same with the adjustment applied to the longitudinal spectrum
+to account for the expected 4:3 ratio between longitudinal and lateral
+spectra. Both lateral spectra appear to have too little decreasing
+spectral variance at frequencies above about 1~Hz. The flight segment
+used was at very low level (around 2,100~ft) and the longitudinal
+spectrum appears to have a region that is approsimately consistent
+with an inertial subrange, so the two lateral spectra (dependent primarily
+on angle-of-attack and sideslip at high frequency) appear to underestimate
+the high-frequency components. Several other regions were also examined,
+including flight 14 23:40:00 \textendash{} 23:50:00, flight 17 18:10:00
+\textendash{} 18:35:00, and flight 7 23:45:00 \textendash{} 23:50:00,
+with similar results. 
+
+<<winter-plot, include=TRUE, fig.cap="Variance spectra for the three components of the wind, longitudinal (UXCA), lateral starboard (VYC), and vertical (WIY), for WINTER flight 8.">>=
+
+DWHR$UXCA <- DWHR$UXC * sqrt(3/4)
+g <- VSpec(DWHR, 'WIC')
+g <- VSpec(DWHR, 'VYC', ADD=g)
+VSpec(DWHR, 'UXCA', ADD=g) + theme_WAC()
+
+@
+
+This problem is not characteristic of older C-130 projects; for example,
+the variance spectra from WINTER flight 8, 11:50:00 \textendash{}
+12:20:00, shown in Fig.~\ref{fig:winter-plot} show a much more modest
+roll-off at high frequency. The intensity of the turbulence is higher
+here, but similarly high levels of turbulence in WECAN have variance
+spectra with the same high degree of roll-off at high frequency as
+that shown in Fig.~\ref{fig:plot-hr-spectrum}. The cause of this
+problem has not been identified yet and needs further investigation.
+
+\section{Summary and Conclusions}
+
+These are the key results from this study:
+\begin{enumerate}
+\item \emph{Empirical representation of the angle of attack: }The same complementary-filter
+representation implemented for SOCRATES works for WECAN with these
+coefficients: $c_{0}=$\Sexpr{round(cff, 4)} and $d_{\{0,1,2\}}=$\{\Sexpr{round(cfsWECAN[1], 4)},
+\Sexpr{round(cfsWECAN[2], 4)}, \Sexpr{round(cfsWECAN[3], 6)}\}.
+This report contains a plot of the resulting vertical wind for each
+flight in WECAN. While those plots show a few residual problems, they
+are mostly reasonable. Overall, the empirical formula represents the
+reference data with a standard deviation that matches the resulting
+standard deviation in vertical wind, so this representation is adequate.
+Speed runs flown at various altitudes could provide a valuable test
+and perhaps refinement.
+\item \emph{Empirical representation of the sideslip angle:} The recommended
+sideslip coefficients, for use in the conventional representation
+where the sideslip $\beta$ is given by $\beta=e_{0}+e_{1}(\mathrm{BDIFR/QCF)})$,
+are $e_{\{0,1\}}=$\{0.85, 12.6582\}. The heading offset should be
+changed from $-0.1$ to $+0.76$ if these new coefficients are used
+for sideslip. This result arises from a combination of the LAMS-based
+fit for sideslip and the circle-maneuver results for heading and sideslip
+offset. With these sensitivity coefficients, the high-frequency variance
+spectrum for VYC (dependent primarily on BDIFR) matches that for vertical
+wind (dependent at high frequency primarily on ADIFR) in apparent
+inertial-subrange conditions, so this supports the validity of the
+sensitivity coefficients.
+\item \emph{Variations among projects:} The representation of angle of attack
+listed above applies only to WECAN. A representation was sought that
+would apply to WECAN, FRAPPE, NOMADDS and WINTER, but the best representation
+led to unsatisfactory results for the individual projects. This may
+be a suggestion that there are problems with the measurements that
+vary among projects. A WECAN-only representation for angle of attack
+was developed and used here, but it isn't clear if it will apply to
+a future project. In addition, the plotted values for vertical wind
+for a few WECAN flights, presented in this report, don't appear up
+to normal standards. For this reason, it may be useful to include
+the high-pass-filtered version of WIY, here called WIF, in the archived
+production files.
+\item \emph{Problematic high-rate variance spectra:} Variance spectra with
+the new processing, and also with the previously used processing,
+suggest that the variance is underestimated at frequencies above about
+1~Hz. Variance spectra from WINTER were much better, so there appears
+to be an unresolved problem with the wind-sensing system at high frequency.
+This needs further investigation because the variance spectra do not
+appear suitable for applications like measurements of fluxes by eddy
+correlation.
+\end{enumerate}
+\clearpage{}
+
+\appendix
+
+\section{Reproducibility}
+
+This document is constructed in ways that support duplication of the
+study. The code that generates the plots and implements the processing
+algorithm is incorporated into the same file that generated this document
+via \LaTeX, using principles and techniques described by \citet{Xie2014a}
+as implemented in the R package 'knitr' (\citet{Xie2014b}). The program,
+'WindInWECAN.Rnw', is archived on 'GitHub' in the directory at \href{https://github.com/WilliamCooper/Reprocessing.git}{this URL}.
+There is also some supplemental material in that directory, including
+the workflow document, the bibliography and some code segments saved
+in the ``chunks'' subdirectory. This full directory should be downloaded
+in order to run the program. The calculations use the programming
+language R (\citet{Rlanguage}) and were run within RStudio (\citet{RStudio2012}),
+so this is the most straightforward way to replicate the calculations
+and the generation of this document.
+
+A package named Ranadu, containing ancillary functions, is used extensively
+in the R code. It is available on GitHub as \href{https://github.com/WilliamCooper/Ranadu.git}{https://github.com/WilliamCooper/Ranadu.git}.
+The version used for calculations in this technical note is included
+in the 'zip' archive listed below.
+
+The original files containing the data as produced by the NCAR Earth
+Observing Laboratory, Research Aviation Facility, were in netCDF format
+(cf.~\href{http://www.unidata.ucar.edu/software/netcdf/}{this URL}),
+but particularly for WECAN the files are preliminary data not yet
+released for general use. The officially released data files should
+be used once they are available. The files used were those present
+in the EOL directory /scr/raf\_data on about 1 Oct 2018. The subset
+data frames constructed from those preliminary netCDF files are saved
+and can be provided by the author, if or when that is consistent with
+the project data policies, but for the purposes of reproducibility
+they have also been saved in the author's workspace, at /h/eol/cooperw/RStudio/Reprocessing/{*}.Rdata.
+The code in the GitHub archive has appropriate 'load' commands to
+read these data files but the .Rdata data files themselves are not
+part of the GitHub repository because they are too large to be appropriate
+there and still contain ``preliminary'' data. To reproduce this
+research, those data files have to be transferred separately to the
+directory containing the .Rnw or LyX code. Some use has been made
+of attributes assigned to the data.frames and the variables in those
+data.frames. All the attributes from the original netCDF files have
+been transferred, so there is a record of how the original data were
+processed, for example recording calibration coefficients and processing
+chains for the variables. Once the data.frames are loaded into R,
+these attributes can be viewed and provide additional documentation
+of what data were used. Key information like the processing date,
+the program version that produced the archive, and the selection of
+primary variables for various measurements thus is preserved.
+
+See the list of project components on the next page and their locations.
+
+\clearpage{}
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}}  & WindInWECAN\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/WindInWECAN.zip}{WindInWECAN.zip}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}}  & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/WindInWECAN.Rnw}{WindInWECAN.Rnw};
+see also \href{https://github.com/WilliamCooper/Reprocessing/WindInWECAN.lyx}{WindInWECAN.lyx}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Special Data Files:}}}  & AKRDforC130.Rdata \textendash{} see the author. Also, ARISTO-LAMSB.Rdata\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow Document:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/WorkflowWindInWECAN.pdf}{WorkflowWindInWECAN.pdf}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}}  & \href{https://github.com/WilliamCooper/Reprocessing.git}{https://github.com/WilliamCooper/Reprocessing.git}\tabularnewline
+\end{tabular}
+
+\attachm{WindInWECAN.Rnw\\
+WindInWECAN.lyx\\
+WindInWECAN.pdf\\
+WorkflowWindInWECAN.pdf\\
+ARISTO-LAMSB.Rdata\\
+WAC.bib\\
+chunks/{*}\\
+SessionInfo}
+
+\clearpage
+%\phantomsection \addcontentsline{toc}{section}{References}
+
+%\centerline{-- Blank Page, End of this Technical Report --}
+\vfill\eject
+\clearpage
+%\addcontentsline{toc}{section}{End}
+
+<<make-zip-archive, INCLUDE=TRUE, eval=FALSE>>=
+
+cat (toLatex(sessionInfo()), file="SessionInfo") 
+system (sprintf("zip WindInWECAN.zip WindInWECAN.Rnw WindInWECAN.lyx WindInWECAN.pdf WorkflowWindInWECAN.pdf ARISTO-LAMSB.Rdata WAC.bib ./chunks/* SessionInfo"))
+
+@ 
+
+\clearpage
+%\phantomsection \addcontentsline{toc}{section}{References}
+
+\label{sec:bibliography-1} 
+
+\bibliographystyle{plainnat}
+\bibliography{WAC}
+
+
+\end{document}
