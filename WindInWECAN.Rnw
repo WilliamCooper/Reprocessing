@@ -1201,12 +1201,12 @@ See the list of project components on the next page and their locations.
 
 \begin{tabular}{ll}
 \textsf{\textsc{\textcolor{blue}{Project:}}}  & WindInWECAN\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/WindInWECAN.zip}{WindInWECAN.zip}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/blob/master/WindInWECAN.zip}{WindInWECAN.zip}\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Contains:}}}  & attachment list below\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Program:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/WindInWECAN.Rnw}{WindInWECAN.Rnw};
-see also \href{https://github.com/WilliamCooper/Reprocessing/WindInWECAN.lyx}{WindInWECAN.lyx}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/blob/master/WindInWECAN.Rnw}{WindInWECAN.Rnw};
+see also \href{https://github.com/WilliamCooper/Reprocessing/blob/master/WindInWECAN.lyx}{WindInWECAN.lyx}\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Special Data Files:}}}  & AKRDforC130.Rdata \textendash{} see the author. Also, ARISTO-LAMSB.Rdata\tabularnewline
-\textsf{\textsc{\textcolor{blue}{Workflow Document:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/WorkflowWindInWECAN.pdf}{WorkflowWindInWECAN.pdf}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow Document:}}}  & \href{https://github.com/WilliamCooper/Reprocessing/blob/master/WorkflowWindInWECAN.pdf}{WorkflowWindInWECAN.pdf}\tabularnewline
 \textsf{\textsc{\textcolor{blue}{Git:}}}  & \href{https://github.com/WilliamCooper/Reprocessing.git}{https://github.com/WilliamCooper/Reprocessing.git}\tabularnewline
 \end{tabular}
 

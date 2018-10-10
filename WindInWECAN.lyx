@@ -5582,7 +5582,7 @@ Archive package:
 \begin_inset CommandInset href
 LatexCommand href
 name "WindInWECAN.zip"
-target "https://github.com/WilliamCooper/Reprocessing/WindInWECAN.zip"
+target "https://github.com/WilliamCooper/Reprocessing/blob/master/WindInWECAN.zip"
 literal "false"
 
 \end_inset
@@ -5646,7 +5646,7 @@ Program:
 \begin_inset CommandInset href
 LatexCommand href
 name "WindInWECAN.Rnw"
-target "https://github.com/WilliamCooper/Reprocessing/WindInWECAN.Rnw"
+target "https://github.com/WilliamCooper/Reprocessing/blob/master/WindInWECAN.Rnw"
 literal "false"
 
 \end_inset
@@ -5655,7 +5655,7 @@ literal "false"
 \begin_inset CommandInset href
 LatexCommand href
 name "WindInWECAN.lyx"
-target "https://github.com/WilliamCooper/Reprocessing/WindInWECAN.lyx"
+target "https://github.com/WilliamCooper/Reprocessing/blob/master/WindInWECAN.lyx"
 literal "false"
 
 \end_inset
@@ -5720,7 +5720,7 @@ Workflow Document:
 \begin_inset CommandInset href
 LatexCommand href
 name "WorkflowWindInWECAN.pdf"
-target "https://github.com/WilliamCooper/Reprocessing/WorkflowWindInWECAN.pdf"
+target "https://github.com/WilliamCooper/Reprocessing/blob/master/WorkflowWindInWECAN.pdf"
 literal "false"
 
 \end_inset
