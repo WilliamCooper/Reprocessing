@@ -2,13 +2,13 @@
 ## variables needed in input data.frame for all additions:
 ## "ACINS", "PSXC", "ATX", "GGLAT", "GGALT", "PSTF, "QCTF",
 ## "PSXC", "TASX", "ATTACK", "SSLIP", "GGVEW", "GGVNS", "EWX", "GGVSPD", 
-## "VEW", "VNS", "THDG", "ROLL", "PITCH", "ADIFR", "QCF", "PSF", "ADIF_GP",
+## "VEW", "VNS", "THDG", "ROLL", "PITCH", "ADIFR", "QCF", "PSFRD", "QCFR", "ADIF_GP",
 ## "BDIF_GP", "QC_GP", "PS_GP", "CROLL_GP", "CPITCH_GP", "CTHDG_GP" 
 ## Recommended variables in data.frame (to provide comparison variables also):
 # VR <- c("ACINS", "ADIF_GP", "ADIFR", "AKRD", "ATTACK", "ATX", "BDIF_GP",
 #   "CPITCH_GP", "CROLL_GP", "CTHDG_GP", "CVEW_GP", "CVNS_GP",  
 #   "CVSPD_GP", "EWX",  "GGALT",  "GGLAT", "GGVEW", "GGVNS",  "GGVSPD",
-#   "PITCH",  "PS_GP",  "PSF",  "PSTF", "PSXC", "QC_GP",  "QCF",
+#   "PITCH",  "PS_GP",  "PSF",  "PSTF", "PSXC", "QC_GP",  "QCF", "QCFR", "PSFRD",
 #   "QCTF", "ROLL", "SSLIP",  "TASX", "THDG", "UXC",  "VEW",  "VNS",
 #   "VYC",  "WDC",  "WIC",  "WSC" )
 ## construct function to add variables to a data.frame:
@@ -66,7 +66,7 @@ AddWind <- function (DF, Rate=1, addAKY=TRUE, addROC=TRUE) {
   if (!is.null(attr(DF, 'Rate'))) {Rate <- attr (DF, 'Rate')}
   requiredVar <- c('PSXC', 'TASX', 'ATTACK', 'SSLIP', 'GGVEW', 'GGVNS', 'EWX',
     'VEW', 'VNS', 'THDG', 'ROLL', 'PITCH')
-  if (addAKY) {requiredVar <- c(requiredVar, 'ADIFR', 'QCF', 'PSFD')}
+  if (addAKY) {requiredVar <- c(requiredVar, 'ADIFR', 'QCF', 'PSF')}
   if (addROC) {requiredVar <- c(requiredVar, 'ACINS', 'PSXC', 'ATX', 
     'GGLAT', 'GGALT')}
   requiredVar <- unique(requiredVar)

@@ -26,7 +26,7 @@
      June\or July\or August\or September\or October\or November\or
      December\fi
      \space\number\year}
-\renewcommand{\datetoday}{11 February 2018}
+%\renewcommand{\datetoday}{10 October 2018}
 \newcommand{\RAFAlgorithmMemo}{\null \vskip-1.5truein
 {\raggedright \textsf{\textsc{\large \textcolor{blue}{Research Aviation Facility}}}}\par
 {\raggedright \textsf{\textsl{\textcolor{blue}{Algorithm Memorandum:}}}} \par \vskip6pt
@@ -152,6 +152,7 @@ Al Cooper
 \end_layout
 
 \begin_layout Date
+revised: 
 \begin_inset ERT
 status open
 
@@ -299,7 +300,11 @@ This document discusses some aspects of the measurements of wind in WECAN,
  LAMS observations from ARISTO-2016 to refine those relationships.
  As part of these studies, the high-rate spectra for wind will be reviewed
  and checked against expectations for flight in an inertial subrange.
- 
+ This revision of the previous (10 Oct 2018) version uses the processing
+ from May 2019 and some different flights for WECAN to determine the complementa
+ry-filter sensitivity coefficients and to construct the high-rate examples,
+ and the conclusions regarding turbulence spectra are more favorable than
+ before.
 \end_layout
 
 \begin_layout Standard
@@ -775,8 +780,24 @@ Rate <- 1
 
 \begin_layout Plain Layout
 
-VarList <- c("ADIFR", "PITCH", "QCF", "PSFD", "AKRD", "WIC", "TASF", "GGALT",
+VarList <- c("ADIFR", "PITCH", "QCFR", "PSFRD", "AKRD", "WIC", "TASF", "GGALT",
  "ROLL", "PSXC", "ATX", "QCXC", 
+\begin_inset Quotes eld
+\end_inset
+
+QCF
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+PSFD
+\begin_inset Quotes erd
+\end_inset
+
+,
 \end_layout
 
 \begin_layout Plain Layout
@@ -1496,6 +1517,11 @@ i[3]))
 
 \begin_layout Plain Layout
 
+  D$QCFR <- Data$QCFR
+\end_layout
+
+\begin_layout Plain Layout
+
   D$QCF <- Data$QCF
 \end_layout
 
@@ -1506,7 +1532,7 @@ i[3]))
 
 \begin_layout Plain Layout
 
-  D$PSFD <- Data$PSFD
+  D$PSFRD <- Data$PSFRD
 \end_layout
 
 \begin_layout Plain Layout
@@ -1593,7 +1619,7 @@ Corresponding values of the
 'fast
 \backslash
 ' component of angle of attack as determined from LAMS (AOAREFF) and from
- the emperical relationship (AKF).
+ the empirical relationship (AKF).
 \begin_inset Quotes erd
 \end_inset
 
@@ -1669,7 +1695,7 @@ Data$QR <- Data$ADIFR / Data$QCF
 
 \begin_layout Plain Layout
 
-Data$Mach <- MachNumber (Data$PSFD, Data$QCF, Data$EWX)
+Data$Mach <- MachNumber (Data$PSFRD, Data$QCFR, Data$EWX)
 \end_layout
 
 \begin_layout Plain Layout
@@ -1767,7 +1793,7 @@ DW$ATTACK <- DW$ATTACK + DW$DA
 
 \begin_layout Plain Layout
 
-# with (DW[DW$TASCSQ < 0.1 & DW$Valid,], plot(data.frame(PSFD, AKRD-ATTACK),
+# with (DW[DW$TASCSQ < 0.1 & DW$Valid,], plot(data.frame(PSFRD, AKRD-ATTACK),
  type='p', pch=20, col='blue', ylim=c(-2,2)))
 \end_layout
 
@@ -1931,7 +1957,7 @@ D$QR[is.infinite(D$QR)] <- NA
 
 \begin_layout Plain Layout
 
-D$M <- MachNumber (D$PSFD, D$QCF)
+D$M <- MachNumber (D$PSFRD, D$QCFR)
 \end_layout
 
 \begin_layout Plain Layout
@@ -2048,7 +2074,7 @@ D$QRMF <-  D$QRM - D$QRMS
 
 \begin_layout Plain Layout
 
-D$AOAREFF <- ShiftInTime(D$AOAREFF, .shift=750)
+D$AOAREFF <- ShiftInTime(D$AOAREFF, .shift=600)  ## 750 for QCF
 \end_layout
 
 \begin_layout Plain Layout
@@ -2168,7 +2194,7 @@ For the GV, the complementary-filter approach was not needed for sideslip
  although using the values from ARISTO-LAMS.pdf might be better justified
  by existing documentation.
 \begin_inset Foot
-status collapsed
+status open
 
 \begin_layout Plain Layout
 Neither matches the coefficients in the Processing Algorithms document,
@@ -2178,7 +2204,7 @@ Neither matches the coefficients in the Processing Algorithms document,
 
 }.
  An update to that document is needed to reflect whatever has been used
- in recent documents and what will be used in WECAN.
+ in recent projects and what will be used in WECAN.
 \end_layout
 
 \end_inset
@@ -2582,26 +2608,15 @@ average
 
 \begin_layout Standard
 All these flights were processed with an offset imposed on heading of 
-\begin_inset Formula $-0.1^{\circ}$
+\begin_inset Formula $+0.76^{\circ}$
 \end_inset
 
-, so these maneuvers suggest that the first heading 
-\begin_inset Quotes eld
-\end_inset
-
-calibration coefficient
-\begin_inset Quotes erd
-\end_inset
-
- be changed from 
+, after an intial version of this study recommended that value (vs 
 \begin_inset Formula $-0.1$
 \end_inset
 
- to 
-\begin_inset Formula $+0.76$
-\end_inset
-
- and the constant 
+ in original processing).
+ The appropriate constant 
 \begin_inset Quotes eld
 \end_inset
 
@@ -2609,7 +2624,7 @@ sensitivity coefficient
 \begin_inset Quotes erd
 \end_inset
 
- for sideslip be changed from 1.545 to 0.85
+ for sideslip then is 0.85
 \begin_inset Formula $^{\circ}$
 \end_inset
 
@@ -2655,7 +2670,7 @@ In this case, measurements from WINTER, FRAPPE and WECAN research, test,
  A few flights were excluded because they led to outlier vertical-wind measureme
 nts: WINTER test flight 1, WINTER ferry flight 1, WINTER research flights
  1, 2, 3, 8, 10, and 13, FRAPPE flight 9, and WECAN research flights 2,
- 8, 14, 16, and 19.
+ 3, 8, 11, 14, 15, 16, and 19.
  These were excluded because they appeared to have anomalous regions of
  vertical wind during preliminary processing and because there was ample
  data for a highly constrained fit from the remaining flights.
@@ -2763,8 +2778,19 @@ The individual flights were then concatenated into one data.frame containing
  only the variables needed for fitting and a few others used while examining
  the results.
  The variables in the data.frame were ADIFR, AKRD, GGALT, GGVSPD, PITCH,
- PSFD, QCF, ROLL, SSLIP, TASF, TASX, THDG, WIC, and those added in step
- 2 above.
+ PSFRD, QCFR, QCF, ROLL, SSLIP, TASF, TASX, THDG, WIC, and those added in
+ step 2 above.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Both QCF and QCFR are needed because QCF is used in the representation of
+ AKRD but QCFR is used as primary to find MACHX and TASX.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Enumerate
@@ -2865,8 +2891,17 @@ Bad <- c('WINTERrf10.nc', 'FRAPPErf09', 'NOMADSSrf07.nc', 'NOMADSSrf09.nc',
 
 \begin_layout Plain Layout
 
-         'WINTERtf01.nc', 'WINTERff01.nc', 'WECANrf02.nc', 'WECANrf08.nc', 'WECANrf1
-6.nc', 'WECANrf14.nc')
+         'WINTERtf01.nc', 'WINTERff01.nc', 'WECANrf02.nc', 'WECANrf03.nc',
+\end_layout
+
+\begin_layout Plain Layout
+
+         'WECANrf08.nc', 'WECANrf11.nc', 'WECANrf15.nc',
+\end_layout
+
+\begin_layout Plain Layout
+
+         'WECANrf16.nc', 'WECANrf14.nc', 'WECANrf19.nc')
 \end_layout
 
 \begin_layout Plain Layout
@@ -3072,7 +3107,7 @@ if (file.exists('AKRDforC130.Rdata')) {
 
 \begin_layout Plain Layout
 
-      D$M <- MachNumber (D$PSF, D$QCF)
+      D$M <- MachNumber (D$PSFRD, D$QCFR)
 \end_layout
 
 \begin_layout Plain Layout
@@ -3798,7 +3833,7 @@ The LAMS-based analysis in Section 2 led to a value for
 \begin_inset Formula $c_{0}$
 \end_inset
 
- that was only slightly different: 
+ that was slightly different: 
 \begin_inset Formula $c_{0}=$
 \end_inset
 
@@ -4002,7 +4037,7 @@ status open
 
 \begin_layout Plain Layout
 Inclusion of a term 
-\begin_inset Formula $\mathrm{(QCF*Mach)}_{s}$
+\begin_inset Formula $\mathrm{(QCFR*Mach)}_{s}$
 \end_inset
 
  was tested but did not provide any significant improvement either to the
@@ -4574,7 +4609,7 @@ for (f in 1:19) {
 
 \begin_layout Plain Layout
 
-  with (DW, plotWAC(Time, WIY, ylim=c(-6,6)), lwd=1, ylab='WIY')
+  with (DW, plotWAC(data.frame(Time, WIY), ylim=c(-6,6)), lwd=1)
 \end_layout
 
 \begin_layout Plain Layout
@@ -4663,7 +4698,7 @@ Load a high-rate data.frame that includes at least these variables: TASX,
  ADIFR, QCF, AKRD, WIC, PITCH and ROLL.
  In addition, it is useful to include the additional variables needed for
  a complete calculation of the three wind components: ATTACK, SSLIP, GGVEW,
- GGVNS, GGVSPD, VEW, VNS, and THDG.
+ GGVNS, GGVSPD, VEW, VNS, QCFR, PSFRD, and THDG.
 \end_layout
 
 \begin_layout Enumerate
@@ -4812,8 +4847,8 @@ status open
 
 \begin_layout Plain Layout
 
-VLHR <- c('TASX', 'ADIFR', 'QCF', 'WIC', 'AKRD', 'ROLL', 'PITCH', 'ATTACK',
- 'SSLIP', 'GGLAT', 'GGALT', 'ACINS', 'PSXC', 'ATX',
+VLHR <- c('TASX', 'ADIFR', 'QCFR', 'QCF', 'PSFRD', 'WIC', 'AKRD', 'ROLL',
+ 'PITCH', 'ATTACK', 'SSLIP', 'GGLAT', 'GGALT', 'ACINS', 'PSXC', 'ATX',
 \end_layout
 
 \begin_layout Plain Layout
@@ -4823,8 +4858,8 @@ VLHR <- c('TASX', 'ADIFR', 'QCF', 'WIC', 'AKRD', 'ROLL', 'PITCH', 'ATTACK',
 
 \begin_layout Plain Layout
 
-DHR <- getNetCDF(sprintf ('%sWECAN/WECANrf08h.nc', Directory), VLHR, 210000,
- 220000)
+DHR <- getNetCDF(sprintf ('%sWECAN/WECANrf17h.nc', Directory), VLHR, 180000,
+ 190000)
 \end_layout
 
 \begin_layout Plain Layout
@@ -4839,12 +4874,12 @@ Rate <- 25
 
 \begin_layout Plain Layout
 
-DHR <- AddWindC130 (DHR)
+DHR <- AddWindC130 (DHR, cff=cff, cfs=cfsWECAN)
 \end_layout
 
 \begin_layout Plain Layout
 
-DHR <- DHR[setRange(DHR, 212500, 214000), ]
+DHR <- DHR[setRange(DHR, 182600, 182900), ]
 \end_layout
 
 \begin_layout Plain Layout
@@ -4883,7 +4918,7 @@ status open
 \end_inset
 
 Variance spectrum for the new vertical wind.
- Data from WECAN research flight 8, 21:25:00 -- 21:40:00.
+ Data from WECAN research flight 17, 18:26:00 -- 18:29:00.
  The spectrum for TASX is also shown as the green line.
 \begin_inset Quotes erd
 \end_inset
@@ -4897,12 +4932,17 @@ Variance spectrum for the new vertical wind.
 
 \begin_layout Plain Layout
 
-g <- VSpec(DHR, 'WIY')
+g <- VSpec(DHR, 'WIY', method='MEM', ylim=c(1.e-3, 10.))
 \end_layout
 
 \begin_layout Plain Layout
 
-VSpec(DHR, 'TASX', ADD=g) + theme_WAC()
+g <- VSpec(DHR, 'WIC', method='MEM', ADD=g)
+\end_layout
+
+\begin_layout Plain Layout
+
+VSpec(DHR, 'TASX', method='MEM', ADD=g) + theme_WAC()
 \end_layout
 
 \begin_layout Plain Layout
@@ -4952,17 +4992,17 @@ DHR$UXCA <- DHR$UXC * sqrt(3/4)
 
 \begin_layout Plain Layout
 
-g <- VSpec(DHR, 'WIY')
+g <- VSpec(DHR, 'WIY', method='MEM')
 \end_layout
 
 \begin_layout Plain Layout
 
-g <- VSpec(DHR, 'VYC', ADD=g)
+g <- VSpec(DHR, 'VYC', method='MEM', ADD=g)
 \end_layout
 
 \begin_layout Plain Layout
 
-VSpec(DHR, 'UXCA', ADD=g) + theme_WAC()
+VSpec(DHR, 'UXCA', method='MEM', ADD=g) + theme_WAC()
 \end_layout
 
 \begin_layout Plain Layout
@@ -5001,8 +5041,6 @@ ref{fig:plot-hr-spectrum}
  This is similar to others that have been examined from WECAN.
  It shows a suspicious drop below the extrapolated -5/3 reference line for
  the highest-decade frequency.
- This is not as pronounced as it was for the previous (WIC) processing,
- but it is still significant.
  In contrast, the spectrum for TASX is approximately as expected at high
  frequency, with no decrease beyond the -5/3 reference slope (-2/3 in these
  weighted-by-frequency plots) even at the highest frequency.
@@ -5026,17 +5064,13 @@ ref{fig:three-component-spectrum}
  shows all three components of the wind, for which the spectra should be
  the same with the adjustment applied to the longitudinal spectrum to account
  for the expected 4:3 ratio between longitudinal and lateral spectra.
- Both lateral spectra appear to have too little decreasing spectral variance
- at frequencies above about 1
+ Both lateral spectra appear to have too little spectral variance at frequencies
+ above about 1
 \begin_inset space ~
 \end_inset
 
 Hz.
- The flight segment used was at very low level (around 2,100
-\begin_inset space ~
-\end_inset
-
-ft) and the longitudinal spectrum appears to have a region that is approsimately
+ The longitudinal spectrum appears to have a region that is approximately
  consistent with an inertial subrange, so the two lateral spectra (dependent
  primarily on angle-of-attack and sideslip at high frequency) appear to
  underestimate the high-frequency components.
@@ -5075,17 +5109,17 @@ DWHR$UXCA <- DWHR$UXC * sqrt(3/4)
 
 \begin_layout Plain Layout
 
-g <- VSpec(DWHR, 'WIC')
+g <- VSpec(DWHR, 'WIC', method='MEM')
 \end_layout
 
 \begin_layout Plain Layout
 
-g <- VSpec(DWHR, 'VYC', ADD=g)
+g <- VSpec(DWHR, 'VYC', method='MEM', ADD=g)
 \end_layout
 
 \begin_layout Plain Layout
 
-VSpec(DWHR, 'UXCA', ADD=g) + theme_WAC()
+VSpec(DWHR, 'UXCA', method='MEM', ADD=g) + theme_WAC()
 \end_layout
 
 \begin_layout Plain Layout
@@ -5103,8 +5137,7 @@ VSpec(DWHR, 'UXCA', ADD=g) + theme_WAC()
 \end_layout
 
 \begin_layout Standard
-This problem is not characteristic of older C-130 projects; for example,
- the variance spectra from WINTER flight 8, 11:50:00 – 12:20:00, shown in
+The variance spectra from WINTER flight 8, 11:50:00 – 12:20:00, shown in
  Fig.
 \begin_inset space ~
 \end_inset
@@ -5122,7 +5155,7 @@ ref{fig:winter-plot}
 
 \end_inset
 
- show a much more modest roll-off at high frequency.
+ show a similar modest roll-off at high frequency.
  The intensity of the turbulence is higher here, but similarly high levels
  of turbulence in WECAN have variance spectra with the same high degree
  of roll-off at high frequency as that shown in Fig.
@@ -5225,6 +5258,9 @@ Sexpr{round(cfsWECAN[3], 6)}
  This report contains a plot of the resulting vertical wind for each flight
  in WECAN.
  While those plots show a few residual problems, they are mostly reasonable.
+ It seems likely that the cases with significant departures, like research
+ flights 3, 11, 15, and 19, may have been affected by some radome-pressure-line
+ problem like blockage.
  Overall, the empirical formula represents the reference data with a standard
  deviation that matches the resulting standard deviation in vertical wind,
  so this representation is adequate.
@@ -5251,21 +5287,17 @@ on where the sideslip
 \end_inset
 
 {0.85, 12.6582}.
- The heading offset should be changed from 
-\begin_inset Formula $-0.1$
-\end_inset
-
- to 
+ The heading offset should be 
 \begin_inset Formula $+0.76$
 \end_inset
 
- if these new coefficients are used for sideslip.
+ if these coefficients are used for sideslip.
  This result arises from a combination of the LAMS-based fit for sideslip
  and the circle-maneuver results for heading and sideslip offset.
  With these sensitivity coefficients, the high-frequency variance spectrum
- for VYC (dependent primarily on BDIFR) matches that for vertical wind (dependen
-t at high frequency primarily on ADIFR) in apparent inertial-subrange conditions
-, so this supports the validity of the sensitivity coefficients.
+ for VYC (dependent primarily on BDIFR) approximately matches that for vertical
+ wind (dependent at high frequency primarily on ADIFR) in apparent inertial-subr
+ange conditions, so this supports the validity of the sensitivity coefficients.
 \end_layout
 
 \begin_layout Enumerate
@@ -5299,8 +5331,8 @@ Problematic high-rate variance spectra:
 \end_inset
 
 Hz.
- Variance spectra from WINTER were much better, so there appears to be an
- unresolved problem with the wind-sensing system at high frequency.
+ Variance spectra from WINTER were similarly affected, so there appears
+ to be an unresolved problem with the wind-sensing system at high frequency.
  This needs further investigation because the variance spectra do not appear
  suitable for applications like measurements of fluxes by eddy correlation.
 \end_layout
