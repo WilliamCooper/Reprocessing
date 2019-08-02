@@ -1,0 +1,604 @@
+%% LyX 2.3.2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage{amsmath}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+\EOLmemo 
+
+\global\addressee={OTREC processing and QA}  % >>change "File" to the "To:" name desired
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}} & AKRD and WIC for OTREC\tabularnewline
+\end{tabular}
+
+\bigskip
+
+<<initialization,echo=FALSE,include=FALSE>>=
+
+
+library(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=5, fig.align="center", digits=4)
+thisFileName <- "AKRDforOTREC"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(ggplot2)
+require(grid)
+require(ggthemes)
+require(tidyverse)
+require(magrittr)
+Directory <- DataDirectory ()
+Flight <- "tf01" 				# XXX change this
+Project <- "OTREC"			 # XXX change this
+ProjectDir <- Project
+fname <- file.path(Directory, ProjectDir, '/', Project, Flight, '.nc', fsep='')
+Vars <- c("AKRD", "QCF", "PSF", "VNS", "VEW", "ADIFR", "SSLIP",
+                     "GGVNS", "GGVEW", "GGALT",
+                     "ROLL", "PITCH", "GGVSPD", 'THDG')
+Data <- getNetCDF (fname, 
+                  standardVariables(Vars))
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+@
+
+\section*{The Problem With AKRD/WIC}
+
+The characteristics of the radome have clearly changed prior to OTREC,
+perhaps because of modifications to the pressure ports to remove rough
+edges and features that might affect the flow. The mean vertical wind
+(WIC) in OTRECtf01.nc and OTREC-TESTtf01.nc was below $-2$~m/s for
+both flights. In both bases, the offset was apparent between AKRD
+and AOAREF, the fit variable calculated on the assumption that the
+vertical wind is zero. The problem is illustrated by Fig.~1, which
+shows AKRD, the expected angle-of-attack for zero vertical wind (AOAREF),
+and the vertical wind for test flight \#1. There is a significant
+offset between mean values of AKRD and AOAREF (about 0.87$^{\circ}$),
+which is not normal and is reflected in the large offset in the vertical
+wind. This indicates that a new representation of AKRD needs to be
+found for the new radome.
+
+Perhaps this is in opportunity to explore a new approach to finding
+AKRD\@. This note outlines some ideas that seem worth exploring for
+OTREC.
+
+<<AKRDplot, include=TRUE, fig.cap='(top) Angle-of-attack (AKRD, blue line) and the reference variable AOAREF (green line) for OTREC tf01. The flight included a ground stop and several approaches / landings, so the time range is restricted to only part of the flight.'>>=
+
+# source('~/RStudio/Ranadu/R/blankNA.R')  # not needed if Ranadu updated to Aug-2 version
+layout(matrix(1:2, ncol=1), widths=c(8,8), heights=c(5.5,8))  
+op <- par (mar=c(2,4,1,1)+0.1, oma=c(1.1,0,0,0)) 
+Data$AOAREF <- Data$PITCH - Data$GGVSPD * 180 / (Data$TASX * pi)
+blankNA(Data, Data$TASX < 105, c('AKRD', 'AOAREF')) %>% 
+  select(Time, AKRD, AOAREF)  %>% 
+  selectTime(160000, 190000) %>% 
+  plotWAC(legend.position='top')
+op <- par (mar=c(5,4,1,1)+0.1) 
+blankNA(Data, Data$TASX < 105, 'WIC') %>% 
+  select(Time, WIC) %>% 
+  selectTime(160000, 190000) %>% 
+  plotWAC()
+layout(matrix(1))
+
+@
+
+\section*{A Revised Approach}
+
+The standard approaches to determining new sensitivity coefficients
+for angle-of-attack can be repeated once appropriate flight conditions,
+esp.~speed runs, are included in the OTREC test flights. However,
+some new steps seem worth exploring:
+\begin{enumerate}
+\item First, obtain the best estimate of the pitch angle using either the
+Ranadu::CorrectPitch() function or the Kalman filter. Usually the
+change will not be significant, but that should be checked so that
+the optimal values of pitch can be used in the following analysis.
+Pitch is a very important measurement for this study because the difference
+between pitch and angle of attack determines the magnitude of the
+vertical component of the relative wind, as the next equation shows.
+\item The complementary representation in terms of slowly varying and rapidly
+varying components should be used because it separates the sensitivity
+to fluctuations from the need to represent the slowly varying components,
+as discussed in previous memos. The equations used are:\\
+\begin{equation}
+\alpha_{f}=\left(\frac{\mathrm{\{ADIFR\}}}{\mathrm{\{QCF\}}}\right)_{f}(c_{1}+c_{2}M)\label{eq:alpha-fast}
+\end{equation}
+\begin{equation}
+\alpha_{s}=d_{0}+d_{1}\left(\frac{\mathrm{\{ADIFR\}}}{\mathrm{\{QCF\}}}\right)_{s}+d_{2}\mathrm{\{QCF\}}_{s}\label{eq:alpha-slow}
+\end{equation}
+where the $f$ and $s$ subscripts represent the high-pass and low-pass
+components after filtering. More complicated representations were
+tested in both cases, but these appear to provide adequate fits without
+additional terms. The $c_{2}$ term representing Mach-number dependence
+does not appear to be necessary, but the expectation that there will
+be some dependence on $M$ justified its tentative inclusion. However,
+the fits below show no significant difference with $c_{2}=0$, and
+an analysis of variance made its inclusion appear questionable, so
+it has been dropped from the calculations presented here.
+\item The simplified formula for the vertical wind $w$ is:\\
+\begin{equation}
+w=V(\alpha-\phi)+w_{p}\label{eq:basicEq}
+\end{equation}
+where $V$ is the airspeed, $\alpha$ the angle of attack, $\phi$
+the pitch angle, and $w_{p}$ the rate-of-climb of the aircraft. The
+conventional approach has been to assume that the vertical wind is
+zero, for example during a speed run, and then fit to $\alpha^{*}=\phi-w_{p}/V$\@.
+There will be errors in this representation whenever the vertical
+wind is not zero, because the correct representation of $\alpha$
+is $\alpha=\phi+(w-w_{p})/V$, but it has been assumed that averaging
+over flight periods should give average vertical wind near zero. An
+improved approach to finding an empirical representation of $\alpha$
+in terms of other measurements $\{m_{i}\}$ like ADIFR might be as
+follows:
+\begin{enumerate}
+\item High-pass filter as in the complementary-filter representation, where
+it is reasonable to expect $w_{f}=0$ so this can be used to find
+$\alpha(\{m_{i}\}){}_{f}$ in the conventional way. The problem then
+is to find the slowly varying component $\alpha{}_{s}=\alpha-\alpha{}_{f}$.
+\item Find a first estimate of the slow component in the usual way, assuming
+$w$ is zero.
+\item Use the fit to calculate $w$.
+\item Repeat using the expanded representation, with low-pass-filtered components,
+for which no change is expected but the fit RMS should decrease significantly:\\
+\begin{equation}
+\alpha_{s}^{*}=(\phi+(w-w_{p})/V)_{s}\label{eq:aoastar}
+\end{equation}
+\item Iterate? This should not be necessary but might be useful once. Eq.~\eqref{eq:aoastar}
+is not satisfied exactly in the procedure used because $w$ is calculated
+without simplification, including roll and pitch angles as well as
+rotational corrections, but the agreement should be very good and
+is worth checking.
+\end{enumerate}
+
+\item The components affecting the vertical wind, AKRD, PITCH, and GGVSPD,
+potentially have relative offsets in time, so results should be optimized
+by introducing appropriate time shifts. (Checks indicate that no significant
+effect arises from shifts of $\pm200$~hPa or so.)
+\item The angle-of-attack tends to decrease systematically during a flight
+as the aircraft becomes lighter and less lift is required. In the
+slowly varying component, it may be useful to include a time factor,
+although that dependence should be represented via changes in ADIFR
+unless the airflow changes as the weight of the aircraft changes.
+Exploration of this dependence, however, revealed a significant dependence,
+so a new fit variable (called TIA here, ``Time In Air'') was introduced.
+\end{enumerate}
+The OTREC test flights have maneuvers and are suitable to use for
+this study. This can be extended later to include other data including
+that from research flights.
+
+<<SOCRATES, include=FALSE, fig.cap=''>>=
+
+Project <- 'SOCRATES'
+# Project <- 'WECAN'
+Project <- 'OTREC'
+TASlimit <- 105  # use 95 for C-130
+# TASlimit <- 95
+needData <- TRUE  # set TRUE if time shifts are used.
+if (needData) {
+  Vars <- c(Vars, 'WOW_A')  # Needed for elapsed-flight-time variable
+  # Vars <- c(Vars, 'PSFD') # needed for C-130
+  D <- getProjectData (Project, standardVariables(Vars), .Test = TRUE)
+  # D$PSF <- D$PSFD  # for C-130 to avoid changes of variable
+  # Introduce time shifts, and vary to optimize the RMS:
+  # (The result was no effect on the RMS, evidently dominated 
+  #  by other effects.)
+  # D$PITCH <- ShiftInTime (D$PITCH, 1, -200)
+  # D$GGVSPD <- ShiftInTime (D$GGVSPD, 1, -200)
+  # D$ADIFR <- ShiftInTime (D$ADIFR, 1, -200)
+  D$QR <- D$ADIFR / D$QCF
+  D$QR[D$QCF < 20] <- NA
+  D$QR[is.infinite(D$QR)] <- NA
+  # Use PITCH here; subsequently, use PITCHC
+  D$AOAREF <- D$PITCH + ((D$WIC - D$GGVSPD) / D$TASX) * (180 / pi) 
+  D$M <- MachNumber (D$PSF, D$QCF)
+  D$WICS <- SmoothInterp (D$WIC)
+  CutoffPeriod <- 600
+  Rate <- 1
+  D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, 
+               na.rm = FALSE, rule = 2)
+  D$AOAREFS[is.na(D$AOAREFS)] <- 0
+  D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod),  
+               D$AOAREFS)
+  D$AOAREFF <-  D$AOAREF - D$AOAREFS
+  D$QRS <- zoo::na.approx (as.vector(D$QR), maxgap=1000*Rate, 
+           na.rm = FALSE, rule = 2)
+  D$QRS[is.na(D$QRS)] <- 0
+  D$QRS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QRS)
+  D$QRF <-  D$QR - D$QRS
+  D$QCFS <- zoo::na.approx (as.vector(D$QCF), maxgap=1000*Rate, 
+            na.rm = FALSE, rule = 2)
+  D$QCFS[is.na(D$QCFS)] <- 0
+  D$QCFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$QCFS)
+  D$MS <- zoo::na.approx (as.vector(D$M), maxgap=1000*Rate, 
+          na.rm = FALSE, rule = 2)
+  D$MS[is.na(D$MS)] <- 0
+  D$MS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), D$MS)
+  D$MF <-  D$M - D$MS
+  save(D, file = SaveRData)
+} else {
+  load(SaveRData)
+}
+
+# The pitch correction needs to be applied to each flight, to avoid
+# problems arising from transitions between flights. Also, add a
+# variable that indicates the time from start of the flight.
+D$PITCHC <- D$PITCH
+D$TIA <- seq(1, nrow(D))
+for (f in unique (D$RF)) {
+  r <- (D$RF == f)
+  D$PITCHC[r] <- D$PITCH[r] - CorrectPitch(D[r, ])[, 1]
+  D$TIA[r] <- as.double(D$Time[r] - D$Time[r][which(D$WOW_A[r] == 0)][1])
+}
+D$AOAREF <- D$PITCHC + ((-D$GGVSPD) / D$TASX) * (180 / pi) # without WIC
+CutoffPeriod <- 600
+Rate <- 1
+D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate, 
+             na.rm = FALSE, rule = 2)
+D$AOAREFS[is.na(D$AOAREFS)] <- 0
+D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod),
+             D$AOAREFS)
+D$AOAREFF <-  D$AOAREF - D$AOAREFS
+# remove questionable regions: (SOCRATES)
+if (Project == 'SOCRATES') {
+  # Regions in flights 8 and 12 were identified by large residual errors
+  DR <- data.frame(RF=3, Start=254500, End=261000)
+  DR <- rbind(DR, data.frame(RF = 4, Start = 274500, End = 281500))
+  DR <- rbind(DR, data.frame(RF = 5, Start = 255000, End = 261500))
+  DR <- rbind(DR, data.frame(RF = 6, Start = 273000, End = 291500))
+  DR <- rbind(DR, data.frame(RF = 8, Start = 302000, End = 305139))
+  DR <- rbind(DR, data.frame(RF = 12, Start = 235513, End = 241000))
+  DR <- rbind(DR, data.frame(RF = 13, Start = 300000, End = 302000))
+  DR <- rbind(DR, data.frame(RF = 14, Start = 291500, End = 303000))
+}
+if (Project == 'WECAN') {
+  DR <- data.frame(RF=3, Start=203000, End=213000)
+  DR <- rbind(DR, data.frame(RF = 8, Start = 233000, End = 251000))
+  DR <- rbind(DR, data.frame(RF = 10, Start = 183000, End = 244130))
+  DR <- rbind(DR, data.frame(RF = 15, Start = 213000, End = 220500))
+}
+if (Project == 'OTREC') {  # Exclude missed-approaches on tf01
+  r <- which (D$RF == 51)[1] - 1
+  r <- r + setRange(D[D$RF == 51, ], 185000, 201000)
+  D$WIC[r] <- NA
+}
+
+# Make speed-run-and-pitch-maneuver data.frame
+if (Project == 'OTREC') {
+  DR <- data.frame (RF = 51, Start = 0, End = 185417)  # two tf01 SR
+  DR <- rbind (DR, data.frame (RF = 51, Start = 185643, End = 201200))
+  DR <- rbind (DR, data.frame (RF = 51, Start = 201350, End = 0))
+  DR <- rbind (DR, data.frame (RF = 52, Start = 0, End = 153917))
+  DR <- rbind (DR, data.frame (RF = 52, Start = 154811, End = 154827))
+  DR <- rbind (DR, data.frame (RF = 52, Start = 160003, End = 0))
+  DR <- rbind (DR, data.frame (RF = 53, Start = 0, End = 182955))
+  DR <- rbind (DR, data.frame (RF = 53, Start = 183424, End = 185326))
+  DR <- rbind (DR, data.frame (RF = 53, Start = 190647, End = 192946))
+  DR <- rbind (DR, data.frame (RF = 53, Start = 194159, End = 0))
+}
+# For OTREC, make separate DS for maneuvers
+DS <- D
+for (f in 1:nrow(DR)) {
+  r <- which (D$RF == DR$RF[f])[1] - 1
+  r <- r + setRange(D[D$RF == DR$RF[f], ], DR$Start[f], DR$End[f])
+  DS$WIC[r] <- NA
+}
+
+# make preliminary plots of WIC, to screen for bad-data segments
+if (FALSE) {
+  for (f in unique(D$RF)) {
+    D %>% filter(RF == f) %>% select(Time, WIC) %>% plotWAC()
+    title(sprintf ('mean updraft for flight %d is %.1f', f, 
+                    mean(D[D$RF == f, 'WIC'], na.rm=TRUE)))
+  }
+}
+
+@
+
+<<fits, include=TRUE>>=
+
+SummarizeFit <- function(ft) {
+    print (summary(ft)$call)
+    print ("Coefficients:")
+    print (summary(ft)$coefficients)
+    print (sprintf ("Residual standard deviation: %.3f, dof=%d", summary(ft)$sigma, summary(ft)$df[2]))
+    print (sprintf ("R-squared %.3f", summary(ft)$r.squared))
+  }
+
+r <- !is.na(D$WIC) & (D$TASX > TASlimit) & (abs(D$ROLL) < 2) &
+     (abs(D$GGVSPD) < 5)
+rs <- !is.na(DS$WIC) & (DS$TASX > TASlimit) & (abs(DS$ROLL) < 2) &
+     (abs(DS$GGVSPD) < 5)
+DF <- D[r, ]
+DS <- DS[rs, ]
+f <- lm (AOAREF ~ QR + I(QR * M), data = DF)
+fsr <- lm (AOAREF ~ QR + I(QR * M), data = DS)
+cf <- coef(f)
+ff <- lm (AOAREFF ~ 0 + QRF, data = DF)
+ffsr <- lm (AOAREFF ~ 0 + QRF, data = DS)
+cffn <- coef (ff)
+cffx <- 21.481   ## force DEEPWAVE value? (GV only)
+# Not for OTREC:
+cffx <- coef (ffsr)
+fs <- lm(AOAREFS ~ QRS + QCFS + TIA, data = DF)
+fssr <- lm(AOAREFS ~ QRS + QCFS + TIA, data = DS)
+cfs <- coef(fs)
+# SummarizeFit(f)
+# SummarizeFit(ff)
+SummarizeFit(fs)
+
+@
+
+<<new_wind, include=TRUE, fig.cap='Old and new value for the vertical wind. Gaps in WIC indicate where values have been excluded from the fits but not from average-WIY.'>>=
+
+Data <- D
+Data$AKY <- cffx * Data$QRF + cfs[1] + cfs[2] * Data$QRS + 
+           cfs[3] * Data$QCFS + cfs[4] * Data$TIA
+DataW <- Data
+DataW$ATTACK <- Data$AKY
+DataW <- Ranadu::WindProcessor (DataW)
+Data$WIY <- DataW$WIN
+# Data$WIZ <- Data$WIC + (Data$AK - Data$AKRD) * Data$TASX * pi / 180  ## for comparison
+Data$WIYS <- zoo::na.approx (as.vector (Data$WIY), maxgap=1000,
+             na.rm=FALSE, rule = 2)
+Data$WIYS[is.na(Data$WIYS)] <- 0
+Rate <- 1
+CutoffPeriod <- 600 * Rate
+Data$WIYS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), Data$WIYS)
+Data$WIF <-  Data$WIY - Data$WIYS
+# for (f in unique(Data$RF)) {
+#   Data %>% dplyr::filter(RF == f) %>% select(Time, WIC, WIY) %>% plotWAC()
+#  title(sprintf ('mean updraft for flight %d is %.1f', f, mean(Data[Data$RF == f, 'WIY'], na.rm=TRUE)))
+# }
+
+# Now iterate: n times
+n <- 1
+for (i in 1:n) {
+  D$AOAREF <- D$PITCHC + ((Data$WIY - D$GGVSPD) / D$TASX) * (180 / pi)
+  D$AOAREFS <- zoo::na.approx (as.vector(D$AOAREF), maxgap=1000*Rate,
+               na.rm = FALSE, rule = 2)
+  D$AOAREFS[is.na(D$AOAREFS)] <- 0
+  D$AOAREFS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod),
+               D$AOAREFS)
+  D$AOAREFF <-  D$AOAREF - D$AOAREFS
+  DF <- D[r, ]
+  f <- lm (AOAREF ~ QR + I(QR * M), data = DF)
+  cf <- coef(f)
+  # Don't repeat the 'fast' fit
+  # ff <- lm (AOAREFF ~ 0 + QRF, data = DF)
+  # cffn <- coef (ff)
+  # cff <- 21.481   ## force DEEPWAVE value
+  fs <- lm(AOAREFS ~ QRS + QCFS + TIA, data = DF)
+  # This is just a check using the SOCRATES TIA dependence,
+  # not used here. It leads to a worse mean updraft for tf03.
+  fsx <- lm(AOAREFS + 5.0e-6 * TIA ~ QRS + QCFS, data = DF)
+  cfs <- coef(fs)
+  fsn <- lm(AOAREFS ~ QRS + QCFS, data = DF)
+  cfsn <- coef(fsn)
+  # SummarizeFit(f)
+  # SummarizeFit(ff)
+  # SummarizeFit(fs)
+  Data <- D
+  Data$AKY <- cffx * Data$QRF + cfs[1] + cfs[2] * Data$QRS + 
+              cfs[3] * Data$QCFS + cfs[4] * Data$TIA
+  RMS <- with(Data[r, ], sd(AKY - AOAREF, na.rm=TRUE))
+  DataW <- Data
+  DataW$ATTACK <- Data$AKY
+  DataW <- Ranadu::WindProcessor (DataW)
+  Data$WIY <- DataW$WIN
+  # Data$WIZ <- Data$WIC + (Data$AK - Data$AKRD) * Data$TASX * pi / 180    ## for comparison
+  Data$WIYS <- zoo::na.approx (as.vector (Data$WIY), maxgap=1000,
+               na.rm=FALSE, rule = 2)
+  Data$WIYS[is.na(Data$WIYS)] <- 0
+  Rate <- 1
+  CutoffPeriod <- 600 * Rate
+  Data$WIYS <- signal::filtfilt (signal::butter (3, 2/CutoffPeriod), 
+                                 Data$WIYS)
+  Data$WIF <-  Data$WIY - Data$WIYS
+}
+for (f in unique(Data$RF)) {
+  Data %>% dplyr::filter(RF == f) %>% select(Time, WIC, WIY) %>% plotWAC()
+  abline(h = 0, lty = 2, col = 'red')
+ title(sprintf ('mean updraft for flight %d is %.2f (WIC: %.2f)', 
+               f, mean(Data[Data$RF == f, 'WIY'], na.rm=TRUE),
+               mean(Data[Data$RF == f, 'WIC'], na.rm=TRUE)))
+}
+
+@
+
+\section*{Results}
+
+One iteration was used to find the coefficients needed to represent
+angle-of-attack. First, \eqref{eq:aoastar} was used with WIC as in
+the original processing used for $w$. (That processing was consistent
+with the standard coefficients given in ``ProcessingAlgorithms.pdf''.)
+The coefficients found from fits to that representation of angle-of-attack
+were used to calculate a new angle of attack and new value of the
+vertical wind, and then that value of vertical wind was used in \eqref{eq:aoastar}
+to revise the reference value and the processs was repeated.
+
+The result of fitting using (\ref{eq:alpha-fast}) was $c_{1}=$\Sexpr{round(cffn,4)},
+but for whole-project averages like this the slope often is too small
+because low-angle-of-attack fluctuations dominate and bias the results.
+Isolated speed runs and pitch maneuvers provide a check; when this
+is done for OTREC the result is \Sexpr{round(coef(ffsr)[1], 4)},
+not significantly different, but that result was then used in the
+iteration. For comparison, the result obtained for DEEPWAVE was 21.481,
+and this was supported by subsequent LAMS measurements.
+
+For the low-pass component, the coefficients from the fit to (\ref{eq:alpha-slow})
+after iteration were \{$d$\} = \{\Sexpr{round(cfs[1], 4)}, \Sexpr{round(cfs[2], 4)},
+\Sexpr{round(cfs[3], 6)}, \Sexpr{round(cfs[4], 8)}\}, and the residual
+standard deviation for the combined fit (slow + fast components) was
+\Sexpr{round(RMS, 3)}$^{\circ}$. This is small, reduced significantly
+from the original-fit values, which confirms consistency between the
+iterated results for angle-of-attack and updraft. These coefficients
+were then used to calculate the revised angle of attack (AKY) and
+revised vertical wind (WIY). For \Sexpr{Project}, the resulting mean
+values of the vertical wind, restricted to measurements where TASX
+> \Sexpr{TASlimit} and abs(ROLL) < 2 and with intervals flagged earlier
+excluded, are shown in the following list. Mean values are very good
+for all flights, but the standard deviations indicate that the changes
+are significant and that the result is an improved representation
+of the vertical-wind measurements.
+
+The time-in-air dependence is larger than that found for SOCRATES,
+and it is worrisome that the test flights were not maximum-duration
+flights so this term might need revision once research and/or ferry
+flights are available.
+
+<<meanValues, include=TRUE, highlight=FALSE>>=
+
+DF <- Data[!is.na(D$WIC) & (D$TASX > TASlimit) & (abs(D$ROLL) < 2) &
+           (abs(D$GGVSPD) < 5), ]
+for (f in unique (Data$RF)) {
+  print (sprintf ('mean WIY for flight %d is %.2f; WIC was %.2f', f,
+                 mean(DF[DF$RF == f, 'WIY'], na.rm=TRUE),
+                 mean(DF[DF$RF == f, 'WIC'], na.rm=TRUE)))
+}
+# for (f in unique (Data$RF)) {
+#   md <- mean(DF[DF$RF == f, 'WIY'] - DF[DF$RF == f, 'WIC'], na.rm=TRUE)
+#   sdd <- sd(DF[DF$RF == f, 'WIY'] - DF[DF$RF == f, 'WIC'], na.rm=TRUE)
+#   print (sprintf ('mean WIY-WIC for flight %d is %.2f +/- %.2f', f, md, sdd))
+# }
+
+@
+
+Bad measurements (e.g., where ADIFR and/or QCF are affected by blockage
+or other problems) can affect the results, but using this procedure
+such problems should be identifiable by considering if the measured
+WIY differs from that expected from AOAREF outside prescribed limits.
+A section is included in the code, but it was inhibited when the document
+was produced although it was checked to ensure that there were no
+obvious outliers that might bias the fit.
+
+<<bad, include=TRUE, eval = FALSE, highlight=FALSE, fig.cap='Search for bad measurements. AKD is the difference AKY - AOAREF.'>>=
+
+Data$AKD <- Data$AKY - Data$AOAREF
+r <- is.na(D$WIC) | (D$TASX < TASlimit) | (abs(D$ROLL) > 2) |   
+        (abs(D$GGVSPD) > 5)
+Data <- blankNA(Data, is.na(DF$WIC), 'AKD')
+Data <- blankNA(Data, r, 'AKD')
+for (f in unique(Data$RF)) {
+  Data %>% dplyr::filter(RF == f) %>% 
+         select(Time, AKD) %>% 
+         plotWAC(ylab='AKY-AOAREF [deg]')
+  abline(h=0, lty=2, col='red')
+  title(sprintf('flight %d', f))
+}
+
+@
+
+\subsection*{Summary: Processing Recommendations}
+
+Use the complementary-filter representation of AKRD as developed previously.
+If feasible, the best representation of the measurements uses an added
+variable called ``TIA'' here (``Time In Air'') and is the number
+of seconds after the first WOW\_A == 0 measurement. The equations
+are:\\
+\begin{equation}
+\alpha_{f}=\left(\frac{\mathrm{\{ADIFR\}}}{\mathrm{\{QCF\}}}\right)_{f}c_{1}\label{eq:alpha-fast-1}
+\end{equation}
+\begin{equation}
+\alpha_{s}=d_{0}+d_{1}\left(\frac{\mathrm{\{ADIFR\}}}{\mathrm{\{QCF\}}}\right)_{s}+d_{2}\mathrm{\{QCF\}}_{s}+d_{3}\{\mathrm{TIA}\}\label{eq:alpha-slow-1}
+\end{equation}
+with coefficients $c_{1}=$\Sexpr{round(coef(ffsr)[1], 4)} and \{$d$\}
+= \{\Sexpr{round(cfs[1], 4)}, \Sexpr{round(cfs[2], 4)}, \Sexpr{round(cfs[3], 6)},
+\Sexpr{round(cfs[4], 8)}\}. An alternate representation, if TIA is
+not feasible or convenient to include, is \{$d$\} = \{\Sexpr{round(cfsn[1], 4)},
+\Sexpr{round(cfsn[2], 4)}, \Sexpr{round(cfsn[3], 6)}, $0$\}, the
+best fit without TIA.
+\begin{center}
+\textsf{\textcolor{blue}{-- End of Memo --}}
+\par\end{center}
+
+\clearpage{}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/\Sexpr{Project}/{tf01--tf03}.nc on 31 Jul 2019\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow:}}} & Workflow\Sexpr{thisFileName}.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}} & https://github.com/WilliamCooper/Reprocessing/\Sexpr{thisFileName}\tabularnewline
+\end{tabular}
+
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\Workflow\Sexpr{thisFileName}.pdf\\\Sexpr{SaveRData}\\SessionInfo}
+%\cc{first attachment\\second\\3rd att}
+%\attach{attachment}
+%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+<<save-system-info, echo=FALSE>>= 
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+system (sprintf("zip %s.zip %s.Rnw %s.pdf Workflow%s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, thisFileName, SaveRData))
+
+@ 
+
+% \attach{attachment}
+
+% \attachm{ProgramFile\\Document.pdf\\SaveRData}
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}
