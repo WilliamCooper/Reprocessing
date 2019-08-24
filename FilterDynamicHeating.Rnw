@@ -1,0 +1,602 @@
+%% LyX 2.3.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[letterpaper]{geometry}
+\geometry{verbose,tmargin=3.54cm,bmargin=2.54cm,lmargin=2.54cm,rmargin=2.54cm,headheight=1cm,headsep=2cm,footskip=0.5cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage{babel}
+\usepackage[unicode=true]
+ {hyperref}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+	{\par\begin{list}{}{
+		\setlength{\rightmargin}{\leftmargin}
+		\setlength{\listparindent}{0pt}% needed for AMS classes
+		\raggedright
+		\setlength{\itemsep}{0pt}
+		\setlength{\parsep}{0pt}
+		\normalfont\ttfamily}%
+	 \item[]}
+	{\end{list}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\input colordvi
+\usepackage{color}
+\fancyhead{}
+\fancyfoot[CE,CO]{}
+\newtoks{\addressee} \global\addressee={}
+\newdimen\longindent \longindent=3.5truein
+\fancyhead[L]{Memo to: \the\addressee \\ \datetoday \\ Page \thepage \hfill}
+\renewcommand{\headrulewidth}{0.0pt}
+\newenvironment{lyxlist}[1]
+{\begin{list}{}
+{\settowidth{\labelwidth}{#1}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\renewcommand{\makelabel}[1]{##1\hfil}}}
+{\end{list}}
+\newcommand{\datetoday}{\number\day\space
+     \ifcase\month\or January\or February\or March\or April\or May\or
+     June\or July\or August\or September\or October\or November\or
+     December\fi
+     \space\number\year}
+\newcommand{\EOLmemo}{\null \vskip-1.5truein
+{\raggedright \textsf{\textsc{\large \textcolor{blue}{Earth Observing Laboratory}}}}\par
+{\raggedright \textsf{\textsl{\textcolor{blue}{Memorandum:}}}} \par \vskip6pt
+{\color{blue}{\hrule}}\par
+\vskip0.3truein \leftline{\hskip \longindent \datetoday} \vskip0.2truein
+\thispagestyle{empty}}
+\newcommand{\attachm}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachments:] {#1}
+\end{lyxlist}}
+\newcommand{\cc}[1]{\begin{lyxlist}{Attachments:00}
+\item [cc:] {#1}
+\end{lyxlist}}
+\newcommand{\attach}[1]{\begin{lyxlist}{Attachments:00}
+\item [Attachment:] {#1}
+\end{lyxlist}}
+%usage: \encl{A\\B\\C} or \cc{ma,e1\\name2\\name3}
+
+\makeatother
+
+\begin{document}
+\EOLmemo 
+
+\global\addressee={Sensible Heat Flux File}  % >>change "File" to the "To:" name desired
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{To:}}} & \the\addressee\tabularnewline
+\textsf{\textsc{\textcolor{blue}{From:}}} & Al Cooper\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Subject:}}} & Suggested filter for dynamic heating\tabularnewline
+\end{tabular}
+
+\bigskip
+
+<<initialization,echo=FALSE,include=FALSE>>=
+
+
+library(knitr)
+opts_chunk$set(echo=FALSE, include=FALSE, fig.lp="fig:")
+opts_chunk$set(fig.width=6, fig.height=4.5, fig.align="center", digits=4)
+thisFileName <- "FilterDynamicHeating"
+require(Ranadu, quietly = TRUE, warn.conflicts=FALSE)
+require(tidyverse)
+require(magrittr)
+require(scales)
+SaveRData <- sprintf("%s.Rdata", thisFileName)
+
+@
+
+\section*{Overview}
+
+I argued during my RSIG presentation on 19 August (cf.~\href{https://drive.google.com/file/d/1xC4SPQafOaZBDS_vWfEzu3bSgVZV9diE/view?usp=sharing}{this URL})
+that we are introducing noise by applying the dynamic-heating correction
+at frequencies where the probe does not respond. It would be desirable
+to avoid that contamination of our signal, which we could do by filtering
+the dynamic-heating correction to match the time response of the sensors.
+This memo records the results of some exploration of such filtering
+and incorporates the R code to implement it. 
+
+The earlier studies were somewhat ambiguous regarding the time constant
+for the Rosemount ``fast'' probe, with results favoring 875~ms
+but not ruling out about 500~ms. For the HARCO, the evidence was
+convincing that the time constant was about 2.2~s. To be conservative,
+I will use 500~ms and 1.0~s, respectively. To match existing data
+processing, I will assume respective recovery factors of 0.9854 and
+0.975 because, for the selected flight leg, those gave the best match
+to the existing measurements (ATF1 and ATH1) of air temperature.
+
+<<filterDH, include=TRUE>>=
+
+DSOC <- getNetCDF(file.path(DataDirectory(), 'SOCRATES/SOCrf15h.nc'),
+        standardVariables(c('RTH1', 'RTH2', 'RTF1', 'RT_A', 'AT_A',
+                            'ATH1', 'ATH2', 'ATF1')), 54700, 62500)
+                                                     #55200, 62000)
+Cp <- SpecificHeats (DSOC$EWX / DSOC$PSXC)[, 1]
+DSOC$DH <- DSOC$TASX^2 / (2 * Cp)
+# g <- VSpec(DSOC, 'RTF1', method='MEM', WavelengthScale=FALSE)
+# g <- VSpec(DSOC, 'ATF1', method='MEM', ADD=g)
+# VSpec(DSOC, 'DH', method='MEM', ADD=g) + theme_WAC()
+
+# DSOC$ATFX <- DSOC$RTF1 - DSOC$DH * 0.9854
+# hist(DSOC$ATFX - DSOC$ATF1, breaks=200)
+# filter DH:
+Rate <- 25
+CutoffPeriod <- Rate * 0.5  # assumed time constant for ATF1
+CutoffPeriod2 <- Rate * 1.0 # assumed time constant for ATH1
+DSOC$DHF <- zoo::na.approx (as.vector(DSOC$DH), maxgap=1000*Rate, 
+                            na.rm = FALSE, rule = 2)
+DSOC$DHF[is.na(DSOC$DHF)] <- 0
+DSOC$DHF <- signal::filtfilt (signal::butter (3, 
+                              2/CutoffPeriod), DSOC$DHF)
+DSOC$DHH <- zoo::na.approx (as.vector(DSOC$DH), maxgap=1000*Rate, 
+                            na.rm = FALSE, rule = 2)
+DSOC$DHH[is.na(DSOC$DHH)] <- 0
+DSOC$DHH <- signal::filtfilt (signal::butter (3, 
+                              2/CutoffPeriod2), DSOC$DHH)
+DSOC$ATFX <- DSOC$RTF1 - DSOC$DHF * 0.9854
+DSOC$ATHX <- DSOC$RTH1 - DSOC$DHH * 0.975
+DSOC <- selectTime(DSOC, 55200, 62000)
+
+@
+
+The filter applied here is a Butterworth 3rd-order filter with cutoff
+frequency specified to match the assumed time constants. It is a centered
+filter, implemented using ``signal::filtfilt()'' in R, and to avoid
+end effects the dynamic-heating term is filtered from 5-min before
+to 5-min after the desired analysis period and then the time series
+is truncated to the desired time (SOCRATES research flight \#15, 5:52:00
+-- 6:20:00. The dynamic-heating term, labeled DH here, was calculated
+without the recovery factor from TASX$^{2}/(2C_{p})$ where $C_{p}$
+is the specific heat of air at constant pressure. 
+
+<<contrib, include=TRUE, fig.cap='The measured temperature ATH1 from the HARCO sensor on the GV during SOCRATES research flight 15, 5:52:00 -- 6:20:00 UTC. Also shown are the two components that combine to produce this measurement, the recovery temperature (RTF1) and the dynamic-heating correction (DH) using the formula given in the text.'>>=
+
+g <- VSpec(DSOC, 'ATH1', ylim=c(1.e-5, 1.e-1))
+g <- VSpec(DSOC, 'RTH1', add=g)
+VSpec(DSOC, 'DH', add=g) + theme_WAC()
+
+@
+
+The problem is illustrated in Fig.~\ref{fig:contrib}, where the
+two contributions to ATH1, the measured recovery temperature RTH1
+and the dynamic-heating term DH=TASX$^{2}/(2C_{p})$, are shown separately.
+At low frequency, below about 0.01~Hz, fluctuations in the air temperature
+(blue line) arise primarily from fluctuations in the measured recovery
+temperature (green line) and fluctuations in dynamic heating (black
+line) make only a minor contribution. Around 0.03 to 0.05~Hz, fluctuations
+in the measured recovery temperature are significantly greater than
+those in the calculated air temperature because fluctuations in airspeed
+make a significant contribution to the measured recovery temperature
+but data processing removes part of those fluctuations and the resulting
+calculated air temperature is less variable than either of the contributing
+measurements. This is just how the measurement and calculation should
+work. However, a problem arises for frequency above about 0.2~Hz
+because the measured recovery temperature does not respond properly
+to fluctuations at those frequencies. The data-processing calculation,
+however, assumes that it does respond and removes the expected contribution
+from dynamic heating fluctuations, thereby introducing erroneous variance
+into the calculated air temperature (ATH1). The result of standard
+processing is that the spectral variance in dynamic heating is transferred
+to ATH1, but it is spurious because RTH1 is not responding to these
+fluctuations. 
+
+<<cphase, include=TRUE, fig.cap='Coherence (squared) and phase for the recovery-temperature and dynamic-heating variables RTH1 and DH, for measurements from the HARCO sensor on the GV during SOCRATES (research flight 15, 5:52:00 - 6:20:00 UTC.'>>=
+
+CohPhase(DSOC, 'DH', 'RTH1', smoothBins=30)
+
+@
+
+A particularly clear indication that the dynamic heating is not reflected
+in the recovery temperature can be seen in a plot of the coherence
+and phase between those two, shown in Fig.~\ref{fig:cphase}. Around
+0.05~Hz the signals have coherence aboved 0.8 and are almost in phase,
+as expected if dynamic-heating fluctuations are driving the measurement
+RTH1. However, with increasing frequency from this point the coherence
+drops and the phase shift increases, becoming $90^{\circ}$ at about
+0.5~Hz, as expected if the time constant for RTH1 is 2~s. At that
+point the fluctuations in RTH1 and WIC would not detect a real contribution
+to a measurement of sensible heat flux, and beyond that the contribution
+would even be of the wrong sign. It therefore seems justified to remove
+these spurious contributions to variance in ATH1.
+
+\section*{Filtering the Dynamic Heating Correction}
+
+<<DHspectra, include=TRUE, warning=FALSE, message=FALSE, fig.height=4.5, fig.cap='Variance spectra for the dynamic-heating correction (DH) and for that correction filtered using Butterworth 3rd-order low-pass filters with cutoff periods of 0.5 s (DHF) and 1.0 s (DHH).'>>=
+
+g <- VSpec(DSOC, 'DH', ylim=c(1.e-5, 1.e-1))
+g <- VSpec(DSOC, 'DHF', add=g)
+VSpec(DSOC, 'DHH', add=g) + theme_WAC()
+
+@
+
+Figure \ref{fig:DHspectra} shows the result of filtering. In this
+plot, DH is the unfiltered dynamic-heating term, DHF is the result
+of filtering with an assumed time constant of 0.5~s as is appropriate
+for ATF1, and DHH is the corresponding result for ATH1 where a 2.0~s
+time constant is assumed. The result is effective attenuation of the
+variability for frequencies where it is thought that the probes will
+not respond to a real signal and where application of the dynamic-heating
+correction produces erroneous spectral variance.
+
+<<ATspec, include=TRUE, fig.height=4.5, fig.cap='Variance spectra for the air-temperature measurements ATF1 and ATH1, and those modified by replacing the dynamic-heating terms by those shown in the previous plot (respectively, ATFX and ATHX). At low frequency, the black line (ATH1) is obscured by the orange line (ATHX) because those variables are nearly identical below about 5 Hz.'>>=
+
+g <- VSpec(DSOC, 'ATF1', ylim=c(1.e-5, 1.e-1))
+g <- VSpec(DSOC, 'ATFX', add=g)
+g <- VSpec(DSOC, 'ATH1', add=g)
+VSpec(DSOC, 'ATHX', add=g) + theme_WAC()
+
+@
+
+The variance spectra for the temperature measurements that result
+from using these filtered dynamic-heating corrections are shown in
+Fig.~\ref{fig:ATspec}, as the black and orange lines. As originally
+processed, the spectra show flattening in the frequency region above
+1~Hz and both probes show almost identical variance spectra despite
+their very different time constants. With filtering, the spectrum
+for ATFX (modified ATF1) appears reasonable, with the high-frequency
+variance arising from the recovery temperature, while the spectrum
+for ATHX (modified ATH1) is affected more significantly and even shows
+some attenuation at a frequency of 0.1~Hz. It is likely that this
+approach leaves some significant contribution from dynamic heating
+that is spurious because of the conservative cutoff frequencies selected,
+but the modified variance spectra are not so obviously bad as the
+originals. It is likely that the variance above 1~Hz in ATFX, arising
+dominantly from variations in RTF1, is mostly spurious also. However,
+it seems preferable to leave that extra variance in the result because
+its source is not clear and further correction could always be applied.
+
+<<allCospec, include=FALSE>>=
+
+source('/home/cooperw/RStudio/Ranadu/R/CohPhase.R')
+PF1 <- CohPhase(DSOC, 'WIC', 'ATF1', plotType = 'std')
+PH1 <- CohPhase(DSOC, 'WIC', 'ATH1', plotType = 'std')
+PFX <- CohPhase(DSOC, 'WIC', 'ATFX', plotType = 'std')
+PHX <- CohPhase(DSOC, 'WIC', 'ATHX', plotType = 'std')
+CSF1 <- CohPhase(DSOC, 'WIC', 'ATF1', returnCospectrum = TRUE)
+CSFX <- CohPhase(DSOC, 'WIC', 'ATFX', returnCospectrum = TRUE)
+CSH1 <- CohPhase(DSOC, 'WIC', 'ATH1', returnCospectrum = TRUE)
+CSHX <- CohPhase(DSOC, 'WIC', 'ATHX', returnCospectrum = TRUE)
+CSF1$cospec <- SmoothInterp(CSF1$cospec, .Length=49)
+CSFX$cospec <- SmoothInterp(CSFX$cospec, .Length=49)
+Cp <- mean(SpecificHeats(DSOC$EWX/DSOC$PSXC)[,1], na.rm=TRUE)
+Rho <- mean(100 * DSOC$PSXC / ((DSOC$ATF1 + 273.15) * 287.05), na.rm=TRUE)
+CSF1$cospec  <- CSF1$cospec * Cp * Rho
+CSFX$cospec <- CSFX$cospec * Cp * Rho
+WP <- DSOC$WIC - mean(DSOC$WIC, na.rm=TRUE)
+TP <- DSOC$ATF1 - mean(DSOC$ATF1, na.rm=TRUE)
+Flux <- Rho * Cp * mean(WP * TP, na.rm=TRUE)
+Tasm <- mean(DSOC$TASX, na.rm=TRUE)
+f2km <- Tasm / 2000
+CSogive1 <- cumsum(CSF1$cospec * CSF1$freq[1])
+CSogive1 <- CSogive1[length(CSogive1)]-CSogive1
+CSogiveX <- cumsum(CSFX$cospec * CSFX$freq[1])
+CSogiveX <- CSogiveX[length(CSogiveX)]-CSogiveX
+Flux2km1 <- CSogive1[which(CSF1$freq > f2km)[1]]
+Flux2kmX <- CSogiveX[which(CSFX$freq > f2km)[1]]
+
+@
+
+<<plotCS, include = TRUE, fig.cap = 'Coherence squared (top) and phase (bottom, degrees) for the same flight segment used in previous plots. These are the results for the unmodified original measurements of temperature.'>>=
+
+layout(matrix(1:2, ncol = 1), widths = c(5,5), heights = c(5,7))
+op <- par (mar=c(2,4,1,2)+0.1, oma=c(1.1,0,0,0))
+plotWAC(PF1$freq, PF1$coherence, xlab = 'frequency [Hz]', log='x',
+        xlim=c(0.05,20), ylab='WIC x AT')
+lineWAC(PH1$freq, PH1$coherence, col='forestgreen', lwd=2)
+legend ('topright', legend=c('ATF1', 'ATH1'), 
+        col=c('blue', 'forestgreen'), lwd = c(2,2))
+op <- par (mar=c(5,4,1,2)+0.1)
+plotWAC(PF1$freq, PF1$phase, xlab = 'frequency [Hz]', log='x',
+        xlim=c(0.05,20), ylab = 'WIC x AT')
+lineWAC(PH1$freq, PH1$phase, col='forestgreen', lwd=2)
+legend ('topright', legend=c('ATF1', 'ATH1'), 
+        col=c('blue', 'forestgreen'), lwd = c(2,2))
+abline(h = 0, col = 'gray', lty=2)
+layout(matrix(1:1, ncol = 1), widths = c(5), heights = c(5))
+op <- par (mar=c(5,4,1,2)+0.1, oma=c(1.1,0,0,0))
+
+@
+
+\section*{Effect on Measurement of Sensible Heat Flux}
+
+It is useful to consider how the modified variables would change a
+calculation of sensible heat flux. Figure~\ref{fig:plotCS} shows
+the squared coherence and phase calculated from the cross-spectra
+of vertical wind and temperature for the two temperature measurements
+ATH1 and ATF1. Coherence is markedly higher for ATF1 than for ATH1
+even at low frequency, and both are in phase with vertical wind and
+significantly non-zero even above about 1~Hz where poor response
+from both sensors is expected. This will produce a significant contribution
+to measured sensible heat flux that appears to be spurious.
+
+<<plotCSb, include = TRUE, fig.cap = 'Coherence squared (top) and phase (bottom, degrees) for the same flight segment used in previous plots. These are the results for the measurements of temperature as modified by filtering of the dynamic-heating correction.'>>=
+
+layout(matrix(1:2, ncol = 1), widths = c(5,5), heights = c(5,7))
+op <- par (mar=c(2,4,1,2)+0.1, oma=c(1.1,0,0,0))
+plotWAC(PFX$freq, PFX$coherence, xlab = 'frequency [Hz]', log='x',
+        xlim=c(0.05,20), ylab='WIC x AT')
+lineWAC(PHX$freq, PHX$coherence, col='forestgreen', lwd=2)
+legend ('topright', legend=c('ATFX', 'ATHX'), 
+        col=c('blue', 'forestgreen'), lwd = c(2,2))
+op <- par (mar=c(5,4,1,2)+0.1)
+plotWAC(PFX$freq, PFX$phase, xlab = 'frequency [Hz]', log='x',
+        xlim=c(0.05,20), ylab = 'WIC x AT')
+lineWAC(PHX$freq, PHX$phase, col='forestgreen', lwd=2)
+legend ('bottomright', legend=c('ATFX', 'ATHX'), 
+        col=c('blue', 'forestgreen'), lwd = c(2,2))
+abline(h = 0, col = 'gray', lty=2)
+layout(matrix(1:1, ncol = 1), widths = c(5), heights = c(5))
+op <- par (mar=c(5,4,1,2)+0.1, oma=c(1.1,0,0,0))
+
+@
+
+<<flux, include=TRUE, fig.cap='Cospectrum for WIC x ATF1 or ATFX, scaled by specific heat and air density to yield units of W m$^{-2}$ per Hz. Also shown is the flux exceedance for each, scaled by a factor of 10, that is obtained by summing the cospectrum from the highest frequency downward.'>>=
+
+ylab <- expression(paste("flux cospectrum [W ",m^-2, Hz^-1,"]"))
+plotWAC(CSF1, type='l', xlab='frequency [Hz]', 
+    ylab=ylab, log='x', 
+    xlim=c(0.05, 15), ylim=c(-100,200))
+abline(h=0, lty=2)
+lines(CSFX$freq, CSFX$cospec, col='forestgreen', lwd=2)
+lines(CSF1$freq, CSogive1*10, col='black', lwd=2, lty=2)
+lines(CSF1$freq, CSogiveX*10, col='darkorange', lwd=2)
+legend('topright', legend = c('cospectrum ATF1', 'cospectrum ATFX', 'flux_exceedance*10 using ATF1', 'flux_exceedance*10 using ATFX', 'zero'), 
+    col=c('blue', 'forestgreen', 'black', 'darkorange', 'black'), lty=c(1,1,2,1,2), lwd=c(2,2,2,2,1))
+ttl <- bquote('Total flux '~.(format(Flux, digits=3))~'W'~m^-2~'; partial <2 km:'~.(format(Flux2kmX, digits=3)))
+title(ttl)
+
+@
+
+In contrast, Fig.~\ref{fig:plotCSb} shows that filtering reduces
+the high-frequency coherence that is likely spurious while having
+no significant effect on the low-frequency spectra. Figure~\ref{fig:flux}
+shows a sample calculation of the sensible heat flux. It shows that,
+for the unmodified measurement ATF1, there is a non-negligible contribution
+from frequencies above 2~Hz that appears to be spurious,\footnote{This high-frequency contribution arises from small contributions from
+many different frequencies in the high-frequency range, because as
+plotted the discrete frequencies occur at an interval of \Sexpr{round(CSFX$freq[1], 4)}~Hz.} and that spurious contribution is mostly eliminated when the filtered
+dynamic-heating correction is used.
+
+The important question left unresolved by this plot is: Is a significant
+contribution from higher frequencies missed because of the response
+of the temperature senor? There are significant contributions from
+the highest frequency range where the sensor should repond, for example
+from 0.5 to 2~Hz, so it is possible that there is an additional non-negligible
+contribution to sensible heat flux that is missed because the temperature
+sensor is too slow.
+
+\section*{A Second-Pass Correction Script}
+
+As implemented here, the filtering of the dynamic-heating correction
+is applied forward and backward to avoid introducing a phase shift.
+A recursive implementation could be used in first-pass processing,
+but there is danger of introducing an undesirable phase shift so it
+seems better for now to consider this as a processing step to be applied
+to netCDF files that will introduce additional variables (here ATFY)
+from which the spurious dynamic-heating contribution has been removed
+or attenuated.
+
+Often the recovery temperature RTF1 is not retained in the production
+high-rate netCDF files. However, it is not necessary for that variable
+to be present to implement a filtering process because all that is
+needed is to calculate the original dynamic-heating correction, filter
+that, and add the difference to ATF1 to obtain ATFY. A complication,
+however, involves the recovery factor. The attributes of recent GV
+netCDF files include this attribute for ATF1:\\
+
+\begin{lyxcode}
+ATF1:RecoveryFactor~=~\textquotedbl 0.9959~+~0.0283~log10(mach)~+~
+
+~~~~~~~~~~~~~~~~~~~~~~~0.0374~(log10(mach))\textasciicircum 2~+~
+
+~~~~~~~~~~~~~~~~~~~~~~~0.0762~(log10(mach))\textasciicircum 3\textquotedbl ~;
+\end{lyxcode}
+<<rf, include=TRUE, fig.cap='Required recovery factor for agreement between the air temperature and the measurements of recovery temperature and airspeed, for the same data used for previous plots. The dashed orange line is the relationship expected from the formula given in the attributes. The calculation uses a humidity-dependent value of the specific heat for Cp. This plot was calculated using the data from SOCRATES research flight 9.'>>=
+
+DRF <- getNetCDF(file.path(DataDirectory(), 'SOCRATES/SOCRATESrf09.nc'),
+                 standardVariables(c('ATF1', 'RTF1', 'PSF', 'QCF')))
+DRF <- filter(DRF, TASX > 90)
+DRF$CPa <- SpecificHeats(DRF$EWX/DRF$PSXC)[,1]
+rf <- with(DRF, (RTF1 - ATF1) / (TASX^2 / (CPa * 2)))
+plot(DRF$MACHX, rf, type='p', pch=20, xlab='Mach number (MACHX)',
+     ylab='recovery factor')
+xMach <- 0.05 + 0.75 * (0:100) / 100
+yMach <- RecoveryFactor(xMach, 'UNHEATED')
+lines(xMach, yMach, col='darkorange', lwd=2, lty=2)
+
+@
+
+It should then be the case that the recovery factor, retrieved from
+the ratio\\
+\[
+\alpha=\frac{2C_{p}\mathrm{(RTF1-ATF1)}}{\mathrm{TASX}^{2}}
+\]
+should match that formula and give a unique relationship to MACHX.
+That appears to be approximately but not exactly matched to the variables,
+as shown in Fig.~\ref{fig:rf}. The departures from the formula are
+puzzling, but I'll use that formula anyway. The dynamic-heating correction
+that has already been applied to RTF1 is:\\
+\[
+\mathrm{ATF1}=\mathrm{RTF1}-\alpha\mathrm{DH}=\mathrm{RTF1}-\alpha\frac{\mathrm{TASX}^{2}}{2C_{p}}
+\]
+so if the desired filtered correction is $\alpha\mathrm{DH}^{\dagger}$
+then the appropriate correction to apply to ATF1 is\\
+\[
+\mathrm{ATFY}=\mathrm{ATF1}+\alpha\left(\mathrm{DH}-\mathrm{DH^{\dagger}}\right)
+\]
+An advantage of this formula is that the measured recovery temperature
+RTF1, often not preserved in processed and especially production netCDF
+files, is not needed.
+
+The following then is a straightforward segment of R code that can
+modify an existing netCDF file to add the variables ATFY and ATHY
+and write them to a new netCDF file with the suffix T (e.g., ``SOCRATESrf09T.nc'').
+It should be used on a high-rate file only. The R code is in the ``addATFY''
+chunk in FilterDynamicHeating.Rnw and could readily be extracted to
+a script, perhaps with added user interaction or batch transfer for
+the project and flight, that could be used to process existing high-rate
+netCDF files.
+
+<<addATFY, include=TRUE, echo=TRUE>>=
+
+# needed packages
+library(Ranadu)
+library(zoo)
+require(signal)
+## A function to transfer attributes:
+copy_attributes <- function (atv, v, nfile) {
+  for (i in 1:length(atv)) {
+    aname <- names(atv[i])
+    if (grepl ('name', aname)) {next}  # skips long and standard names
+    if (grepl ('units', aname)) {next}
+    if (grepl ('Dependencies', aname)) {next}
+    if (grepl ('actual_range', aname)) {next}
+    if (is.numeric (atv[[i]])) {
+      ncatt_put (nfile, v, attname=aname, attval=as.numeric(atv[[i]]))
+    } else {
+      ncatt_put (nfile, v, attname=aname, attval=as.character (atv[[i]]))
+    }
+  }
+}
+
+## get the old netCDF variables needed to calculate ATFY
+VarList <- standardVariables(c('ATF1', 'ATH1'))
+## Specify the Project and Flight:
+Project <- 'SOCRATES'
+Flight <- 'rf15h'  # should be high-rate
+fname <- file.path(DataDirectory(), sprintf('%s/%s%s.nc', 
+                Project, Project, Flight))
+D <- getNetCDF (fname, VarList)  
+Rate <- attr(D, 'Rate')
+
+## Calculate the new variables:
+D$Cp <- SpecificHeats (D$EWX / D$PSXC)[, 1]
+D$DH <- D$TASX^2 / (2 * D$Cp)
+# filter DH:
+if (Rate == 25) {
+  CutoffPeriod <- Rate * 0.5  # assumed time constant for ATF1
+  CutoffPeriod2 <- Rate * 1.0 # assumed time constant for ATH1
+} else {  # This is mostly to avoid program failure for a LRT file
+  CutoffPeriod <- Rate * 2  # assumed time constant for ATF1
+  CutoffPeriod2 <- Rate * 2.2 # assumed time constant for ATH1
+}
+
+D$DHF <- zoo::na.approx (as.vector(D$DH), maxgap=1000*Rate, 
+                            na.rm = FALSE, rule = 2)
+D$DHF[is.na(D$DHF)] <- 0
+D$DHF <- signal::filtfilt (signal::butter (3, 
+                              2/CutoffPeriod), D$DHF)
+D$DHH <- zoo::na.approx (as.vector(D$DH), maxgap=1000*Rate, 
+                            na.rm = FALSE, rule = 2)
+D$DHH[is.na(D$DHH)] <- 0
+D$DHH <- signal::filtfilt (signal::butter (3, 
+                              2/CutoffPeriod2), D$DHH)
+D$ATFY <- D$ATF1 + (D$DH - D$DHF) * 
+          RecoveryFactor(D$MACHX, probe='UNHEATED')
+D$ATHY <- D$ATH1 + (D$DH - D$DHH) * RecoveryFactor(D$MACHX)
+
+## create and open a copy of the old file for writing:
+fnew <- sub ('.nc', 'T.nc', fname)
+## beware: overwrites without warning!!
+Z <- file.copy (fname, fnew, overwrite=TRUE)  
+netCDFfile <- nc_open (fnew, write=TRUE) 
+## retrieve dimension info from the old file
+Dimensions <- attr (D, "Dimensions")
+Dim <- Dimensions[["Time"]]
+if ("sps25" %in% names (Dimensions)) {
+  Rate <- 25
+  Dim <- list(Dimensions[["sps25"]], Dimensions[["Time"]])
+}
+DATT <- D
+
+## variables to add to the netCDF file:
+VarNew <- c("ATFY", "ATHY")   
+VarOld <- c("ATF1", "ATH1")
+VarUnits <- rep("deg_C", 2)
+VarLongName <- rep("Ambient Temperature, Unheated filtered", 2)
+VarStdName <- rep("air_temperature", 2)
+
+## create the new variables
+varCDF <- list ()
+for (i in 1:length(VarNew)) {  
+  ## create the new variable and add it to the netCDF file
+  varCDF[[i]] <- ncvar_def (VarNew[i],  
+                    units=VarUnits[i], 
+                    dim=Dim, 
+                    missval=as.single(-32767.), prec="float", 
+                    longname=VarLongName[i])
+  if (i == 1) {
+    newfile <- ncvar_add (netCDFfile, varCDF[[i]])
+  } else {
+    newfile <- ncvar_add (newfile, varCDF[[i]])
+  }
+  ## transfer attributes from the old variable and add new ones
+  ATV <- ncatt_get (netCDFfile, VarOld[i])
+  copy_attributes (ATV, VarNew[i], newfile)
+  ncatt_put (newfile, VarNew[i], attname="standard_name", 
+             attval=VarStdName[i])
+  ## add the measurements for the new variable
+  if (Rate == 1) {
+    ncvar_put (newfile, varCDF[[i]], D[, VarNew[i]])
+  } else if (Rate == 25) {
+    ncvar_put (newfile, varCDF[[i]], D[, VarNew[i]], 
+               count=c(25, nrow(D)/25))
+  }
+}
+## then close to write the new file
+nc_close (newfile)
+
+@
+\begin{center}
+\textsf{\textcolor{blue}{-- End of Memo --}}
+\par\end{center}
+
+\clearpage{}
+
+Reproducibility:
+
+\begin{tabular}{ll}
+\textsf{\textsc{\textcolor{blue}{Project:}}} & \Sexpr{thisFileName}\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Archive package:}}} & \Sexpr{thisFileName}.zip\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Contains:}}} & attachment list below\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Program:}}} & \Sexpr{thisFileName}.Rnw\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Original Data:}}} & /scr/raf\_data/\Sexpr{Project}/\Sexpr{Flight}.nc\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Workflow:}}} & Workflow\Sexpr{thisFileName}.pdf\tabularnewline
+\textsf{\textsc{\textcolor{blue}{Git:}}} & https://github.com/WilliamCooper/Reprocessing/\Sexpr{thisFileName}.git\tabularnewline
+\end{tabular}
+
+\attachm{\Sexpr{thisFileName}.Rnw\\\Sexpr{thisFileName}.pdf\\Workflow\Sexpr{thisFileName}\\SessionInfo}
+%\cc{first attachment\\second\\3rd att}
+%\attach{attachment}
+%\attachm{first\\second} %\cc{first attachment\\second\\3rd att}
+<<save-system-info, echo=FALSE>>= 
+cat (toLatex(sessionInfo()), file="SessionInfo")
+
+@ 
+<<make-zip-archive, echo=TRUE, INCLUDE=TRUE>>=
+system (sprintf("zip %s.zip %s.Rnw %s.pdf Workflow%s.pdf SessionInfo %s", thisFileName, thisFileName, thisFileName, thisFileName, SaveRData))
+
+@ 
+
+% \attach{attachment}
+
+% \attachm{ProgramFile\\Document.pdf\\SaveRData}
+
+%\cc{first attachment\\second\\3rd att}
+\end{document}
